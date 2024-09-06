@@ -1,5 +1,7 @@
 package com.sync.api.model;
 
+import com.sync.api.enums.ClassificacaoProjetos;
+import com.sync.api.enums.SituacaoProjetos;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -14,25 +16,27 @@ public class Projetos {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     public String id;
-    private String referenciaDoProjeto;
-    private String empresa;
+    public String referenciaDoProjeto;
+    public String empresa;
 
     @Lob
     @Column(columnDefinition = "TEXT")
-    private String objetivo;
+    public String objetivo;
 
     @Lob
     @Column(columnDefinition = "TEXT")
 
-    private String descricao;
-    private String coordenador;
-    private String valorDoProjeto;
-    private String dataInicio;
-    private String dataTermino;
+    public String descricao;
+    public String coordenador;
+    public Double valorDoProjeto;
+    public String dataInicio;
+    public String dataTermino;
+    public SituacaoProjetos situacao;
+    public ClassificacaoProjetos classificacao;
+
     @OneToMany(mappedBy = "projeto", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Proposta> propostas;
+    public List<Anexos> propostas;
+
     @OneToMany(mappedBy = "projeto", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Contrato> contratos;
-    @OneToMany(mappedBy = "projeto", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Artigo> artigos;
+    public List<Anexos> anexos;
 }
