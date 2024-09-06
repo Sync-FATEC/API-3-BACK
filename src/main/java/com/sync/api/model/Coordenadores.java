@@ -13,9 +13,6 @@ public class Coordenadores {
     public String id;
     public String nome;
 
-    @ManyToOne
-    public Projetos projeto;
-
     @OneToOne
     public Usuario usuario;
 }

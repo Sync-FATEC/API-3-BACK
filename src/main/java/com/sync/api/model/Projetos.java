@@ -27,15 +27,16 @@ public class Projetos {
     @Column(columnDefinition = "TEXT")
 
     public String descricao;
-    public String coordenador;
     public Double valorDoProjeto;
     public String dataInicio;
     public String dataTermino;
+    @Enumerated(EnumType.STRING)
     public SituacaoProjetos situacao;
+    @Enumerated(EnumType.STRING)
     public ClassificacaoProjetos classificacao;
 
-    @OneToMany(mappedBy = "projeto", cascade = CascadeType.ALL, orphanRemoval = true)
-    public List<Anexos> propostas;
+    @ManyToOne
+    public Coordenadores coordenador;
 
     @OneToMany(mappedBy = "projeto", cascade = CascadeType.ALL, orphanRemoval = true)
     public List<Anexos> anexos;

@@ -1,10 +1,7 @@
 package com.sync.api.model;
 
 import com.sync.api.enums.PapeisUsuario;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -26,6 +23,7 @@ public class Usuario implements UserDetails {
     public String email;
     private String login;
     public String senha;
+    @Enumerated(EnumType.STRING)
     public PapeisUsuario role;
 
     public Usuario(String email, String senha) {
