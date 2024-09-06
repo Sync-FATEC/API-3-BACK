@@ -1,5 +1,6 @@
 package com.sync.api.service;
 
+import com.sync.api.exception.SystemContextException;
 import com.sync.api.infra.security.TokenService;
 import com.sync.api.model.Usuario;
 import com.sync.api.repository.UsuarioRepository;
@@ -14,16 +15,24 @@ public class AuthenticationService
 {
     @Autowired
     private AuthenticationManager authenticationManager;
+
     @Autowired
     private UsuarioRepository usuarioRepository;
     @Autowired
     private TokenService tokenService;
 
-    public String authenticateUser(String email, String password) {
-        var usernamePassword = new UsernamePasswordAuthenticationToken(email, password);
-        var auth = this.authenticationManager.authenticate(usernamePassword);
+    public String authenticateUser(String email, String password) throws SystemContextException {
+        var bcrypt = new BCryptPasswordEncoder();
 
-        return tokenService.generateToken((Usuario) auth.getPrincipal());
+        var usuario = this.usuarioRepository.findByLogin(email);
+
+        var senhaValida = bcrypt.matches(password, usuario.getPassword());
+
+        if(senhaValida) {
+            return tokenService.generateToken((Usuario) usuario);
+        } else {
+            throw new SystemContextException("Usuário ou senha inválidos");
+        }
     }
 
     public Usuario registrarUsuario(String email, String senha) {
