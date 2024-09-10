@@ -34,8 +34,8 @@ public class AuthenticationController {
         return ResponseEntity.ok().body(response);
     }
 
-    @PostMapping("/register/usuario")
-    public ResponseEntity<?> registerUser(@RequestBody RegisterModelDTO data) {
+    @PostMapping("/register")
+    public ResponseEntity<?> registerUser(@RequestBody RegisterModelDTO data) throws SystemContextException {
 
         var usuario = authenticationService.registrarUsuario(data.email, data.password);
 

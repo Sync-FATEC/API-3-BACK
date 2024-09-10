@@ -15,7 +15,6 @@ public class AuthenticationService
 {
     @Autowired
     private AuthenticationManager authenticationManager;
-
     @Autowired
     private UsuarioRepository usuarioRepository;
     @Autowired
@@ -35,9 +34,9 @@ public class AuthenticationService
         }
     }
 
-    public Usuario registrarUsuario(String email, String senha) {
+    public Usuario registrarUsuario(String email, String senha) throws SystemContextException {
         if(this.usuarioRepository.findByLogin(email) != null) {
-            throw new IllegalArgumentException("Usuário já cadastrado");
+            throw new SystemContextException("Usuário já cadastrado");
         }
 
         String senhaCriptografada = new BCryptPasswordEncoder().encode(senha);
