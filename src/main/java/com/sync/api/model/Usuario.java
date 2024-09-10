@@ -56,7 +56,7 @@ public class Usuario implements UserDetails {
     public String getPayload() {
         String name = getUsername();
         String role = getRole().toString();
-        return String.format("{'name': %s, 'role': %s}", name, role);
+        return String.format("{'name': '%s', 'role': '%s'}", name, role);
     }
 
     @Override
