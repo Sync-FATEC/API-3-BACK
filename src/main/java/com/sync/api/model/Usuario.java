@@ -9,6 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 @Entity
 @Getter
@@ -23,6 +24,7 @@ public class Usuario implements UserDetails {
     public String email;
     private String login;
     public String senha;
+    @Getter
     @Enumerated(EnumType.STRING)
     public PapeisUsuario role;
 
@@ -33,11 +35,12 @@ public class Usuario implements UserDetails {
         this.role = PapeisUsuario.USER;
     }
 
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        if(this.role == PapeisUsuario.ADMIN) return List.of(new SimpleGrantedAuthority("ROLE_ADMIN"), new SimpleGrantedAuthority("ROLE_USER"));
-        else return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+        if(this.role == PapeisUsuario.ADMIN)
+            return List.of(new SimpleGrantedAuthority("ROLE_ADMIN"), new SimpleGrantedAuthority("ROLE_USER"));
+        else
+            return List.of(new SimpleGrantedAuthority("ROLE_USER"));
     }
 
     @Override
@@ -48,6 +51,12 @@ public class Usuario implements UserDetails {
     @Override
     public String getUsername() {
         return login;
+    }
+
+    public String getPayload() {
+        String name = getUsername();
+        String role = getRole().toString();
+        return String.format("{'name': %s, 'role': %s}", name, role);
     }
 
     @Override
@@ -69,5 +78,4 @@ public class Usuario implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
-
 }
