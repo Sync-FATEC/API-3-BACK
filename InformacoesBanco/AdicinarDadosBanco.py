@@ -42,8 +42,8 @@ def ensure_sem_coordenador(cursor):
 
 def insert_anexos(cursor, projeto_id, tipo, url):
     cursor.execute(
-        "INSERT INTO anexos (id, date_created, nome, tipo, url, projeto_id) VALUES (%s, %s, %s, %s, %s, %s)",
-        (str(uuid.uuid4()), datetime.now(), "", tipo, url, projeto_id)
+        "INSERT INTO anexos (id, nome, tipo, url, projeto_id) VALUES (%s, %s, %s, %s, %s)",
+        (str(uuid.uuid4()), "", tipo, url, projeto_id)
     )
 
 def insert_projeto(cursor, data):
@@ -102,7 +102,7 @@ def process_json_file(file_path):
         db.close()
 
 def main():
-    file_path = 'dados_projetos.json'
+    file_path = 'informacoesBanco/dados_projetos.json'
     process_json_file(file_path)
 
 if __name__ == "__main__":
