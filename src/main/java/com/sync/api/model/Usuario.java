@@ -1,5 +1,6 @@
 package com.sync.api.model;
 
+import com.google.gson.Gson;
 import com.sync.api.enums.PapeisUsuario;
 import jakarta.persistence.*;
 import lombok.*;
@@ -56,7 +57,9 @@ public class Usuario implements UserDetails {
     public String getPayload() {
         String name = getUsername();
         String role = getRole().toString();
-        return String.format("{'name': '%s', 'role': '%s'}", name, role);
+        Object payload = Map.of("name", name, "role", role);
+        Gson gson = new Gson();
+        return String.format(gson.toJson(payload));
     }
 
     @Override
