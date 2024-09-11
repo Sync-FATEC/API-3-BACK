@@ -7,8 +7,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.sync.api.model.Coordenadores;
 
+import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/projetos")
@@ -29,6 +33,15 @@ public class ProjetosController {
     public ResponseEntity<?> listarProjetoPorId(@PathVariable("id") String id) {
         Optional<Projetos> projeto = projetosRepository.findById(id);
         return projeto.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/listarCoordenadores")
+    public ResponseEntity<?> listarCoordenadores() {
+        List<Coordenadores> coordenadores = coordenadorRepository.findAll()
+                .stream()
+                .sorted(Comparator.comparing(Coordenadores::getNome))
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(coordenadores);
     }
 
     @PostMapping("/cadastrar")
