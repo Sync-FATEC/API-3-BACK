@@ -1,0 +1,4 @@
+JPype1==1.5.0
+mysql-connector-python==9.0.0
+packaging==24.1
+python-dotenv==1.0.1
