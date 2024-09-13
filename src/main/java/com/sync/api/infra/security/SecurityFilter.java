@@ -1,6 +1,6 @@
 package com.sync.api.infra.security;
 
-import com.sync.api.repository.UsuarioRepository;
+import com.sync.api.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import jakarta.servlet.FilterChain;
@@ -22,14 +22,14 @@ public class SecurityFilter extends OncePerRequestFilter {
     TokenService tokenService;
 
     @Autowired
-    UsuarioRepository usuarioRepository;
+    UserRepository userRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException, IOException {
         var token = this.recoverToken(request);
         if(token != null){
             var login = tokenService.validateToken(token);
-            UserDetails user = usuarioRepository.findByLogin(login);
+            UserDetails user = userRepository.findByLogin(login);
 
             var authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authentication);

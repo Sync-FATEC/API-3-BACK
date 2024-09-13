@@ -3,7 +3,7 @@ package com.sync.api.service;
 import com.sync.api.exception.SystemContextException;
 import com.sync.api.infra.security.TokenService;
 import com.sync.api.model.User;
-import com.sync.api.repository.UsuarioRepository;
+import com.sync.api.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -15,14 +15,14 @@ public class AuthenticationService
     @Autowired
     private AuthenticationManager authenticationManager;
     @Autowired
-    private UsuarioRepository usuarioRepository;
+    private UserRepository userRepository;
     @Autowired
     private TokenService tokenService;
 
     public String authenticateUser(String email, String password) throws SystemContextException {
         var bcrypt = new BCryptPasswordEncoder();
 
-        var usuario = this.usuarioRepository.findByLogin(email);
+        var usuario = this.userRepository.findByLogin(email);
 
         var senhaValida = bcrypt.matches(password, usuario.getPassword());
 
@@ -34,7 +34,7 @@ public class AuthenticationService
     }
 
     public User registrarUsuario(String email, String senha) throws SystemContextException {
-        if(this.usuarioRepository.findByLogin(email) != null) {
+        if(this.userRepository.findByLogin(email) != null) {
             throw new SystemContextException("Usuário já cadastrado");
         }
 
@@ -42,6 +42,6 @@ public class AuthenticationService
 
         var usuario = new User(email, senhaCriptografada);
 
-        return usuarioRepository.save(usuario);
+        return userRepository.save(usuario);
     }
 }
