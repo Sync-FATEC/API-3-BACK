@@ -13,7 +13,7 @@ jdbc_url = os.getenv("JDBC_URL")
 jdbc_user = os.getenv("JDBC_USER")
 jdbc_password = os.getenv("JDBC_PASSWORD")
 
-# Conecta   r ao banco de dados MySQL
+# Conectar ao banco de dados MySQL
 def connect_db():
     return mysql.connector.connect(
         host="localhost",
@@ -32,72 +32,52 @@ def format_valor(valor):
     # Substitui a vírgula por ponto
     return float(valor.replace(",", "."))
 
-def get_or_create_coordenador(cursor, nome):
-    cursor.execute("SELECT id FROM coordenadores WHERE nome = %s", (nome,))
-    result = cursor.fetchone()
-    if result:
-        return result[0]
-    else:
-        new_id = str(uuid.uuid4())
-        cursor.execute(
-            "INSERT INTO coordenadores (id, nome) VALUES (%s, %s)",
-            (new_id, nome)
-        )
-        return new_id
-
-def ensure_sem_coordenador(cursor):
-    # Garante que o coordenador "SEM COORDENADOR" existe
-    get_or_create_coordenador(cursor, "SEM COORDENADOR")
-
-def insert_anexos(cursor, projeto_id, tipo, url):
+def insert_document(cursor, project_id, file_type, file_url):
     cursor.execute(
-        "INSERT INTO anexos (id, nome, tipo, url, projeto_id) VALUES (%s, %s, %s, %s, %s)",
-        (str(uuid.uuid4()), "", tipo, url, projeto_id)
+        "INSERT INTO documents (documents_id, file_name, file_type, file_url, project_id) VALUES (%s, %s, %s, %s, %s)",
+        (str(uuid.uuid4()), file_url.split("/")[-1], file_type, file_url, project_id)
     )
 
 def insert_projeto(cursor, data):
     projeto_id = str(uuid.uuid4())
     coordenador_nome = data.get("Coordenador", "SEM COORDENADOR")
-    coordenador_id = get_or_create_coordenador(cursor, coordenador_nome)
-    
+
     # Usa .get() para valores com chave ausente
     valor_projeto = data.get("Valor do projeto", "")
-    
+
     cursor.execute(
-        "INSERT INTO projetos (id, classificacao, data_inicio, data_termino, descricao, empresa, objetivo, referencia_do_projeto, situacao, valor_do_projeto, coordenador_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+        "INSERT INTO projects (project_id, cpf_coordinator, name_coordinator, project_company, project_description, project_end_date, project_objective, project_reference, project_start_date, project_value) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
         (
             projeto_id,
-            "CONTRATOS",  # Corrigido para um valor válido no ENUM
-            data.get("Data de início", ""),
-            data.get("Data de término", ""),
-            data.get("Descrição", ""),
+            None,  # cpf_coordinator não está presente no JSON
+            coordenador_nome,
             data.get("Empresa", ""),
+            data.get("Descrição", ""),
+            data.get("Data de término", ""),
             data.get("Objeto", ""),
             data.get("Referência do projeto", ""),
-            "FINALIZADOS",
-            format_valor(valor_projeto),
-            coordenador_id
+            data.get("Data de início", ""),
+            format_valor(valor_projeto)
         )
     )
-    
+
     for url in data.get("Contratos", []):
-        insert_anexos(cursor, projeto_id, "CONTRATO", url)
+        insert_document(cursor, projeto_id, "CONTRATO", url)
 
     for url in data.get("Propostas", []):
-        insert_anexos(cursor, projeto_id, "PROPOSTA", url)
+        insert_document(cursor, projeto_id, "PROPOSTA", url)
 
     for url in data.get("Artigos", []):
-        insert_anexos(cursor, projeto_id, "ARTIGO", url)
+        insert_document(cursor, projeto_id, "ARTIGO", url)
 
 def process_json_file(file_path):
     # Abrindo o arquivo JSON com codificação UTF-8
     with open(file_path, 'r', encoding='utf-8') as file:
         data_list = json.load(file)
-        
+
     db = connect_db()
     cursor = db.cursor()
     try:
-        ensure_sem_coordenador(cursor)
         for data in data_list:
             insert_projeto(cursor, data)
         db.commit()

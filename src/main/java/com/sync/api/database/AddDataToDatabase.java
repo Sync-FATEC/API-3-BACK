@@ -12,7 +12,7 @@ public class AddDataToDatabase {
         String jdbcUrl = "jdbc:mysql://localhost:3306/api202402";
         String jdbcUser = Definitions.JDBC_USER;
         String jdbcPassword = Definitions.JDBC_PASSWORD;
-        String tableName = "projetos";
+        String tableName = "projects";
         String pythonInterpreter = "python"; // Or "python" depending on your system
         String scriptPath = "informacoesBanco/adicionar_dados_no_banco.py";
         String requirementsPath = "informacoesBanco/requirements.txt"; // Path to requirements file
