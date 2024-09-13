@@ -1,6 +1,7 @@
 package com.sync.api;
 
-import com.sync.api.controller.RunPythonScript;
+import com.sync.api.database.CreateDatabase;
+import com.sync.api.database.AddDataToDatabase;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -8,8 +9,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class ApiApplication {
 
 	public static void main(String[] args) {
+		CreateDatabase.main(new String[]{});
 		SpringApplication.run(ApiApplication.class, args);
-		RunPythonScript.main(new String[]{});
+		AddDataToDatabase.main(new String[]{});
 	}
 
 }

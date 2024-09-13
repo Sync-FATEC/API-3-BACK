@@ -2,14 +2,23 @@ import mysql.connector
 import uuid
 import json
 import re
-from datetime import datetime
+from dotenv import load_dotenv
+import os
 
-# Conectar ao banco de dados MySQL
+# Carregar o arquivo .env
+load_dotenv()
+
+# Acessar as variáveis de ambiente
+jdbc_url = os.getenv("JDBC_URL")
+jdbc_user = os.getenv("JDBC_USER")
+jdbc_password = os.getenv("JDBC_PASSWORD")
+
+# Conecta   r ao banco de dados MySQL
 def connect_db():
     return mysql.connector.connect(
         host="localhost",
-        user="root",  # usuário
-        password="root",  # senha
+        user=jdbc_user,  # usuário
+        password=jdbc_password,  # senha
         database="api202402"  # banco de dados
     )
 
