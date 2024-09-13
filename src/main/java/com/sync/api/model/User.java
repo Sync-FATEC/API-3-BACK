@@ -13,26 +13,32 @@ import java.util.List;
 import java.util.Map;
 
 @Entity
-@Getter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(of = "id")
-public class Usuario implements UserDetails {
-
+public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    public String id;
-    public String email;
+    public String userId;
+    public String userEmail;
+    public String userCpf;
+    public Boolean userAdmin;
+    public String userImage;
     private String login;
-    public String senha;
-    @Getter
+    public String userPassword;
     @Enumerated(EnumType.STRING)
     public PapeisUsuario role;
 
-    public Usuario(String email, String senha) {
-        this.email = email;
-        this.login = email;
-        this.senha = senha;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
+    public List<ProjectHistory> projectHistoryList;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
+    public List<Documents> documents;
+
+    public User(String userEmail, String userPassword) {
+        this.userEmail = userEmail;
+        this.login = userEmail;
+        this.userPassword = userPassword;
         this.role = PapeisUsuario.USER;
     }
 
@@ -46,7 +52,7 @@ public class Usuario implements UserDetails {
 
     @Override
     public String getPassword() {
-        return this.senha;
+        return this.userEmail;
     }
 
     @Override
