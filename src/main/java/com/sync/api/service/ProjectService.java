@@ -4,6 +4,9 @@ import com.sync.api.dto.ProjectDto;
 import com.sync.api.model.Documents;
 import com.sync.api.model.Project;
 import com.sync.api.model.ProjectHistory;
+import com.sync.api.operation.contract.Exporter;
+import com.sync.api.operation.exporter.GeneratorExcel;
+import com.sync.api.operation.exporter.GeneratorPdf;
 import com.sync.api.repository.ProjectRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -54,6 +57,7 @@ public class ProjectService {
                     project.getNameCoordinator(),
                     project.getProjectCompany(),
                     project.getProjectObjective(),
+                    project.getProjectDescription(),
                     project.getProjectValue(),
                     project.getProjectEndDate(),
                     project.getProjectStartDate(),
@@ -77,6 +81,7 @@ public class ProjectService {
                             project.getNameCoordinator(),
                             project.getProjectCompany(),
                             project.getProjectObjective(),
+                            project.getProjectDescription(),
                             project.getProjectValue(),
                             project.getProjectEndDate(),
                             project.getProjectStartDate(),
@@ -149,5 +154,23 @@ public class ProjectService {
         } catch (Exception e) {
             throw new RuntimeException("Erro ao deletar o projeto: " + e.getMessage(), e);
         }
+    }
+
+    public byte[] exportProject(String id, String format) {
+        Project project = projectRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Projeto com o ID " + id + " não encontrado"));
+
+        if (project == null) {
+            throw new IllegalArgumentException("Project not found with ID: " + id);
+        }
+
+        Exporter exporter;
+        if (format.equalsIgnoreCase("pdf")) {
+            exporter = new GeneratorPdf();
+        } else {
+            exporter = new GeneratorExcel();
+        }
+
+        return exporter.export(project);
     }
 }

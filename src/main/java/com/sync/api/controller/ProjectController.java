@@ -1,9 +1,13 @@
+package com.sync.api.controller;
+
 import com.sync.api.dto.ProjectDto;
 import com.sync.api.model.Project;
 import com.sync.api.service.ProjectService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -74,6 +78,30 @@ public class ProjectController {
             return  new ResponseEntity<>( HttpStatus.BAD_REQUEST);
         }catch (Exception e){
             return  new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    @GetMapping("/export/project/{id}/{format}")
+    public ResponseEntity<byte[]> exportProject(@PathVariable("id") String id, @PathVariable("format") String format) {
+        byte[] fileBytes;
+        try {
+            fileBytes = projectService.exportProject(id, format);
+            HttpHeaders headers = new HttpHeaders();
+            if ("pdf".equalsIgnoreCase(format)) {
+                headers.setContentType(MediaType.APPLICATION_PDF);
+                headers.setContentDispositionFormData("inline", "project.pdf");
+            } else if ("excel".equalsIgnoreCase(format)) {
+                headers.setContentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+                headers.setContentDispositionFormData("attachment", "project.xlsx");
+
+            } else {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+
+            return new ResponseEntity<>(fileBytes, headers, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }
