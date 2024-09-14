@@ -10,6 +10,7 @@ import com.sync.api.operation.exporter.GeneratorPdf;
 import com.sync.api.repository.ProjectRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
 
 import java.util.Collections;
 import java.util.List;
@@ -53,6 +54,7 @@ public class ProjectService {
                     .orElseThrow(() -> new IllegalArgumentException("Projeto com o ID " + projectId + " não encontrado"));
 
             return new ProjectDto(
+                    project.getProjectId(),
                     project.getProjectReference(),
                     project.getNameCoordinator(),
                     project.getProjectCompany(),
@@ -77,6 +79,7 @@ public class ProjectService {
             List<ProjectDto> projects = projectRepository.findAll()
                     .stream()
                     .map(project -> new ProjectDto(
+                            project.getProjectId(),
                             project.getProjectReference(),
                             project.getNameCoordinator(),
                             project.getProjectCompany(),
@@ -96,6 +99,25 @@ public class ProjectService {
             throw new RuntimeException("Dados do projeto inválidos: " + e.getMessage(), e);
         } catch (Exception e) {
             throw new RuntimeException("Erro ao listar os projetos: " + e.getMessage(), e);
+        }
+    }
+
+    @GetMapping("/listCoordinators")
+    public List<String> listCoordinators() {
+        try {
+            List<String> coordinators = projectRepository.findAll()
+                    .stream()
+                    .map(Project::getNameCoordinator)
+                    .distinct()
+                    .sorted()
+                    .collect(Collectors.toList());
+
+            return coordinators.isEmpty() ? Collections.emptyList() : coordinators;
+
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("Dados do projeto inválidos: " + e.getMessage(), e);
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao listar os coordenadores: " + e.getMessage(), e);
         }
     }
 

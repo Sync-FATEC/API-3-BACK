@@ -1,6 +1,7 @@
 package com.sync.api.controller;
 
 import com.sync.api.dto.ProjectDto;
+import com.sync.api.dto.web.ResponseModelDTO;
 import com.sync.api.model.Project;
 import com.sync.api.service.ProjectService;
 import jakarta.validation.Valid;
@@ -21,11 +22,12 @@ public class ProjectController {
     @Autowired
     private ProjectService projectService;
 
-    @PostMapping("/create/new/project")
-    public ResponseEntity<Project> createProject(@Valid @RequestBody ProjectDto projectDto) {
+    @PostMapping("/create")
+    public ResponseEntity<?> createProject(@Valid @RequestBody ProjectDto projectDto) {
         try {
             Project project = projectService.createProject(projectDto);
-            return new ResponseEntity<>(project, HttpStatus.CREATED);
+            var response = new ResponseModelDTO(project);
+            return ResponseEntity.ok().body(response);
         } catch (RuntimeException e) {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
@@ -33,56 +35,74 @@ public class ProjectController {
         }
     }
 
-    @GetMapping("/read/project/{id}")
-    public ResponseEntity<ProjectDto> readProject(@Valid @PathVariable String id){
+    @GetMapping("/read/{id}")
+    public ResponseEntity<?> readProject(@Valid @PathVariable String id) {
         try {
             ProjectDto projectDto = projectService.readProject(id);
-            return new ResponseEntity<>(projectDto, HttpStatus.OK);
-        }catch (RuntimeException e){
-            return  new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-        }catch (Exception e){
-            return  new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            var response = new ResponseModelDTO(projectDto);
+            return ResponseEntity.ok().body(response);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @GetMapping("/list/projects")
-    public ResponseEntity<List<ProjectDto>> listProjects(){
+    @GetMapping("/list")
+    public ResponseEntity<?> listProjects() {
         try {
             List<ProjectDto> projectDtoList = projectService.listProjects();
-            return new ResponseEntity<>(projectDtoList, HttpStatus.OK);
-        }catch (RuntimeException e){
-            return  new ResponseEntity<>(null,HttpStatus.BAD_REQUEST);
-        }catch (Exception e){
-            return  new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            var response = new ResponseModelDTO(projectDtoList);
+            return ResponseEntity.ok().body(response);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @PutMapping("/update/project/{id}")
-    public ResponseEntity<Project> projectUpdate(String id, ProjectDto  projectDto){
+    @GetMapping("/list/coordinators")
+    public ResponseEntity<?> listCoordinators() {
+        try {
+            List<String> coordinators = projectService.listCoordinators();
+            var response = new ResponseModelDTO(coordinators);
+            return ResponseEntity.ok().body(response);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    @PutMapping("/update/{id}")
+    public ResponseEntity<?> projectUpdate(String id, ProjectDto projectDto) {
         try {
             Project project = projectService.updateProject(id, projectDto);
-            return new ResponseEntity<>(project, HttpStatus.OK);
-        }catch (RuntimeException e){
-            return  new ResponseEntity<>(null,HttpStatus.BAD_REQUEST);
-        }catch (Exception e){
-            return  new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            var response = new ResponseModelDTO(project);
+            return ResponseEntity.ok().body(response);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @DeleteMapping("/delete/project/{id}")
-    public ResponseEntity<?> deleteProject(@Valid @PathVariable String id){
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<?> deleteProject(@Valid @PathVariable String id) {
         try {
             boolean projectDeletado = projectService.deleteProject(id);
-            return new ResponseEntity<>(HttpStatus.OK);
-        }catch (RuntimeException e){
-            return  new ResponseEntity<>( HttpStatus.BAD_REQUEST);
-        }catch (Exception e){
-            return  new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            var response = new ResponseModelDTO(projectDeletado);
+            return ResponseEntity.ok().body(response);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
 
-    @GetMapping("/export/project/{id}/{format}")
+    @GetMapping("/export/{id}/{format}")
     public ResponseEntity<byte[]> exportProject(@PathVariable("id") String id, @PathVariable("format") String format) {
         byte[] fileBytes;
         try {

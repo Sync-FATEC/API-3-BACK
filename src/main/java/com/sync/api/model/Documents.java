@@ -1,5 +1,6 @@
 package com.sync.api.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sync.api.enums.TiposAnexos;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -21,6 +22,7 @@ public class Documents {
     public LocalDate uploadedAt;
 
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "projectId")
     public Project project;
 

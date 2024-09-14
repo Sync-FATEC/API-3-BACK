@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 public record ProjectDto(
+        @NotBlank String projectId,
         @NotBlank String projectReference,
         @NotBlank String nameCoordinator,
         @NotBlank String projectCompany,
