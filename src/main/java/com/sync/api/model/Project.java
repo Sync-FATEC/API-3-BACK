@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -25,10 +26,9 @@ public class Project {
     @Column(columnDefinition = "TEXT")
     public String projectDescription;
     public String nameCoordinator;
-    public String cpfCoordinator;
-    public Double projectValue;
-    public String projectStartDate;
-    public String projectEndDate;
+    public Float projectValue;
+    public LocalDate projectStartDate;
+    public LocalDate projectEndDate;
 
     @OneToMany(mappedBy = "project", cascade = CascadeType.REMOVE)
     public List<Documents> documents;
