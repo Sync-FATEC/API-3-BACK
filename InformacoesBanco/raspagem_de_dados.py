@@ -1,21 +1,25 @@
+################################################################################
+# Imports
+
 import requests
 from bs4 import BeautifulSoup
 import json
 from urllib.parse import urljoin
 
-def raspar_informacoes_projeto(url):
-    # Enviar a requisição para a URL
-    resposta = requests.get(url)
-    resposta.raise_for_status()  # Levanta um erro se a requisição falhar
+################################################################################
+def scrape_project_information(url):
+    # Send the request to the URL
+    response = requests.get(url)
+    response.raise_for_status()  # Raise an exception for 4xx and 5xx status codes
 
-    # Parsear o conteúdo HTML da página
-    sopa = BeautifulSoup(resposta.text, 'html.parser')
+    # Parse the HTML content
+    sopa = BeautifulSoup(response.text, 'html.parser')
 
-    # Dicionário para armazenar as informações
-    info_projeto = {}
+    # Dictionary to store the information of the project
+    info_project = {}
 
-    # Lista com os títulos esperados
-    titulos_esperados = [
+    # List with the expected titles
+    titles_expected = [
         'Referência do projeto',
         'Empresa',
         'Objeto',
@@ -26,61 +30,64 @@ def raspar_informacoes_projeto(url):
         'Data de término'
     ]
 
-    # Extraindo as informações dos divs com a classe 'row'
-    for linha in sopa.find_all('div', class_='row'):
-        titulo_div = linha.find('div', class_='col-sm-3')
-        valor_div = linha.find('div', class_='col-sm-9')
+    # Extrain information from the project
+    for row in sopa.find_all('div', class_='row'):
+        title_div = row.find('div', class_='col-sm-3')
+        value_div = row.find('div', class_='col-sm-9')
         
-        if titulo_div and valor_div:
-            titulo = titulo_div.get_text(strip=True)
-            valor = valor_div.get_text(strip=True)
+        if title_div and value_div:
+            title = title_div.get_text(strip=True)
+            value = value_div.get_text(strip=True)
 
-            if titulo in titulos_esperados:
-                info_projeto[titulo] = valor
+            if title in titles_expected:
+                info_project[title] = value
 
-    # Base URL para construir URLs absolutas
+    # URL of the project
     url_base = 'https://fapg.org.br/'
 
-    # Coletando URLs relevantes
-    urls_propostas = []
-    urls_contratos = []
-    urls_artigos = []
+    # Get the project name
+    urls_proposals = []
+    urls_contracts = []
+    urls_articles = []
 
     for link in sopa.find_all('a', href=True):
-        texto_link = link.get_text(strip=True)
-        url_completa = urljoin(url_base, link['href'])
+        text_link = link.get_text(strip=True)
+        url_complete = urljoin(url_base, link['href'])
 
-        if 'Proposta' in texto_link or 'Relatório Técnico' in texto_link:
-            urls_propostas.append(url_completa)
-        elif 'Contrato' in texto_link:
-            urls_contratos.append(url_completa)
-        elif 'Artigo' in texto_link:
-            urls_artigos.append(url_completa)
+        if 'Proposta' in text_link or 'Relatório Técnico' in text_link:
+            urls_proposals.append(url_complete)
+        elif 'Contrato' in text_link:
+            urls_contracts.append(url_complete)
+        elif 'Artigo' in text_link:
+            urls_articles.append(url_complete)
 
-    # Adicionando URLs ao dicionário
-    info_projeto['Propostas'] = urls_propostas
-    info_projeto['Contratos'] = urls_contratos
-    info_projeto['Artigos'] = urls_artigos
+    # Adding URLs to the dictionary    
+    info_project['Propostas'] = urls_proposals
+    info_project['Contratos'] = urls_contracts
+    info_project['Artigos'] = urls_articles
 
-    return info_projeto
+    return info_project
 
-# URL da página principal
-url_base = 'https://fapg.org.br/projetos/index.php?act=filter&projeto=&coordenador=&inicio=&termino=&classificacao=&filter=all'
+################################################################################
 
-# Fazendo a requisição para a página principal
-resposta = requests.get(url_base)
-sopa = BeautifulSoup(resposta.text, 'html.parser')
+if __name__ == '__main__':
+    # URL of principal page
+    url_base = 'https://fapg.org.br/projetos/index.php?act=filter&projeto=&coordenador=&inicio=&termino=&classificacao=&filter=all'
 
-# Extraindo links dos projetos
-dados_projetos = []
-for linha in sopa.find_all('tr'):
-    link = linha.find('a', href=True)
-    if link:
-        url_detalhe = urljoin(url_base, link['href'])
-        dados_projetos.append(raspar_informacoes_projeto(url_detalhe))
+    # Make the request to the principal page
+    response = requests.get(url_base)
+    sopa = BeautifulSoup(response.text, 'html.parser')
 
-# Salvando os dados em um arquivo JSON
-with open('dados_projetos.json', 'w', encoding='utf-8') as arquivo_json:
-    json.dump(dados_projetos, arquivo_json, indent=4, ensure_ascii=False)
+    # Extrain information from the projects
+    data_project = []
+    for row in sopa.find_all('tr'):
+        link = row.find('a', href=True)
+        if link:
+            url_detail = urljoin(url_base, link['href'])
+            data_project.append(scrape_project_information(url_detail))
 
-print("Dados dos projetos salvos em dados_projetos.json")
+    # Saving the data in a JSON file
+    with open('data_project.json', 'w', encoding='utf-8') as arquivo_json:
+        json.dump(data_project, arquivo_json, indent=4, ensure_ascii=False)
+
+    print("Data of the projects saved in data_project.json")
