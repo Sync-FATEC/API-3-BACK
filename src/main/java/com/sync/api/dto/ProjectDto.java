@@ -14,6 +14,7 @@ public record ProjectDto(
         @NotBlank String nameCoordinator,
         @NotBlank String projectCompany,
         @NotBlank String projectObjective,
+        @NotNull String projectDescription,
         @NotNull Float projectValue,
         @NotNull LocalDate projectEndDate,
         @NotNull LocalDate projectStartDate,
