@@ -20,5 +20,7 @@ public record ProjectDto(
         @NotNull LocalDate projectEndDate,
         @NotNull LocalDate projectStartDate,
         @NotNull List<Documents> documents,
-        @NotNull List<ProjectHistory> historyProject
+        @NotNull List<ProjectHistory> historyProject,
+        @NotNull String projectClassification,
+        @NotNull String projectStatus
 ) {}

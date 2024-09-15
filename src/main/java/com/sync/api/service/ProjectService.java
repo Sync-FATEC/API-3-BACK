@@ -1,6 +1,8 @@
 package com.sync.api.service;
 
 import com.sync.api.dto.ProjectDto;
+import com.sync.api.enums.ClassificacaoProjetos;
+import com.sync.api.enums.SituacaoProjetos;
 import com.sync.api.model.Documents;
 import com.sync.api.model.Project;
 import com.sync.api.model.ProjectHistory;
@@ -32,6 +34,8 @@ public class ProjectService {
             project.setProjectValue(projectDto.projectValue());
             project.setProjectEndDate(projectDto.projectEndDate());
             project.setProjectStartDate(projectDto.projectStartDate());
+            project.setProjectClassification(ClassificacaoProjetos.valueOf(projectDto.projectClassification()));
+            project.setProjectStatus(SituacaoProjetos.valueOf(projectDto.projectStatus()));
 
             List<Documents> documents = projectDto.documents();
             List<ProjectHistory> historyProjects = projectDto.historyProject();
@@ -64,7 +68,9 @@ public class ProjectService {
                     project.getProjectEndDate(),
                     project.getProjectStartDate(),
                     project.getDocuments(),
-                    project.getProjectHistoryList()
+                    project.getProjectHistoryList(),
+                    project.getProjectClassification().toString(),
+                    project.getProjectStatus().toString()
             );
 
         } catch (IllegalArgumentException e) {
@@ -89,7 +95,9 @@ public class ProjectService {
                             project.getProjectEndDate(),
                             project.getProjectStartDate(),
                             project.getDocuments(),
-                            project.getProjectHistoryList()
+                            project.getProjectHistoryList(),
+                            project.getProjectClassification().toString(),
+                            project.getProjectStatus().toString()
                     ))
                     .collect(Collectors.toList());
 
@@ -152,6 +160,12 @@ public class ProjectService {
             }
             if (projectDto.historyProject() != null) {
                 project.setProjectHistoryList(projectDto.historyProject());
+            }
+            if (projectDto.projectClassification() != null) {
+                project.setProjectClassification(ClassificacaoProjetos.valueOf(projectDto.projectClassification()));
+            }
+            if (projectDto.projectStatus() != null) {
+                project.setProjectStatus(SituacaoProjetos.valueOf(projectDto.projectStatus()));
             }
 
             return projectRepository.save(project);

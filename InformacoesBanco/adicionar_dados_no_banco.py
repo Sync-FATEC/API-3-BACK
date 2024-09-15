@@ -87,7 +87,7 @@ def insert_projeto(cursor, data):
     data_termino = format_date(data.get("Data de término", ""))
 
     cursor.execute(
-        "INSERT INTO projects (project_id, name_coordinator, project_company, project_description, project_end_date, project_objective, project_reference, project_start_date, project_value) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
+        "INSERT INTO projects (project_id, name_coordinator, project_company, project_description, project_end_date, project_objective, project_reference, project_start_date, project_value, project_classification, project_status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
         (
             project_id,
             coordinator_name,
@@ -97,7 +97,9 @@ def insert_projeto(cursor, data):
             data.get("Objeto", ""),
             data.get("Referência do projeto", ""),
             data_inicio,
-            forma_value(value_project)
+            forma_value(value_project),
+            "CONTRATOS",
+            "FINALIZADOS"
         )
     )
 

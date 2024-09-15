@@ -1,6 +1,8 @@
 package com.sync.api.model;
 
 
+import com.sync.api.enums.ClassificacaoProjetos;
+import com.sync.api.enums.SituacaoProjetos;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -29,6 +31,10 @@ public class Project {
     public Float projectValue;
     public LocalDate projectStartDate;
     public LocalDate projectEndDate;
+    @Enumerated(EnumType.STRING)
+    public ClassificacaoProjetos projectClassification;
+    @Enumerated(EnumType.STRING)
+    public SituacaoProjetos projectStatus;
 
     @OneToMany(mappedBy = "project", cascade = CascadeType.REMOVE)
     public List<Documents> documents;
