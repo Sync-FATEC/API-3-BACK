@@ -3,6 +3,7 @@ package com.sync.api.service;
 import com.sync.api.dto.ProjectDto;
 import com.sync.api.enums.ClassificacaoProjetos;
 import com.sync.api.enums.SituacaoProjetos;
+import com.sync.api.exception.SystemContextException;
 import com.sync.api.model.Documents;
 import com.sync.api.model.Project;
 import com.sync.api.model.ProjectHistory;
@@ -110,7 +111,6 @@ public class ProjectService {
         }
     }
 
-    @GetMapping("/listCoordinators")
     public List<String> listCoordinators() {
         try {
             List<String> coordinators = projectRepository.findAll()
@@ -126,6 +126,22 @@ public class ProjectService {
             throw new RuntimeException("Dados do projeto inválidos: " + e.getMessage(), e);
         } catch (Exception e) {
             throw new RuntimeException("Erro ao listar os coordenadores: " + e.getMessage(), e);
+        }
+    }
+
+    public List<String> listCompanies() throws SystemContextException {
+        try {
+            List<String> companies = projectRepository.findAll()
+                    .stream()
+                    .map(Project::getProjectCompany)
+                    .distinct()
+                    .sorted()
+                    .collect(Collectors.toList());
+
+            return companies.isEmpty() ? Collections.emptyList() : companies;
+
+        } catch (Exception e) {
+            throw new SystemContextException(e.getMessage());
         }
     }
 

@@ -2,6 +2,7 @@ package com.sync.api.controller;
 
 import com.sync.api.dto.ProjectDto;
 import com.sync.api.dto.web.ResponseModelDTO;
+import com.sync.api.exception.SystemContextException;
 import com.sync.api.model.Project;
 import com.sync.api.service.ProjectService;
 import jakarta.validation.Valid;
@@ -74,6 +75,16 @@ public class ProjectController {
         }
     }
 
+    @GetMapping("/list/companies")
+    public ResponseEntity<?> listCompanies() throws SystemContextException {
+        try {
+            List<String> companies = projectService.listCompanies();
+            var response = new ResponseModelDTO(companies);
+            return ResponseEntity.ok().body(response);
+        } catch (Exception e) {
+            throw new SystemContextException(e.getMessage());
+        }
+    }
 
     @PutMapping("/update/{id}")
     public ResponseEntity<?> projectUpdate(String id, ProjectDto projectDto) {
