@@ -1,56 +1,44 @@
 package com.sync.api.service;
 
-import com.sync.api.enums.TiposAnexos;
-import com.sync.api.exception.SystemContextException;
-import com.sync.api.infra.security.SecurityUtils;
+import com.sync.api.dto.DocumentUploadDto;
 import com.sync.api.model.Documents;
-import com.sync.api.model.User;
+import com.sync.api.model.Project;
+import com.sync.api.operation.uploads.UploadsDocuments;
 import com.sync.api.repository.DocumentRepository;
-import com.sync.api.repository.ProjectRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.stereotype.Service;
 
-import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
 
-@Component
+@Service
 public class DocumentService {
-
-    private static final String UPLOAD_DIR = "uploads/";
 
     @Autowired
     private DocumentRepository documentRepository;
 
     @Autowired
-    private ProjectRepository projectRepository;
+    private UploadsDocuments uploadsDocuments;
 
-    public void upload(MultipartFile file, String projectId, TiposAnexos fileType) throws Exception {
+    public Documents createDocument(DocumentUploadDto documentUploadDto, Project project) {
+        try {
+            String fileUrl = uploadsDocuments.uploadFile(documentUploadDto.file());
 
-        User userContext = SecurityUtils.getAuthenticatedUser();
+            if (fileUrl == null) {
+                throw new RuntimeException("Falha no upload do arquivo.");
+            }
 
-        var project = projectRepository.findById(projectId).orElseThrow(() -> new SystemContextException("Project not found"));
+            Documents document = new Documents();
+            document.setFileName(documentUploadDto.file().getOriginalFilename());
+            document.setFileType(documentUploadDto.typeFile());
+            document.setFileUrl(fileUrl);
+            document.setUploadedAt(LocalDate.now());
+            document.setProject(project);
 
-        Documents document = new Documents();
+            return documentRepository.save(document);
 
-        document.CreateBaseProject(
-                file.getOriginalFilename(),
-                fileType,
-                LocalDate.now(),
-                project,
-                userContext);
-
-        documentRepository.save(document);
-
-        var url = document.GenereateUrl();
-
-        saveFile(file, url);
-
-        documentRepository.save(document);
-    }
-
-    private void saveFile(MultipartFile file, String url) throws Exception {
-
+        } catch (IOException e) {
+            throw new RuntimeException("Erro ao processar o arquivo: " + e.getMessage(), e);
+        }
     }
 }

@@ -1,36 +1,46 @@
 package com.sync.api.controller;
 
-import com.sync.api.dto.web.ResponseModelDTO;
+import com.sync.api.dto.DocumentUploadDto;
+import com.sync.api.dto.ProjectDto;
 import com.sync.api.enums.TiposAnexos;
+import com.sync.api.model.Documents;
+import com.sync.api.model.Project;
 import com.sync.api.service.DocumentService;
+import com.sync.api.service.ProjectService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
 @RestController
-@RequestMapping("/documents")
 public class DocumentController {
 
     @Autowired
     private DocumentService documentService;
 
-    @GetMapping("/get/{filename}")
-    public byte[] getFile(@PathVariable String filename) throws IOException {
-        Path filePath = Paths.get("/uploads/" + filename);
-        return Files.readAllBytes(filePath);
+    @Autowired
+    private ProjectService projectService;
+
+    @PostMapping("/create/documents")
+    public ResponseEntity<?> createDocument(@RequestParam("projectId") String projectId,
+                                            @RequestParam("file") MultipartFile file,
+                                            @RequestParam("typeFile") TiposAnexos typeFile) {
+        try {
+
+            DocumentUploadDto documentUploadDto = new DocumentUploadDto(file, typeFile);
+
+            Project project = projectService.findProject(projectId);
+
+            Documents document = documentService.createDocument(documentUploadDto, project);
+
+            return new ResponseEntity<>(document, HttpStatus.CREATED);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
-    @PostMapping("/upload")
-    public ResponseEntity<?> uploadDocument(@RequestParam("file") MultipartFile file, @RequestParam("projectId") String projectId, @RequestParam("fileType") TiposAnexos fileType) throws Exception {
-
-
-       documentService.upload(file, projectId, fileType);
-        return ResponseEntity.ok(new ResponseModelDTO("File uploaded successfully"));
-    }
 }
