@@ -1,19 +1,18 @@
 package com.sync.api.service;
 
+import com.sync.api.dto.DocumentUploadDto;
 import com.sync.api.dto.ProjectDto;
 import com.sync.api.enums.ClassificacaoProjetos;
 import com.sync.api.enums.SituacaoProjetos;
 import com.sync.api.exception.SystemContextException;
 import com.sync.api.model.Documents;
 import com.sync.api.model.Project;
-import com.sync.api.model.ProjectHistory;
 import com.sync.api.operation.contract.Exporter;
 import com.sync.api.operation.exporter.GeneratorExcel;
 import com.sync.api.operation.exporter.GeneratorPdf;
 import com.sync.api.repository.ProjectRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
 
 import java.util.Collections;
 import java.util.List;
@@ -25,33 +24,38 @@ public class ProjectService {
     @Autowired
     private ProjectRepository projectRepository;
 
-    public Project createProject(ProjectDto projectDto) {
-        try {
-            Project project = new Project();
-            project.setProjectReference(projectDto.projectReference());
-            project.setNameCoordinator(projectDto.nameCoordinator());
-            project.setProjectCompany(projectDto.projectCompany());
-            project.setProjectObjective(projectDto.projectObjective());
-            project.setProjectValue(projectDto.projectValue());
-            project.setProjectEndDate(projectDto.projectEndDate());
-            project.setProjectStartDate(projectDto.projectStartDate());
-            project.setProjectClassification(ClassificacaoProjetos.valueOf(projectDto.projectClassification()));
-            project.setProjectStatus(SituacaoProjetos.valueOf(projectDto.projectStatus()));
+    @Autowired
+    private DocumentService documentService;
 
-            List<Documents> documents = projectDto.documents();
-            List<ProjectHistory> historyProjects = projectDto.historyProject();
+    public Project createProject(ProjectDto projectDto, List<DocumentUploadDto> documentUploadDtoList) {
+            try {
+                Project project = new Project();
+                project.setProjectReference(projectDto.projectReference());
+                project.setNameCoordinator(projectDto.nameCoordinator());
+                project.setProjectCompany(projectDto.projectCompany());
+                project.setProjectObjective(projectDto.projectObjective());
+                project.setProjectValue(projectDto.projectValue());
+                project.setProjectEndDate(projectDto.projectEndDate());
+                project.setProjectStartDate(projectDto.projectStartDate());
+                project.setProjectClassification(ClassificacaoProjetos.valueOf(projectDto.projectClassification()));
+                project.setProjectStatus(SituacaoProjetos.valueOf(projectDto.projectStatus()));
 
-            project.setDocuments(documents);
-            project.setProjectHistoryList(historyProjects);
+                if (documentUploadDtoList != null && !documentUploadDtoList.isEmpty()) {
+                    for (DocumentUploadDto documentDto : documentUploadDtoList) {
+                        Documents document = documentService.createDocument(documentDto, project);
+                        project.getDocuments().add(document);
+                    }
+                }
 
-            return projectRepository.save(project);
+                return projectRepository.save(project);
 
-        } catch (IllegalArgumentException e) {
-            throw new RuntimeException("Dados do projeto inválidos: " + e.getMessage(), e);
-        } catch (Exception e) {
-            throw new RuntimeException("Erro ao criar o projeto: " + e.getMessage(), e);
+            } catch (IllegalArgumentException e) {
+                throw new RuntimeException("Dados do projeto inválidos: " + e.getMessage(), e);
+            } catch (Exception e) {
+                throw new RuntimeException("Erro ao criar o projeto: " + e.getMessage(), e);
+            }
         }
-    }
+
 
     public ProjectDto readProject(String projectId) {
         try {
@@ -68,8 +72,6 @@ public class ProjectService {
                     project.getProjectValue(),
                     project.getProjectEndDate(),
                     project.getProjectStartDate(),
-                    project.getDocuments(),
-                    project.getProjectHistoryList(),
                     project.getProjectClassification().toString(),
                     project.getProjectStatus().toString()
             );
@@ -95,8 +97,6 @@ public class ProjectService {
                             project.getProjectValue(),
                             project.getProjectEndDate(),
                             project.getProjectStartDate(),
-                            project.getDocuments(),
-                            project.getProjectHistoryList(),
                             project.getProjectClassification().toString(),
                             project.getProjectStatus().toString()
                     ))
@@ -171,12 +171,6 @@ public class ProjectService {
             if (projectDto.projectStartDate() != null) {
                 project.setProjectStartDate(projectDto.projectStartDate());
             }
-            if (projectDto.documents() != null) {
-                project.setDocuments(projectDto.documents());
-            }
-            if (projectDto.historyProject() != null) {
-                project.setProjectHistoryList(projectDto.historyProject());
-            }
             if (projectDto.projectClassification() != null) {
                 project.setProjectClassification(ClassificacaoProjetos.valueOf(projectDto.projectClassification()));
             }
@@ -224,5 +218,15 @@ public class ProjectService {
         }
 
         return exporter.export(project);
+    }
+
+    public Project findProject(String id){
+        Project project = projectRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Projeto com o ID " + id + " não encontrado"));
+
+        if (project == null) {
+            throw new IllegalArgumentException("Project not found with ID: " + id);
+        }
+        return project;
     }
 }
