@@ -4,6 +4,7 @@ import com.sync.api.model.Documents;
 import com.sync.api.model.ProjectHistory;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.web.multipart.MultipartFile;
 
 
 import java.time.LocalDate;
@@ -19,8 +20,6 @@ public record ProjectDto(
         @NotNull Float projectValue,
         @NotNull LocalDate projectEndDate,
         @NotNull LocalDate projectStartDate,
-        @NotNull List<Documents> documents,
-        @NotNull List<ProjectHistory> historyProject,
         @NotNull String projectClassification,
         @NotNull String projectStatus
 ) {}
