@@ -19,4 +19,14 @@ public class GlobalExceptionHandler {
         );
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<?> handleException(Exception ex, WebRequest request) {
+        var response = new ResponseModelDTO(
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                null,
+                ex.getMessage()
+        );
+        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 }

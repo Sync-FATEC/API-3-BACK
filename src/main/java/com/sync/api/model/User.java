@@ -52,7 +52,7 @@ public class User implements UserDetails {
 
     @Override
     public String getPassword() {
-        return this.userEmail;
+        return this.userPassword;
     }
 
     @Override

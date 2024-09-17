@@ -1,5 +1,7 @@
 package com.sync.api.infra.security;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonParser;
 import com.sync.api.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -18,6 +20,8 @@ import java.io.IOException;
 @Component
 public class SecurityFilter extends OncePerRequestFilter {
 
+    private final static Gson gson = new Gson();
+
     @Autowired
     TokenService tokenService;
 
@@ -28,7 +32,12 @@ public class SecurityFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException, IOException {
         var token = this.recoverToken(request);
         if(token != null){
-            var login = tokenService.validateToken(token);
+            var subject = tokenService.validateToken(token);
+
+            var jsonObject = JsonParser.parseString(subject).getAsJsonObject();
+
+            var login = jsonObject.get("name").getAsString();
+
             UserDetails user = userRepository.findByLogin(login);
 
             var authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());

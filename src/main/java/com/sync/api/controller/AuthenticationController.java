@@ -7,6 +7,8 @@ import com.sync.api.dto.web.ResponseModelDTO;
 import com.sync.api.exception.SystemContextException;
 import com.sync.api.infra.security.TokenService;
 import com.sync.api.service.AuthenticationService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +20,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("auth")
 public class AuthenticationController {
+
+    private static final Logger logger = LoggerFactory.getLogger(AuthenticationController.class);
 
     @Autowired
     private AuthenticationService authenticationService;
@@ -35,11 +39,15 @@ public class AuthenticationController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody RegisterModelDTO data) throws SystemContextException {
-
-        var usuario = authenticationService.registrarUsuario(data.email, data.password);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(usuario);
+    public ResponseEntity<?> registerUser(@RequestBody RegisterModelDTO data) {
+        try {
+            logger.info("Register request received for email: {}", data.email);
+            var usuario = authenticationService.registrarUsuario(data.email, data.password);
+            return ResponseEntity.status(HttpStatus.CREATED).body(usuario);
+        } catch (SystemContextException e) {
+            logger.error("Error during registration: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseModelDTO(e.getMessage()));
+        }
     }
 
 }
