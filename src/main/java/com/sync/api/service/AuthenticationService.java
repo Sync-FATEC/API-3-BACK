@@ -23,6 +23,9 @@ public class AuthenticationService
         var bcrypt = new BCryptPasswordEncoder();
 
         var usuario = this.userRepository.findByLogin(email);
+        if (usuario == null) {
+            throw new SystemContextException("Usuário ou senha inválidos");
+        }
 
         var senhaValida = bcrypt.matches(password, usuario.getPassword());
 
