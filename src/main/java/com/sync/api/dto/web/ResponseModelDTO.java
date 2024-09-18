@@ -2,6 +2,7 @@ package com.sync.api.dto.web;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatusCode;
 
 @AllArgsConstructor
@@ -22,5 +23,4 @@ public class ResponseModelDTO  {
         this.model = message;
         this.error = "";
     }
-
 }

@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("/projects")
@@ -25,7 +27,8 @@ public class ProjectController {
     private ProjectService projectService;
 
     @PostMapping("/create")
-    public ResponseEntity<?> createProject(@RequestBody @Valid  ProjectDto projectDto, @RequestBody List<@Valid DocumentUploadDto> documentUploadDtoList) {
+    public ResponseEntity<?> createProject(@RequestBody @Valid ProjectDto projectDto,
+                                           @RequestBody List<@Valid DocumentUploadDto> documentUploadDtoList) {
         try {
             Project project = projectService.createProject(projectDto, documentUploadDtoList);
             var response = new ResponseModelDTO(project);
@@ -41,6 +44,7 @@ public class ProjectController {
     public ResponseEntity<?> readProject(@Valid @PathVariable String id) {
         try {
             ProjectDto projectDto = projectService.readProject(id);
+            addLinksToProjectDto(projectDto, id);
             var response = new ResponseModelDTO(projectDto);
             return ResponseEntity.ok().body(response);
         } catch (RuntimeException e) {
@@ -54,6 +58,7 @@ public class ProjectController {
     public ResponseEntity<?> listProjects() {
         try {
             List<ProjectDto> projectDtoList = projectService.listProjects();
+            projectDtoList.forEach(projectDto -> addLinksToProjectDto(projectDto, projectDto.getProjectId()));
             var response = new ResponseModelDTO(projectDtoList);
             return ResponseEntity.ok().body(response);
         } catch (RuntimeException e) {
@@ -88,7 +93,7 @@ public class ProjectController {
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<?> projectUpdate(String id, ProjectDto projectDto) {
+    public ResponseEntity<?> projectUpdate(@PathVariable String id, @RequestBody ProjectDto projectDto) {
         try {
             Project project = projectService.updateProject(id, projectDto);
             var response = new ResponseModelDTO(project);
@@ -113,7 +118,6 @@ public class ProjectController {
         }
     }
 
-
     @GetMapping("/export/{id}/{format}")
     public ResponseEntity<byte[]> exportProject(@PathVariable("id") String id, @PathVariable("format") String format) {
         byte[] fileBytes;
@@ -126,14 +130,17 @@ public class ProjectController {
             } else if ("excel".equalsIgnoreCase(format)) {
                 headers.setContentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
                 headers.setContentDispositionFormData("attachment", "project.xlsx");
-
             } else {
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             }
-
             return new ResponseEntity<>(fileBytes, headers, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private void addLinksToProjectDto(ProjectDto projectDto, String projectId) {
+        projectDto.add(linkTo(methodOn(ProjectController.class).readProject(projectId)).withSelfRel().withType("GET"));
+        projectDto.add(linkTo(methodOn(ProjectController.class).listProjects()).withRel("list").withType("GET"));
     }
 }

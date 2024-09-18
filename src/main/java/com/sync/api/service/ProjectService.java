@@ -16,166 +16,31 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 public class ProjectService {
 
-    @Autowired
-    private ProjectRepository projectRepository;
+    private final ProjectRepository projectRepository;
+    private final DocumentService documentService;
 
     @Autowired
-    private DocumentService documentService;
+    public ProjectService(ProjectRepository projectRepository, DocumentService documentService) {
+        this.projectRepository = projectRepository;
+        this.documentService = documentService;
+    }
 
     public Project createProject(ProjectDto projectDto, List<DocumentUploadDto> documentUploadDtoList) {
-            try {
-                Project project = new Project();
-                project.setProjectReference(projectDto.projectReference());
-                project.setNameCoordinator(projectDto.nameCoordinator());
-                project.setProjectCompany(projectDto.projectCompany());
-                project.setProjectObjective(projectDto.projectObjective());
-                project.setProjectValue(projectDto.projectValue());
-                project.setProjectEndDate(projectDto.projectEndDate());
-                project.setProjectStartDate(projectDto.projectStartDate());
-                project.setProjectClassification(ClassificacaoProjetos.valueOf(projectDto.projectClassification()));
-                project.setProjectStatus(SituacaoProjetos.valueOf(projectDto.projectStatus()));
+        try {
+            Project project = new Project();
+            mapDtoToProject(projectDto, project);
 
-                if (documentUploadDtoList != null && !documentUploadDtoList.isEmpty()) {
-                    for (DocumentUploadDto documentDto : documentUploadDtoList) {
-                        Documents document = documentService.createDocument(documentDto, project);
-                        project.getDocuments().add(document);
-                    }
+            if (documentUploadDtoList != null && !documentUploadDtoList.isEmpty()) {
+                for (DocumentUploadDto documentDto : documentUploadDtoList) {
+                    Documents document = documentService.createDocument(documentDto, project);
+                    project.getDocuments().add(document);
                 }
-
-                return projectRepository.save(project);
-
-            } catch (IllegalArgumentException e) {
-                throw new RuntimeException("Dados do projeto inválidos: " + e.getMessage(), e);
-            } catch (Exception e) {
-                throw new RuntimeException("Erro ao criar o projeto: " + e.getMessage(), e);
-            }
-        }
-
-
-    public ProjectDto readProject(String projectId) {
-        try {
-            Project project = projectRepository.findById(projectId)
-                    .orElseThrow(() -> new IllegalArgumentException("Projeto com o ID " + projectId + " não encontrado"));
-
-            return new ProjectDto(
-                    project.getProjectId(),
-                    project.getProjectReference(),
-                    project.getNameCoordinator(),
-                    project.getProjectCompany(),
-                    project.getProjectObjective(),
-                    project.getProjectDescription(),
-                    project.getProjectValue(),
-                    project.getProjectEndDate(),
-                    project.getProjectStartDate(),
-                    project.getProjectClassification().toString(),
-                    project.getProjectStatus().toString()
-            );
-
-        } catch (IllegalArgumentException e) {
-            throw new RuntimeException("Dados do projeto inválidos: " + e.getMessage(), e);
-        } catch (Exception e) {
-            throw new RuntimeException("Erro ao ler o projeto: " + e.getMessage(), e);
-        }
-    }
-
-    public List<ProjectDto> listProjects() {
-        try {
-            List<ProjectDto> projects = projectRepository.findAll()
-                    .stream()
-                    .map(project -> new ProjectDto(
-                            project.getProjectId(),
-                            project.getProjectReference(),
-                            project.getNameCoordinator(),
-                            project.getProjectCompany(),
-                            project.getProjectObjective(),
-                            project.getProjectDescription(),
-                            project.getProjectValue(),
-                            project.getProjectEndDate(),
-                            project.getProjectStartDate(),
-                            project.getProjectClassification().toString(),
-                            project.getProjectStatus().toString()
-                    ))
-                    .collect(Collectors.toList());
-
-            return projects.isEmpty() ? Collections.emptyList() : projects;
-
-        } catch (IllegalArgumentException e) {
-            throw new RuntimeException("Dados do projeto inválidos: " + e.getMessage(), e);
-        } catch (Exception e) {
-            throw new RuntimeException("Erro ao listar os projetos: " + e.getMessage(), e);
-        }
-    }
-
-    public List<String> listCoordinators() {
-        try {
-            List<String> coordinators = projectRepository.findAll()
-                    .stream()
-                    .map(Project::getNameCoordinator)
-                    .distinct()
-                    .sorted()
-                    .collect(Collectors.toList());
-
-            return coordinators.isEmpty() ? Collections.emptyList() : coordinators;
-
-        } catch (IllegalArgumentException e) {
-            throw new RuntimeException("Dados do projeto inválidos: " + e.getMessage(), e);
-        } catch (Exception e) {
-            throw new RuntimeException("Erro ao listar os coordenadores: " + e.getMessage(), e);
-        }
-    }
-
-    public List<String> listCompanies() throws SystemContextException {
-        try {
-            List<String> companies = projectRepository.findAll()
-                    .stream()
-                    .map(Project::getProjectCompany)
-                    .distinct()
-                    .sorted()
-                    .collect(Collectors.toList());
-
-            return companies.isEmpty() ? Collections.emptyList() : companies;
-
-        } catch (Exception e) {
-            throw new SystemContextException(e.getMessage());
-        }
-    }
-
-    public Project updateProject(String projectId, ProjectDto projectDto) {
-        try {
-            Project project = projectRepository.findById(projectId)
-                    .orElseThrow(() -> new IllegalArgumentException("Projeto com o ID " + projectId + " não encontrado"));
-
-            if (projectDto.projectReference() != null) {
-                project.setProjectReference(projectDto.projectReference());
-            }
-            if (projectDto.nameCoordinator() != null) {
-                project.setNameCoordinator(projectDto.nameCoordinator());
-            }
-            if (projectDto.projectCompany() != null) {
-                project.setProjectCompany(projectDto.projectCompany());
-            }
-            if (projectDto.projectObjective() != null) {
-                project.setProjectObjective(projectDto.projectObjective());
-            }
-            if (projectDto.projectValue() != null) {
-                project.setProjectValue(projectDto.projectValue());
-            }
-            if (projectDto.projectEndDate() != null) {
-                project.setProjectEndDate(projectDto.projectEndDate());
-            }
-            if (projectDto.projectStartDate() != null) {
-                project.setProjectStartDate(projectDto.projectStartDate());
-            }
-            if (projectDto.projectClassification() != null) {
-                project.setProjectClassification(ClassificacaoProjetos.valueOf(projectDto.projectClassification()));
-            }
-            if (projectDto.projectStatus() != null) {
-                project.setProjectStatus(SituacaoProjetos.valueOf(projectDto.projectStatus()));
             }
 
             return projectRepository.save(project);
@@ -183,50 +48,115 @@ public class ProjectService {
         } catch (IllegalArgumentException e) {
             throw new RuntimeException("Dados do projeto inválidos: " + e.getMessage(), e);
         } catch (Exception e) {
-            throw new RuntimeException("Erro ao atualizar o projeto: " + e.getMessage(), e);
+            throw new RuntimeException("Erro ao criar o projeto: " + e.getMessage(), e);
         }
     }
 
-    public Boolean deleteProject(String projectId) {
+    public ProjectDto readProject(String projectId) {
+        return projectRepository.findById(projectId)
+                .map(this::mapProjectToDto)
+                .orElseThrow(() -> new IllegalArgumentException("Projeto com o ID " + projectId + " não encontrado"));
+    }
+
+    public List<ProjectDto> listProjects() {
+        return projectRepository.findAll().stream()
+                .map(this::mapProjectToDto)
+                .collect(Collectors.toList());
+    }
+
+    public List<String> listCoordinators() {
+        return projectRepository.findAll().stream()
+                .map(Project::getNameCoordinator)
+                .distinct()
+                .sorted()
+                .collect(Collectors.toList());
+    }
+
+    public List<String> listCompanies() throws SystemContextException {
         try {
-            Project project = projectRepository.findById(projectId)
-                    .orElseThrow(() -> new IllegalArgumentException("Projeto com o ID " + projectId + " não encontrado"));
-
-            projectRepository.deleteById(projectId);
-            return true;
-
-        } catch (IllegalArgumentException e) {
-            throw new RuntimeException("Dados do projeto inválidos: " + e.getMessage(), e);
+            return projectRepository.findAll().stream()
+                    .map(Project::getProjectCompany)
+                    .distinct()
+                    .sorted()
+                    .collect(Collectors.toList());
         } catch (Exception e) {
-            throw new RuntimeException("Erro ao deletar o projeto: " + e.getMessage(), e);
+            throw new SystemContextException("Erro ao listar empresas: " + e.getMessage());
         }
+    }
+
+    public Project updateProject(String projectId, ProjectDto projectDto) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new IllegalArgumentException("Projeto com o ID " + projectId + " não encontrado"));
+
+        updateProjectFromDto(projectDto, project);
+        return projectRepository.save(project);
+    }
+
+    public Boolean deleteProject(String projectId) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new IllegalArgumentException("Projeto com o ID " + projectId + " não encontrado"));
+
+        projectRepository.delete(project);
+        return true;
     }
 
     public byte[] exportProject(String id, String format) {
         Project project = projectRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Projeto com o ID " + id + " não encontrado"));
 
-        if (project == null) {
-            throw new IllegalArgumentException("Project not found with ID: " + id);
-        }
-
-        Exporter exporter;
-        if (format.equalsIgnoreCase("pdf")) {
-            exporter = new GeneratorPdf();
-        } else {
-            exporter = new GeneratorExcel();
-        }
+        Exporter exporter = switch (format.toLowerCase()) {
+            case "pdf" -> new GeneratorPdf();
+            case "excel" -> new GeneratorExcel();
+            default -> throw new IllegalArgumentException("Formato inválido: " + format);
+        };
 
         return exporter.export(project);
     }
 
-    public Project findProject(String id){
-        Project project = projectRepository.findById(id)
+    public Project findProject(String id) {
+        return projectRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Projeto com o ID " + id + " não encontrado"));
+    }
 
-        if (project == null) {
-            throw new IllegalArgumentException("Project not found with ID: " + id);
-        }
-        return project;
+    private void mapDtoToProject(ProjectDto projectDto, Project project) {
+        project.setProjectReference(projectDto.getProjectReference());
+        project.setNameCoordinator(projectDto.getNameCoordinator());
+        project.setProjectCompany(projectDto.getProjectCompany());
+        project.setProjectObjective(projectDto.getProjectObjective());
+        project.setProjectValue(projectDto.getProjectValue());
+        project.setProjectEndDate(projectDto.getProjectEndDate());
+        project.setProjectStartDate(projectDto.getProjectStartDate());
+        project.setProjectClassification(ClassificacaoProjetos.valueOf(projectDto.getProjectClassification()));
+        project.setProjectStatus(SituacaoProjetos.valueOf(projectDto.getProjectStatus()));
+    }
+
+    private ProjectDto mapProjectToDto(Project project) {
+        return new ProjectDto(
+                project.getProjectId(),
+                project.getProjectReference(),
+                project.getNameCoordinator(),
+                project.getProjectCompany(),
+                project.getProjectObjective(),
+                project.getProjectDescription(),
+                project.getProjectValue(),
+                project.getProjectEndDate(),
+                project.getProjectStartDate(),
+                project.getProjectClassification().toString(),
+                project.getProjectStatus().toString()
+        );
+    }
+
+    private void updateProjectFromDto(ProjectDto projectDto, Project project) {
+        Optional.ofNullable(projectDto.getProjectReference()).ifPresent(project::setProjectReference);
+        Optional.ofNullable(projectDto.getNameCoordinator()).ifPresent(project::setNameCoordinator);
+        Optional.ofNullable(projectDto.getProjectCompany()).ifPresent(project::setProjectCompany);
+        Optional.ofNullable(projectDto.getProjectObjective()).ifPresent(project::setProjectObjective);
+        Optional.ofNullable(projectDto.getProjectValue()).ifPresent(project::setProjectValue);
+        Optional.ofNullable(projectDto.getProjectEndDate()).ifPresent(project::setProjectEndDate);
+        Optional.ofNullable(projectDto.getProjectStartDate()).ifPresent(project::setProjectStartDate);
+        Optional.ofNullable(projectDto.getProjectClassification())
+                .ifPresent(value -> project.setProjectClassification(ClassificacaoProjetos.valueOf(value)));
+        Optional.ofNullable(projectDto.getProjectStatus())
+                .ifPresent(value -> project.setProjectStatus(SituacaoProjetos.valueOf(value)));
     }
 }
