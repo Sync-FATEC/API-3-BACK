@@ -1,5 +1,6 @@
 package com.sync.api.dto;
 
+import com.sync.api.model.Documents;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -8,6 +9,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.hateoas.EntityModel;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -46,4 +48,9 @@ public class ProjectDto extends EntityModel<ProjectDto> {
 
     @NotNull
     private String projectStatus;
+
+    @NotNull
+    private List<Documents> documents;
+
+
 }

@@ -5,6 +5,7 @@ import com.sync.api.dto.ProjectDto;
 import com.sync.api.dto.web.ResponseModelDTO;
 import com.sync.api.exception.SystemContextException;
 import com.sync.api.model.Project;
+import com.sync.api.repository.ProjectRepository;
 import com.sync.api.service.ProjectService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,8 @@ public class ProjectController {
 
     @Autowired
     private ProjectService projectService;
+    @Autowired
+    private ProjectRepository projectRepository;
 
     @PostMapping("/create")
     public ResponseEntity<?> createProject(@RequestBody @Valid ProjectDto projectDto,

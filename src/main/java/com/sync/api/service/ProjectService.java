@@ -128,6 +128,7 @@ public class ProjectService {
         project.setProjectStartDate(projectDto.getProjectStartDate());
         project.setProjectClassification(ClassificacaoProjetos.valueOf(projectDto.getProjectClassification()));
         project.setProjectStatus(SituacaoProjetos.valueOf(projectDto.getProjectStatus()));
+        project.setProjectDescription(projectDto.getProjectDescription());
     }
 
     private ProjectDto mapProjectToDto(Project project) {
@@ -142,7 +143,8 @@ public class ProjectService {
                 project.getProjectEndDate(),
                 project.getProjectStartDate(),
                 project.getProjectClassification().toString(),
-                project.getProjectStatus().toString()
+                project.getProjectStatus().toString(),
+                project.getDocuments() != null ? project.getDocuments() : Collections.emptyList()
         );
     }
 
