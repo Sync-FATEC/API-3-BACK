@@ -10,6 +10,8 @@ import com.sync.api.service.AuthenticationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,6 +30,18 @@ public class AuthenticationController {
 
     @Autowired
     private TokenService tokenService;
+
+    // Method called automatically when the Spring context is initialized
+    @EventListener(ContextRefreshedEvent.class)
+    public void init() {
+        try {
+            logger.info("Verificando se usuário administrador existe...");
+            authenticationService.registrarAdmin();
+            logger.info("Usuário administrador criado com sucesso ou já existente.");
+        } catch (SystemContextException e) {
+            logger.error("Erro ao criar usuário administrador: {}", e.getMessage());
+        }
+    }
 
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@RequestBody LoginDTO data) throws SystemContextException {
