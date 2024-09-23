@@ -27,16 +27,12 @@ public class Documents extends RepresentationModel<Documents> {
     @JoinColumn(name = "project_id")
     public Project project;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    public User user;
 
     public Documents CreateBaseProject(String fileName, TiposAnexos fileType, LocalDate uploadedAt, Project project, User user) {
         this.fileName = fileName;
         this.fileType = fileType;
         this.uploadedAt = uploadedAt;
         this.project = project;
-        this.user = user;
         return this;
     }
 

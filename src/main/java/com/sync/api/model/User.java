@@ -23,17 +23,10 @@ public class User implements UserDetails {
     public String userEmail;
     public String userCpf;
     public Boolean userAdmin;
-    public String userImage;
     private String login;
     public String userPassword;
     @Enumerated(EnumType.STRING)
     public PapeisUsuario role;
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
-    public List<ProjectHistory> projectHistoryList;
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
-    public List<Documents> documents;
 
     public User(String userEmail, String userPassword) {
         this.userEmail = userEmail;

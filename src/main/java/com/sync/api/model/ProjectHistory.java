@@ -20,8 +20,4 @@ public class ProjectHistory {
     @ManyToOne
     @JoinColumn(name = "projectId")
     public Project project;
-
-    @ManyToOne
-    @JoinColumn(name = "userId")
-    public User user;
 }
