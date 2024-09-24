@@ -1,6 +1,6 @@
 package com.sync.api.service;
 
-import com.sync.api.dto.DocumentUploadDto;
+import com.sync.api.dto.documents.DocumentUploadDto;
 import com.sync.api.model.Documents;
 import com.sync.api.model.Project;
 import com.sync.api.operation.uploads.UploadsDocuments;

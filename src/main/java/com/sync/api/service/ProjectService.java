@@ -1,7 +1,8 @@
 package com.sync.api.service;
 
-import com.sync.api.dto.DocumentUploadDto;
-import com.sync.api.dto.ProjectDto;
+import com.sync.api.dto.documents.DocumentUploadDto;
+import com.sync.api.dto.project.ProjectDto;
+import com.sync.api.dto.project.RegisterProjectDTO;
 import com.sync.api.enums.ClassificacaoProjetos;
 import com.sync.api.enums.SituacaoProjetos;
 import com.sync.api.exception.SystemContextException;
@@ -31,20 +32,12 @@ public class ProjectService {
         this.documentService = documentService;
     }
 
-    public Project createProject(ProjectDto projectDto, List<DocumentUploadDto> documentUploadDtoList) {
+    public Project createProject(RegisterProjectDTO projectDto) {
         try {
             Project project = new Project();
-            mapDtoToProject(projectDto, project);
-
-            if (documentUploadDtoList != null && !documentUploadDtoList.isEmpty()) {
-                for (DocumentUploadDto documentDto : documentUploadDtoList) {
-                    Documents document = documentService.createDocument(documentDto, project);
-                    project.getDocuments().add(document);
-                }
-            }
+            registerProjectByDTO(projectDto, project);
 
             return projectRepository.save(project);
-
         } catch (IllegalArgumentException e) {
             throw new RuntimeException("Dados do projeto inválidos: " + e.getMessage(), e);
         } catch (Exception e) {
@@ -130,6 +123,19 @@ public class ProjectService {
         project.setProjectStatus(SituacaoProjetos.valueOf(projectDto.getProjectStatus()));
         project.setProjectDescription(projectDto.getProjectDescription());
     }
+
+    private void registerProjectByDTO(RegisterProjectDTO projectDto, Project project){
+        project.setProjectReference(projectDto.getProjectReference());
+        project.setNameCoordinator(projectDto.getNameCoordinator());
+        project.setProjectCompany(projectDto.getProjectCompany());
+        project.setProjectObjective(projectDto.getProjectObjective());
+        project.setProjectValue(projectDto.getProjectValue());
+        project.setProjectEndDate(projectDto.getProjectEndDate());
+        project.setProjectStartDate(projectDto.getProjectStartDate());
+        project.setProjectClassification(ClassificacaoProjetos.valueOf(projectDto.getProjectClassification()));
+        project.setProjectDescription(projectDto.getProjectDescription());
+    }
+
 
     private ProjectDto mapProjectToDto(Project project) {
         return new ProjectDto(

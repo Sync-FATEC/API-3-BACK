@@ -1,8 +1,6 @@
-package com.sync.api.dto;
+package com.sync.api.dto.documents;
 
 import com.sync.api.enums.TiposAnexos;
-import com.sync.api.model.Project;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.web.multipart.MultipartFile;
 
 public record DocumentUploadDto(

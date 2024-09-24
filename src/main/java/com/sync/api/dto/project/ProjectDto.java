@@ -1,4 +1,4 @@
-package com.sync.api.dto;
+package com.sync.api.dto.project;
 
 import com.sync.api.model.Documents;
 import jakarta.validation.constraints.NotBlank;
@@ -16,41 +16,27 @@ import java.util.List;
 @AllArgsConstructor
 public class ProjectDto extends EntityModel<ProjectDto> {
 
-    @NotBlank
     private String projectId;
 
-    @NotBlank
     private String projectReference;
 
-    @NotBlank
     private String nameCoordinator;
 
-    @NotBlank
     private String projectCompany;
 
-    @NotBlank
     private String projectObjective;
 
-    @NotNull
     private String projectDescription;
 
-    @NotNull
     private Float projectValue;
 
-    @NotNull
     private LocalDate projectEndDate;
 
-    @NotNull
     private LocalDate projectStartDate;
 
-    @NotNull
     private String projectClassification;
 
-    @NotNull
     private String projectStatus;
 
-    @NotNull
     private List<Documents> documents;
-
-
 }

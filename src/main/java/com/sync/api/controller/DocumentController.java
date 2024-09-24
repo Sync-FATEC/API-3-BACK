@@ -1,13 +1,11 @@
 package com.sync.api.controller;
 
-import com.sync.api.dto.DocumentUploadDto;
-import com.sync.api.dto.ProjectDto;
+import com.sync.api.dto.documents.DocumentUploadDto;
 import com.sync.api.enums.TiposAnexos;
 import com.sync.api.model.Documents;
 import com.sync.api.model.Project;
 import com.sync.api.service.DocumentService;
 import com.sync.api.service.ProjectService;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -1,7 +1,7 @@
 package com.sync.api.controller;
 
-import com.sync.api.dto.DocumentUploadDto;
-import com.sync.api.dto.ProjectDto;
+import com.sync.api.dto.project.ProjectDto;
+import com.sync.api.dto.project.RegisterProjectDTO;
 import com.sync.api.dto.web.ResponseModelDTO;
 import com.sync.api.exception.SystemContextException;
 import com.sync.api.model.Project;
@@ -30,10 +30,9 @@ public class ProjectController {
     private ProjectRepository projectRepository;
 
     @PostMapping("/create")
-    public ResponseEntity<?> createProject(@RequestBody @Valid ProjectDto projectDto,
-                                           @RequestBody List<@Valid DocumentUploadDto> documentUploadDtoList) {
+    public ResponseEntity<?> createProject(@RequestBody @Valid RegisterProjectDTO projectDto) {
         try {
-            Project project = projectService.createProject(projectDto, documentUploadDtoList);
+            Project project = projectService.createProject(projectDto);
             var response = new ResponseModelDTO(project);
             return ResponseEntity.ok().body(response);
         } catch (RuntimeException e) {
