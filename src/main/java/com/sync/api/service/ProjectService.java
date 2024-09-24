@@ -3,8 +3,8 @@ package com.sync.api.service;
 import com.sync.api.dto.documents.DocumentUploadDto;
 import com.sync.api.dto.project.ProjectDto;
 import com.sync.api.dto.project.RegisterProjectDTO;
-import com.sync.api.enums.ClassificacaoProjetos;
-import com.sync.api.enums.SituacaoProjetos;
+import com.sync.api.enums.ProjectClassification;
+import com.sync.api.enums.ProjectStatus;
 import com.sync.api.exception.SystemContextException;
 import com.sync.api.model.Documents;
 import com.sync.api.model.Project;
@@ -119,8 +119,8 @@ public class ProjectService {
         project.setProjectValue(projectDto.getProjectValue());
         project.setProjectEndDate(projectDto.getProjectEndDate());
         project.setProjectStartDate(projectDto.getProjectStartDate());
-        project.setProjectClassification(ClassificacaoProjetos.valueOf(projectDto.getProjectClassification()));
-        project.setProjectStatus(SituacaoProjetos.valueOf(projectDto.getProjectStatus()));
+        project.setProjectClassification(ProjectClassification.valueOf(projectDto.getProjectClassification()));
+        project.setProjectStatus(ProjectStatus.valueOf(projectDto.getProjectStatus()));
         project.setProjectDescription(projectDto.getProjectDescription());
     }
 
@@ -132,7 +132,8 @@ public class ProjectService {
         project.setProjectValue(projectDto.getProjectValue());
         project.setProjectEndDate(projectDto.getProjectEndDate());
         project.setProjectStartDate(projectDto.getProjectStartDate());
-        project.setProjectClassification(ClassificacaoProjetos.valueOf(projectDto.getProjectClassification()));
+        project.setProjectStatus(ProjectStatus.NAO_INICIADOS);
+        project.setProjectClassification(ProjectClassification.valueOf(projectDto.getProjectClassification()));
         project.setProjectDescription(projectDto.getProjectDescription());
     }
 
@@ -163,8 +164,8 @@ public class ProjectService {
         Optional.ofNullable(projectDto.getProjectEndDate()).ifPresent(project::setProjectEndDate);
         Optional.ofNullable(projectDto.getProjectStartDate()).ifPresent(project::setProjectStartDate);
         Optional.ofNullable(projectDto.getProjectClassification())
-                .ifPresent(value -> project.setProjectClassification(ClassificacaoProjetos.valueOf(value)));
+                .ifPresent(value -> project.setProjectClassification(ProjectClassification.valueOf(value)));
         Optional.ofNullable(projectDto.getProjectStatus())
-                .ifPresent(value -> project.setProjectStatus(SituacaoProjetos.valueOf(value)));
+                .ifPresent(value -> project.setProjectStatus(ProjectStatus.valueOf(value)));
     }
 }

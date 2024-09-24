@@ -1,6 +1,6 @@
 package com.sync.api.enums;
 
-public enum ClassificacaoProjetos {
+public enum ProjectClassification {
     OUTROS,
     CONTRATOS,
     CONVENIO,
