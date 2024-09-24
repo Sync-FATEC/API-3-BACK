@@ -70,7 +70,18 @@ def format_date(date_str):
         return None
 
 ################################################################################
-def insert_document(cursor, project_id, file_type, file_url):
+def insert_document(cursor, project_id, file_url):
+    file_type = None
+    if 'proposta' in file_url.lower():
+        file_type = 'PLANO_DE_TRABALHO'
+    elif 'aditivo' in file_url.lower():
+        file_type = 'TERMO_ADITIVO'
+    elif 'contrato' in file_url.lower():
+        file_type = 'CONTRATO'
+    else:
+        file_type = 'OUTROS'
+    
+    
     cursor.execute(
         "INSERT INTO documents (documents_id, file_name, file_type, file_url, project_id) VALUES (%s, %s, %s, %s, %s)",
         (str(uuid.uuid4()), file_url.split("/")[-1], file_type, file_url, project_id)
@@ -104,13 +115,13 @@ def insert_projeto(cursor, data):
     )
 
     for url in data.get("Contratos", []):
-        insert_document(cursor, project_id, "CONTRATO", url)
+        insert_document(cursor, project_id, url)
 
     for url in data.get("Propostas", []):
-        insert_document(cursor, project_id, "PROPOSTA", url)
+        insert_document(cursor, project_id, url)
 
     for url in data.get("Artigos", []):
-        insert_document(cursor, project_id, "ARTIGO", url)
+        insert_document(cursor, project_id, url)
 
 ################################################################################
 def process_json_file(file_path):
