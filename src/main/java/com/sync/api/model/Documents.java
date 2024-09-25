@@ -20,6 +20,8 @@ public class Documents extends RepresentationModel<Documents> {
     @Enumerated(EnumType.STRING)
     public FileType fileType;
     public String fileUrl;
+    @Column(nullable = true)
+    public String filePath;
     public LocalDate uploadedAt;
 
     @ManyToOne

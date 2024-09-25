@@ -1,5 +1,6 @@
 package com.sync.api.service;
 
+import com.sync.api.dto.documents.DocumentListDTO;
 import com.sync.api.dto.documents.DocumentUploadDto;
 import com.sync.api.dto.project.ProjectDto;
 import com.sync.api.dto.project.RegisterProjectDTO;
@@ -151,7 +152,19 @@ public class ProjectService {
                 project.getProjectStartDate(),
                 project.getProjectClassification().toString(),
                 project.getProjectStatus().toString(),
-                project.getDocuments() != null ? project.getDocuments() : Collections.emptyList()
+                project.getDocuments() != null
+                        ? project.getDocuments().stream().map(this::mapDocToDTO).collect(Collectors.toList())
+                        : Collections.emptyList()
+        );
+    }
+
+    private DocumentListDTO mapDocToDTO(Documents document){
+        return new DocumentListDTO(
+            document.getDocuments_id(),
+            document.getFileName(),
+            document.getFileType(),
+            document.getFileUrl(),
+            document.getUploadedAt()
         );
     }
 

@@ -1,5 +1,6 @@
 package com.sync.api.dto.project;
 
+import com.sync.api.dto.documents.DocumentListDTO;
 import com.sync.api.model.Documents;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -38,5 +39,5 @@ public class ProjectDto extends EntityModel<ProjectDto> {
 
     private String projectStatus;
 
-    private List<Documents> documents;
+    private List<DocumentListDTO> documents;
 }

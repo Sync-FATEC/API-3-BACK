@@ -2,15 +2,22 @@ package com.sync.api.controller;
 
 import com.sync.api.dto.documents.DocumentUploadDto;
 import com.sync.api.enums.FileType;
+import com.sync.api.exception.SystemContextException;
 import com.sync.api.model.Documents;
 import com.sync.api.model.Project;
 import com.sync.api.service.DocumentService;
 import com.sync.api.service.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.core.io.PathResource;
+import org.springframework.core.io.Resource;
+
+import java.io.File;
+import java.nio.file.Path;
 
 @RestController
 public class DocumentController {
@@ -37,6 +44,24 @@ public class DocumentController {
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (RuntimeException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/documents/{documentId}")
+    public ResponseEntity<?> getDocument(@PathVariable String documentId) {
+        try {
+            File doc = documentService.findDocument(documentId);
+            Path path = doc.toPath();
+            Resource resource = new PathResource(path);
+
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                    .header("Content-Disposition", "attachment; filename=\"" + doc.getName() + "\"")
+                    .body(resource);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (RuntimeException | SystemContextException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

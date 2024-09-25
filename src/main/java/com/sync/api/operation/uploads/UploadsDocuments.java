@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -35,4 +36,12 @@ public class UploadsDocuments {
         return filePath.toString().replace("\\", "/");
     }
 
+    public File getDocumento(String filePath) {
+        File file = new File(filePath);
+        if (file.exists() && file.isFile()) {
+            return file;
+        } else {
+            throw new RuntimeException("Arquivo não encontrado: " + filePath);
+        }
+    }
 }
