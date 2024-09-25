@@ -72,7 +72,7 @@ def format_date(date_str):
 ################################################################################
 def insert_document(cursor, project_id, file_url):
     file_type = None
-    if 'proposta' in file_url.lower():
+    if 'trabalho' in file_url.lower():
         file_type = 'PLANO_DE_TRABALHO'
     elif 'aditivo' in file_url.lower():
         file_type = 'TERMO_ADITIVO'
