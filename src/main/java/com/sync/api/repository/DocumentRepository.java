@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.util.Collection;
 
-public interface DocumentRepository extends JpaRepository<Documents,Long> {
+public interface DocumentRepository extends JpaRepository<Documents,String> {
 
 //    @Query("SELECT d  FROM Documents d WHERE d.projectId = ?1")
 //    Collection<Documents> findByProjectId(String projectId);

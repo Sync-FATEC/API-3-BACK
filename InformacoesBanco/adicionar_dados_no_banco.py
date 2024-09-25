@@ -68,12 +68,22 @@ def format_date(date_str):
     except ValueError:
         print(f"Erro ao formatar a data: {date_str}")
         return None
+    
+################################################################################
+def handle_file_type(file_name):
+    if "contrato" in file_name.lower():
+        return "CONTRATO"
+    elif "proposta" in file_name.lower() or "trabalho" in file_name.lower():
+        return "PROPOSTA"
+    elif "artigo" in file_name.lower():
+        return "ARTIGO"
+
 
 ################################################################################
-def insert_document(cursor, project_id, file_type, file_url):
+def insert_document(cursor, project_id, file_url):
     cursor.execute(
         "INSERT INTO documents (documents_id, file_name, file_type, file_url, project_id) VALUES (%s, %s, %s, %s, %s)",
-        (str(uuid.uuid4()), file_url.split("/")[-1], file_type, file_url, project_id)
+        (str(uuid.uuid4()), file_url.split("/")[-1], handle_file_type(file_url.split("/")[-1]), file_url, project_id)
     )
 
 ################################################################################
@@ -104,13 +114,13 @@ def insert_projeto(cursor, data):
     )
 
     for url in data.get("Contratos", []):
-        insert_document(cursor, project_id, "CONTRATO", url)
+        insert_document(cursor, project_id, url)
 
     for url in data.get("Propostas", []):
-        insert_document(cursor, project_id, "PROPOSTA", url)
+        insert_document(cursor, project_id, url)
 
     for url in data.get("Artigos", []):
-        insert_document(cursor, project_id, "ARTIGO", url)
+        insert_document(cursor, project_id, url)
 
 ################################################################################
 def process_json_file(file_path):

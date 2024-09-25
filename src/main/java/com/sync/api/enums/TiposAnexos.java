@@ -2,6 +2,6 @@ package com.sync.api.enums;
 
 public enum TiposAnexos {
     CONTRATO,
-    ARTIGO,
-    PROPOSTA
+    TERMO_ADITIVO,
+    PROPOSTA_TRABALHO
 }
