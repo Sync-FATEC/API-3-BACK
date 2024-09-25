@@ -1,7 +1,7 @@
 package com.sync.api.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.sync.api.enums.TiposAnexos;
+import com.sync.api.enums.FileType;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.springframework.hateoas.RepresentationModel;
@@ -18,7 +18,7 @@ public class Documents extends RepresentationModel<Documents> {
     public String documents_id;
     public String fileName;
     @Enumerated(EnumType.STRING)
-    public TiposAnexos fileType;
+    public FileType fileType;
     public String fileUrl;
     public LocalDate uploadedAt;
 
@@ -28,7 +28,7 @@ public class Documents extends RepresentationModel<Documents> {
     public Project project;
 
 
-    public Documents CreateBaseProject(String fileName, TiposAnexos fileType, LocalDate uploadedAt, Project project, User user) {
+    public Documents CreateBaseProject(String fileName, FileType fileType, LocalDate uploadedAt, Project project, User user) {
         this.fileName = fileName;
         this.fileType = fileType;
         this.uploadedAt = uploadedAt;

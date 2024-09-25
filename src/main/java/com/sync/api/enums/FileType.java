@@ -1,7 +1,8 @@
 package com.sync.api.enums;
 
-public enum TiposAnexos {
+public enum FileType {
     CONTRATO,
     TERMO_ADITIVO,
-    PROPOSTA_TRABALHO
+    PLANO_DE_TRABALHO,
+    OUTROS,
 }

@@ -1,7 +1,7 @@
 package com.sync.api.controller;
 
 import com.sync.api.dto.documents.DocumentUploadDto;
-import com.sync.api.enums.TiposAnexos;
+import com.sync.api.enums.FileType;
 import com.sync.api.model.Documents;
 import com.sync.api.model.Project;
 import com.sync.api.service.DocumentService;
@@ -24,7 +24,7 @@ public class DocumentController {
     @PostMapping("/create/documents")
     public ResponseEntity<?> createDocument(@RequestParam("projectId") String projectId,
                                             @RequestParam("file") MultipartFile file,
-                                            @RequestParam("typeFile") TiposAnexos typeFile) {
+                                            @RequestParam("typeFile") FileType typeFile) {
         try {
 
             DocumentUploadDto documentUploadDto = new DocumentUploadDto(file, typeFile);
