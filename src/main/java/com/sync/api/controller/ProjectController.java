@@ -9,6 +9,7 @@ import com.sync.api.repository.ProjectRepository;
 import com.sync.api.service.ProjectService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -26,105 +27,113 @@ public class ProjectController {
 
     @Autowired
     private ProjectService projectService;
+
     @Autowired
     private ProjectRepository projectRepository;
 
     @PostMapping("/create")
-    public ResponseEntity<?> createProject(@RequestBody @Valid RegisterProjectDTO projectDto) {
+    public ResponseEntity<ResponseModelDTO> createProject(@RequestBody @Valid RegisterProjectDTO registerProjectDTO) {
         try {
-            Project project = projectService.createProject(projectDto);
-            var response = new ResponseModelDTO(project);
-            return ResponseEntity.ok().body(response);
+            Project project = projectService.createProject(registerProjectDTO);
+            ResponseModelDTO response = new ResponseModelDTO(project);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (RuntimeException e) {
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest().body(new ResponseModelDTO(e.getMessage()));
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseModelDTO(e.getMessage()));
         }
     }
 
     @GetMapping("/read/{id}")
-    public ResponseEntity<?> readProject(@Valid @PathVariable String id) {
+    public ResponseEntity<ResponseModelDTO> readProject(@PathVariable String id) {
         try {
             ProjectDto projectDto = projectService.readProject(id);
-            addLinksToProjectDto(projectDto, id);
-            var response = new ResponseModelDTO(projectDto);
-            return ResponseEntity.ok().body(response);
+            EntityModel<ProjectDto> model = EntityModel.of(projectDto);
+            addLinksToProjectDto(model, id);
+            ResponseModelDTO response = new ResponseModelDTO(projectDto);
+            return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest().body(new ResponseModelDTO(e.getMessage()));
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseModelDTO(e.getMessage()));
         }
     }
 
     @GetMapping("/list")
-    public ResponseEntity<?> listProjects() {
+    public ResponseEntity<ResponseModelDTO> listProjects() {
         try {
             List<ProjectDto> projectDtoList = projectService.listProjects();
-            projectDtoList.forEach(projectDto -> addLinksToProjectDto(projectDto, projectDto.getProjectId()));
-            var response = new ResponseModelDTO(projectDtoList);
-            return ResponseEntity.ok().body(response);
+
+            List<EntityModel<ProjectDto>> entityModels = projectDtoList.stream()
+                    .map(projectDto -> {
+                        EntityModel<ProjectDto> model = EntityModel.of(projectDto);
+                        addLinksToProjectDto(model, projectDto.projectId()); // Adicionando links ao modelo
+                        return model;
+                    })
+                    .toList();
+            ResponseModelDTO response = new ResponseModelDTO(entityModels);
+            return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest().body(new ResponseModelDTO(e.getMessage()));
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseModelDTO(e.getMessage()));
         }
     }
 
     @GetMapping("/list/coordinators")
-    public ResponseEntity<?> listCoordinators() {
+    public ResponseEntity<ResponseModelDTO> listCoordinators() {
         try {
             List<String> coordinators = projectService.listCoordinators();
-            var response = new ResponseModelDTO(coordinators);
-            return ResponseEntity.ok().body(response);
+            ResponseModelDTO response = new ResponseModelDTO(coordinators);
+            return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest().body(new ResponseModelDTO(e.getMessage()));
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseModelDTO(e.getMessage()));
         }
     }
 
     @GetMapping("/list/companies")
-    public ResponseEntity<?> listCompanies() throws SystemContextException {
+    public ResponseEntity<ResponseModelDTO> listCompanies() throws SystemContextException {
         try {
             List<String> companies = projectService.listCompanies();
-            var response = new ResponseModelDTO(companies);
-            return ResponseEntity.ok().body(response);
+            ResponseModelDTO response = new ResponseModelDTO(companies);
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             throw new SystemContextException(e.getMessage());
         }
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<?> projectUpdate(@PathVariable String id, @RequestBody ProjectDto projectDto) {
+    public ResponseEntity<ResponseModelDTO> updateProject(@PathVariable String id, @RequestBody ProjectDto projectDto) {
         try {
             Project project = projectService.updateProject(id, projectDto);
-            var response = new ResponseModelDTO(project);
-            return ResponseEntity.ok().body(response);
+            ResponseModelDTO response = new ResponseModelDTO(project);
+            return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest().body(new ResponseModelDTO(e.getMessage()));
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseModelDTO(e.getMessage()));
         }
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> deleteProject(@Valid @PathVariable String id) {
+    public ResponseEntity<ResponseModelDTO> deleteProject(@PathVariable String id) {
         try {
-            boolean projectDeletado = projectService.deleteProject(id);
-            var response = new ResponseModelDTO(projectDeletado);
-            return ResponseEntity.ok().body(response);
+            boolean projectDeleted = projectService.deleteProject(id);
+            ResponseModelDTO response = new ResponseModelDTO(projectDeleted);
+            return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest().body(new ResponseModelDTO(e.getMessage()));
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseModelDTO(e.getMessage()));
         }
     }
 
     @GetMapping("/export/{id}/{format}")
     public ResponseEntity<byte[]> exportProject(@PathVariable("id") String id, @PathVariable("format") String format) {
-        byte[] fileBytes;
         try {
-            fileBytes = projectService.exportProject(id, format);
+            byte[] fileBytes = projectService.exportProject(id, format);
             HttpHeaders headers = new HttpHeaders();
             if ("pdf".equalsIgnoreCase(format)) {
                 headers.setContentType(MediaType.APPLICATION_PDF);
@@ -133,16 +142,17 @@ public class ProjectController {
                 headers.setContentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
                 headers.setContentDispositionFormData("attachment", "project.xlsx");
             } else {
-                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+                return ResponseEntity.badRequest().build();
             }
             return new ResponseEntity<>(fileBytes, headers, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
-    private void addLinksToProjectDto(ProjectDto projectDto, String projectId) {
-        projectDto.add(linkTo(methodOn(ProjectController.class).readProject(projectId)).withSelfRel().withType("GET"));
-        projectDto.add(linkTo(methodOn(ProjectController.class).listProjects()).withRel("list").withType("GET"));
+    private void addLinksToProjectDto(EntityModel<ProjectDto> model, String projectId) {
+        model.add(linkTo(methodOn(ProjectController.class).readProject(projectId)).withSelfRel());
+        model.add(linkTo(methodOn(ProjectController.class).listProjects()).withRel("list"));
     }
+
 }

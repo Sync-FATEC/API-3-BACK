@@ -9,6 +9,7 @@ import com.sync.api.enums.ProjectStatus;
 import com.sync.api.exception.SystemContextException;
 import com.sync.api.model.Documents;
 import com.sync.api.model.Project;
+import com.sync.api.operation.RegisterProject;
 import com.sync.api.operation.contract.Exporter;
 import com.sync.api.operation.exporter.GeneratorExcel;
 import com.sync.api.operation.exporter.GeneratorPdf;
@@ -23,22 +24,17 @@ import java.util.stream.Collectors;
 
 @Service
 public class ProjectService {
-
-    private final ProjectRepository projectRepository;
-    private final DocumentService documentService;
-
     @Autowired
-    public ProjectService(ProjectRepository projectRepository, DocumentService documentService) {
-        this.projectRepository = projectRepository;
-        this.documentService = documentService;
-    }
+    private ProjectRepository projectRepository;
+    @Autowired
+    private  DocumentService documentService;
+    @Autowired
+    private RegisterProject registerProject;
 
-    public Project createProject(RegisterProjectDTO projectDto) {
+
+    public Project createProject(RegisterProjectDTO registerProjectDTO) {
         try {
-            Project project = new Project();
-            registerProjectByDTO(projectDto, project);
-
-            return projectRepository.save(project);
+            return registerProject.registerProject(registerProjectDTO);
         } catch (IllegalArgumentException e) {
             throw new RuntimeException("Dados do projeto inválidos: " + e.getMessage(), e);
         } catch (Exception e) {
@@ -82,7 +78,7 @@ public class ProjectService {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new IllegalArgumentException("Projeto com o ID " + projectId + " não encontrado"));
 
-        updateProjectFromDto(projectDto, project);
+//        updateProjectFromDto(projectDto, project);
         return projectRepository.save(project);
     }
 
@@ -111,34 +107,6 @@ public class ProjectService {
         return projectRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Projeto com o ID " + id + " não encontrado"));
     }
-
-    private void mapDtoToProject(ProjectDto projectDto, Project project) {
-        project.setProjectReference(projectDto.getProjectReference());
-        project.setNameCoordinator(projectDto.getNameCoordinator());
-        project.setProjectCompany(projectDto.getProjectCompany());
-        project.setProjectObjective(projectDto.getProjectObjective());
-        project.setProjectValue(projectDto.getProjectValue());
-        project.setProjectEndDate(projectDto.getProjectEndDate());
-        project.setProjectStartDate(projectDto.getProjectStartDate());
-        project.setProjectClassification(ProjectClassification.valueOf(projectDto.getProjectClassification()));
-        project.setProjectStatus(ProjectStatus.valueOf(projectDto.getProjectStatus()));
-        project.setProjectDescription(projectDto.getProjectDescription());
-    }
-
-    private void registerProjectByDTO(RegisterProjectDTO projectDto, Project project){
-        project.setProjectReference(projectDto.getProjectReference());
-        project.setNameCoordinator(projectDto.getNameCoordinator());
-        project.setProjectCompany(projectDto.getProjectCompany());
-        project.setProjectObjective(projectDto.getProjectObjective());
-        project.setProjectValue(projectDto.getProjectValue());
-        project.setProjectEndDate(projectDto.getProjectEndDate());
-        project.setProjectStartDate(projectDto.getProjectStartDate());
-        project.setProjectStatus(ProjectStatus.NAO_INICIADOS);
-        project.setProjectClassification(ProjectClassification.valueOf(projectDto.getProjectClassification()));
-        project.setProjectDescription(projectDto.getProjectDescription());
-    }
-
-
     private ProjectDto mapProjectToDto(Project project) {
         return new ProjectDto(
                 project.getProjectId(),
@@ -158,6 +126,7 @@ public class ProjectService {
         );
     }
 
+
     private DocumentListDTO mapDocToDTO(Documents document){
         return new DocumentListDTO(
             document.getDocuments_id(),
@@ -168,17 +137,4 @@ public class ProjectService {
         );
     }
 
-    private void updateProjectFromDto(ProjectDto projectDto, Project project) {
-        Optional.ofNullable(projectDto.getProjectReference()).ifPresent(project::setProjectReference);
-        Optional.ofNullable(projectDto.getNameCoordinator()).ifPresent(project::setNameCoordinator);
-        Optional.ofNullable(projectDto.getProjectCompany()).ifPresent(project::setProjectCompany);
-        Optional.ofNullable(projectDto.getProjectObjective()).ifPresent(project::setProjectObjective);
-        Optional.ofNullable(projectDto.getProjectValue()).ifPresent(project::setProjectValue);
-        Optional.ofNullable(projectDto.getProjectEndDate()).ifPresent(project::setProjectEndDate);
-        Optional.ofNullable(projectDto.getProjectStartDate()).ifPresent(project::setProjectStartDate);
-        Optional.ofNullable(projectDto.getProjectClassification())
-                .ifPresent(value -> project.setProjectClassification(ProjectClassification.valueOf(value)));
-        Optional.ofNullable(projectDto.getProjectStatus())
-                .ifPresent(value -> project.setProjectStatus(ProjectStatus.valueOf(value)));
-    }
 }
