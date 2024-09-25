@@ -68,22 +68,23 @@ def format_date(date_str):
     except ValueError:
         print(f"Erro ao formatar a data: {date_str}")
         return None
-    
-################################################################################
-def handle_file_type(file_name):
-    if "contrato" in file_name.lower():
-        return "CONTRATO"
-    elif "proposta" in file_name.lower() or "trabalho" in file_name.lower():
-        return "PROPOSTA"
-    elif "artigo" in file_name.lower():
-        return "ARTIGO"
-
 
 ################################################################################
 def insert_document(cursor, project_id, file_url):
+    file_type = None
+    if 'proposta' in file_url.lower():
+        file_type = 'PLANO_DE_TRABALHO'
+    elif 'aditivo' in file_url.lower():
+        file_type = 'TERMO_ADITIVO'
+    elif 'contrato' in file_url.lower():
+        file_type = 'CONTRATO'
+    else:
+        file_type = 'OUTROS'
+    
+    
     cursor.execute(
         "INSERT INTO documents (documents_id, file_name, file_type, file_url, project_id) VALUES (%s, %s, %s, %s, %s)",
-        (str(uuid.uuid4()), file_url.split("/")[-1], handle_file_type(file_url.split("/")[-1]), file_url, project_id)
+        (str(uuid.uuid4()), file_url.split("/")[-1], file_type, file_url, project_id)
     )
 
 ################################################################################

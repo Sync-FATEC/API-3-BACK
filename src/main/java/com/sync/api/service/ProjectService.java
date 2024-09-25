@@ -52,7 +52,7 @@ public class ProjectService {
     }
 
     public List<ProjectDto> listProjects() {
-        return projectRepository.findAll().stream()
+        return projectRepository.findAllByOrderByProjectStartDateDesc().stream()
                 .map(this::mapProjectToDto)
                 .collect(Collectors.toList());
     }
