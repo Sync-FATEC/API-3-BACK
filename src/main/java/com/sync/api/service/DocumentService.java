@@ -42,7 +42,7 @@ public class DocumentService {
             document.setProject(project);
             documentRepository.save(document);
 
-            document.setFileUrl("localhost:8080/documents/" + document.getDocuments_id());
+            document.setFileUrl("/documents/get/" + document.getDocuments_id());
 
             project.getDocuments().add(document);
 

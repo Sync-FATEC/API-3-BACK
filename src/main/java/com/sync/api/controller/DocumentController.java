@@ -20,6 +20,7 @@ import java.io.File;
 import java.nio.file.Path;
 
 @RestController
+@RequestMapping("/documents")
 public class DocumentController {
 
     @Autowired
@@ -28,7 +29,7 @@ public class DocumentController {
     @Autowired
     private ProjectService projectService;
 
-    @PostMapping("/create/documents")
+    @PostMapping("/create")
     public ResponseEntity<?> createDocument(@RequestParam("projectId") String projectId,
                                             @RequestParam("file") MultipartFile file,
                                             @RequestParam("typeFile") FileType typeFile) {
@@ -48,7 +49,7 @@ public class DocumentController {
         }
     }
 
-    @GetMapping("/documents/{documentId}")
+    @GetMapping("/get/{documentId}")
     public ResponseEntity<?> getDocument(@PathVariable String documentId) {
         try {
             File doc = documentService.findDocument(documentId);

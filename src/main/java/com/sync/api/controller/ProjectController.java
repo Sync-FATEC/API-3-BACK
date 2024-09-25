@@ -44,7 +44,7 @@ public class ProjectController {
         }
     }
 
-    @GetMapping("/read/{id}")
+    @GetMapping("/get/{id}")
     public ResponseEntity<ResponseModelDTO> readProject(@PathVariable String id) {
         try {
             ProjectDto projectDto = projectService.readProject(id);
@@ -59,7 +59,7 @@ public class ProjectController {
         }
     }
 
-    @GetMapping("/list")
+    @GetMapping("/getAll")
     public ResponseEntity<ResponseModelDTO> listProjects() {
         try {
             List<ProjectDto> projectDtoList = projectService.listProjects();
@@ -80,7 +80,7 @@ public class ProjectController {
         }
     }
 
-    @GetMapping("/list/coordinators")
+    @GetMapping("/get/coordinators")
     public ResponseEntity<ResponseModelDTO> listCoordinators() {
         try {
             List<String> coordinators = projectService.listCoordinators();
@@ -93,7 +93,7 @@ public class ProjectController {
         }
     }
 
-    @GetMapping("/list/companies")
+    @GetMapping("/get/companies")
     public ResponseEntity<ResponseModelDTO> listCompanies() throws SystemContextException {
         try {
             List<String> companies = projectService.listCompanies();
