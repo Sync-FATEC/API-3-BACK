@@ -10,20 +10,19 @@
   <pre><code>git clone https://github.com/Sync-FATEC/API-3-BACK</code></pre>
 
   <h3>Passo 4: Configure o Banco de Dados</h3>
-  <p>Abra o arquivo ".env" e altere as credenciais do banco de dados conforme necessário:</p>
-  <pre><code>
-  DBC_URL=jdbc:mysql://localhost:3306/
+  <p>Abra o arquivo ".env" e altere as credenciais do banco de dados:</p>
+  <pre><code>DBC_URL=jdbc:mysql://localhost:3306/
   JDBC_USER=seu_usuario
-  JDBC_PASSWORD=sua_senha
-  </code></pre>
+  JDBC_PASSWORD=sua_senha</code></pre>
 
-  <p>Abra o arquivo "application.properties" e altere as credenciais do banco de dados conforme necessário:</p>
-  <pre><code>
-  spring.datasource.url=jdbc:mysql://localhost:3306/api202402
+  <p>Abra o arquivo "application.properties" (localizado no caminho src/main/resources) e altere as credenciais do banco de dados:</p>
+  <pre><code>spring.datasource.url=jdbc:mysql://localhost:3306/api202402
   spring.datasource.username=seu_usuario
-  spring.datasource.password=sua_senha
-  </code></pre>
+  spring.datasource.password=sua_senha</code></pre>
 
   <h3>Passo 5: Inicie a Aplicação</h3>
-  <p>Para iniciar a aplicação, execute o comando:</p>
-  <pre><code>java -jar caminhoarquivo.jar</code></pre>
+  <p>Para iniciar a aplicação, execute o arquivo:</p>
+  <pre><code>ApiApplication.java</code></pre>
+
+<h2>📃 Documentação API</h2>
+ <pre><code>http://localhost:8080/swagger-ui/index.html#/</code></pre>
