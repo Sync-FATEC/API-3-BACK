@@ -17,6 +17,7 @@ import com.sync.api.repository.ProjectRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -101,6 +102,20 @@ public class ProjectService {
         };
 
         return exporter.export(project);
+    }
+
+    public List<ProjectDto> filterProjects(String projectReference, String projectCompany, String nameCoordinator,
+                                           ProjectClassification projectClassification, ProjectStatus projectStatus,
+                                           LocalDate projectStartDate, LocalDate projectEndDate) {
+        List<Project> projects = projectRepository.filterProjects(
+                projectReference, projectCompany, nameCoordinator,
+                projectClassification, projectStatus,
+                projectStartDate, projectEndDate
+        );
+
+        return projects.stream()
+                .map(this::mapProjectToDto)
+                .collect(Collectors.toList());
     }
 
     public Project findProject(String id) {

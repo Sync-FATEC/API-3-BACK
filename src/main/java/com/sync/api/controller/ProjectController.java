@@ -3,6 +3,8 @@ package com.sync.api.controller;
 import com.sync.api.dto.project.ProjectDto;
 import com.sync.api.dto.project.RegisterProjectDTO;
 import com.sync.api.dto.web.ResponseModelDTO;
+import com.sync.api.enums.ProjectClassification;
+import com.sync.api.enums.ProjectStatus;
 import com.sync.api.exception.SystemContextException;
 import com.sync.api.model.Project;
 import com.sync.api.repository.ProjectRepository;
@@ -16,6 +18,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -128,6 +131,27 @@ public class ProjectController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseModelDTO(e.getMessage()));
         }
+    }
+
+    @GetMapping("/filter")
+    public ResponseEntity<?> filterProjects(
+            @RequestParam(required = false) String projectReference,
+            @RequestParam(required = false) String projectCompany,
+            @RequestParam(required = false) String nameCoordinator,
+            @RequestParam(required = false) ProjectClassification projectClassification,
+            @RequestParam(required = false) ProjectStatus projectStatus,
+            @RequestParam(required = false) LocalDate projectStartDate,
+            @RequestParam(required = false) LocalDate projectEndDate) {
+
+        List<ProjectDto> filteredProjects = projectService.filterProjects(
+                projectReference, projectCompany, nameCoordinator,
+                projectClassification, projectStatus,
+                projectStartDate, projectEndDate
+        );
+
+
+        var response = new ResponseModelDTO(filteredProjects);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/export/{id}/{format}")
