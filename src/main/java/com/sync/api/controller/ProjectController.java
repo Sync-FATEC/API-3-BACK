@@ -3,11 +3,14 @@ package com.sync.api.controller;
 import com.sync.api.dto.project.ProjectDto;
 import com.sync.api.dto.project.RegisterProjectDTO;
 import com.sync.api.dto.web.ResponseModelDTO;
+import com.sync.api.enums.ProjectClassification;
+import com.sync.api.enums.ProjectStatus;
 import com.sync.api.exception.SystemContextException;
 import com.sync.api.model.Project;
 import com.sync.api.repository.ProjectRepository;
 import com.sync.api.service.ProjectService;
 import jakarta.validation.Valid;
+import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpHeaders;
@@ -16,6 +19,10 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.List;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -60,19 +67,29 @@ public class ProjectController {
     }
 
     @GetMapping("/getAll")
-    public ResponseEntity<ResponseModelDTO> listProjects() {
+    public ResponseEntity<ResponseModelDTO> listProjects(
+        @RequestParam(value = "keyword", required = false) String keyword,
+        @RequestParam(value = "dataInicio", required = false) String projectStartDate,
+        @RequestParam(value = "dataFim", required = false) String projectEndDate,
+        @RequestParam(value = "status", required = false) ProjectStatus status,
+        @RequestParam(value = "classificacao", required = false) ProjectClassification classification
+    ) {
         try {
-            List<ProjectDto> projectDtoList = projectService.listProjects();
+            List<ProjectDto> projectDtoList = projectService.listProjectsFiltered(keyword,
+                    projectStartDate != null ? stringToLocalDate(projectStartDate): null,
+                    projectEndDate != null ? stringToLocalDate(projectEndDate) : null,
+                    status,
+                    classification);
 
             List<EntityModel<ProjectDto>> entityModels = projectDtoList.stream()
                     .map(projectDto -> {
                         EntityModel<ProjectDto> model = EntityModel.of(projectDto);
-                        addLinksToProjectDto(model, projectDto.projectId()); // Adicionando links ao modelo
+                        addLinksToProjectDto(model, projectDto.projectId());
                         return model;
                     })
                     .toList();
-            ResponseModelDTO response = new ResponseModelDTO(entityModels);
-            return ResponseEntity.ok(response);
+
+            return ResponseEntity.ok(new ResponseModelDTO(entityModels));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(new ResponseModelDTO(e.getMessage()));
         } catch (Exception e) {
@@ -150,9 +167,16 @@ public class ProjectController {
         }
     }
 
+
     private void addLinksToProjectDto(EntityModel<ProjectDto> model, String projectId) {
         model.add(linkTo(methodOn(ProjectController.class).readProject(projectId)).withSelfRel());
-        model.add(linkTo(methodOn(ProjectController.class).listProjects()).withRel("list"));
+        model.add(linkTo(methodOn(ProjectController.class).listProjects(null, null, null, null, null)).withRel("list"));
     }
+
+    private LocalDate stringToLocalDate(String dateString){
+        DateTimeFormatter parser = DateTimeFormatter.ofPattern("uuuu-MM-dd");
+        return LocalDate.parse(dateString, parser);
+    }
+
 
 }
