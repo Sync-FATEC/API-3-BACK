@@ -4,6 +4,8 @@ import com.sync.api.enums.ProjectClassification;
 import com.sync.api.enums.ProjectStatus;
 import com.sync.api.model.Project;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -12,7 +14,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Repository
-public interface ProjectRepository extends JpaRepository<Project, String> {
+public interface ProjectRepository extends JpaRepository<Project, String>, JpaSpecificationExecutor<Project> {
     List<Project> findAllByOrderByProjectStartDateDesc();
     @Query("SELECT p FROM Project p WHERE " +
             "(:projectReference IS NULL OR p.projectReference LIKE %:projectReference%) AND " +

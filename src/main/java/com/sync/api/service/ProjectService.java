@@ -1,7 +1,6 @@
 package com.sync.api.service;
 
 import com.sync.api.dto.documents.DocumentListDTO;
-import com.sync.api.dto.documents.DocumentUploadDto;
 import com.sync.api.dto.project.ProjectDto;
 import com.sync.api.dto.project.RegisterProjectDTO;
 import com.sync.api.dto.project.UpdateProjectDto;
@@ -16,14 +15,17 @@ import com.sync.api.operation.contract.Exporter;
 import com.sync.api.operation.exporter.GeneratorExcel;
 import com.sync.api.operation.exporter.GeneratorPdf;
 import com.sync.api.repository.ProjectRepository;
+import com.sync.api.specification.ProjectSpecification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
+
 
 @Service
 public class ProjectService {
@@ -35,7 +37,6 @@ public class ProjectService {
     private RegisterProject registerProject;
     @Autowired
     private UpdateProject updateProject;
-
 
     public Project createProject(RegisterProjectDTO registerProjectDTO) {
         try {
@@ -51,6 +52,13 @@ public class ProjectService {
         return projectRepository.findById(projectId)
                 .map(this::mapProjectToDto)
                 .orElseThrow(() -> new IllegalArgumentException("Projeto com o ID " + projectId + " não encontrado"));
+    }
+
+    public List<ProjectDto> listProjectsFiltered(String keyword, LocalDate projectStartDate, LocalDate projectEndDate, ProjectStatus status, ProjectClassification classification) {
+        return projectRepository.findAll(ProjectSpecification.filterByCriteria(keyword, projectStartDate, projectEndDate, status, classification))
+                .stream()
+                .map(this::mapProjectToDto)
+                .collect(Collectors.toList());
     }
 
     public List<ProjectDto> listProjects() {
@@ -128,6 +136,9 @@ public class ProjectService {
         return projectRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Projeto com o ID " + id + " não encontrado"));
     }
+
+
+
     private ProjectDto mapProjectToDto(Project project) {
         return new ProjectDto(
                 project.getProjectId(),
@@ -146,7 +157,6 @@ public class ProjectService {
                         : Collections.emptyList()
         );
     }
-
 
     private DocumentListDTO mapDocToDTO(Documents document){
         return new DocumentListDTO(
