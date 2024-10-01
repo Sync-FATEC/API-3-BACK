@@ -38,7 +38,4 @@ public class Project {
 
     @OneToMany(mappedBy = "project", cascade = CascadeType.REMOVE)
     public List<Documents> documents;
-
-    @OneToMany(mappedBy = "project", cascade = CascadeType.REMOVE)
-    public List<ProjectHistory> projectHistoryList;
 }

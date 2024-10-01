@@ -18,8 +18,6 @@ import org.springframework.stereotype.Service;
 public class RegisterProject {
     @Autowired
     private ProjectRepository projectRepository;
-    @Autowired
-    private DocumentService documentService;
 
     public Project registerProject(RegisterProjectDTO projectDto){
         Project project = new Project();

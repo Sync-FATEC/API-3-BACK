@@ -2,6 +2,7 @@ package com.sync.api.controller;
 
 import com.sync.api.dto.project.ProjectDto;
 import com.sync.api.dto.project.RegisterProjectDTO;
+import com.sync.api.dto.project.UpdateProjectDto;
 import com.sync.api.dto.web.ResponseModelDTO;
 import com.sync.api.enums.ProjectClassification;
 import com.sync.api.enums.ProjectStatus;
@@ -108,9 +109,9 @@ public class ProjectController {
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<ResponseModelDTO> updateProject(@PathVariable String id, @RequestBody ProjectDto projectDto) {
+    public ResponseEntity<ResponseModelDTO> updateProject(@PathVariable String id, @RequestBody UpdateProjectDto updateProjectDto) {
         try {
-            Project project = projectService.updateProject(id, projectDto);
+            Project project = projectService.updateProject(id, updateProjectDto );
             ResponseModelDTO response = new ResponseModelDTO(project);
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {

@@ -4,12 +4,14 @@ import com.sync.api.dto.documents.DocumentListDTO;
 import com.sync.api.dto.documents.DocumentUploadDto;
 import com.sync.api.dto.project.ProjectDto;
 import com.sync.api.dto.project.RegisterProjectDTO;
+import com.sync.api.dto.project.UpdateProjectDto;
 import com.sync.api.enums.ProjectClassification;
 import com.sync.api.enums.ProjectStatus;
 import com.sync.api.exception.SystemContextException;
 import com.sync.api.model.Documents;
 import com.sync.api.model.Project;
 import com.sync.api.operation.RegisterProject;
+import com.sync.api.operation.UpdateProject;
 import com.sync.api.operation.contract.Exporter;
 import com.sync.api.operation.exporter.GeneratorExcel;
 import com.sync.api.operation.exporter.GeneratorPdf;
@@ -31,6 +33,8 @@ public class ProjectService {
     private  DocumentService documentService;
     @Autowired
     private RegisterProject registerProject;
+    @Autowired
+    private UpdateProject updateProject;
 
 
     public Project createProject(RegisterProjectDTO registerProjectDTO) {
@@ -75,12 +79,14 @@ public class ProjectService {
         }
     }
 
-    public Project updateProject(String projectId, ProjectDto projectDto) {
-        Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new IllegalArgumentException("Projeto com o ID " + projectId + " não encontrado"));
-
-//        updateProjectFromDto(projectDto, project);
-        return projectRepository.save(project);
+    public Project updateProject(String projectId, UpdateProjectDto updateProjectDto) {
+        try {
+            Project project = projectRepository.findById(projectId)
+                    .orElseThrow(() -> new IllegalArgumentException("Projeto com o ID " + projectId + " não encontrado"));
+            return  updateProject.updateProject(updateProjectDto, project);
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao editar o projeto: " + e.getMessage(), e);
+        }
     }
 
     public Boolean deleteProject(String projectId) {
