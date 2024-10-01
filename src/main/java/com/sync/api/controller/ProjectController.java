@@ -147,6 +147,27 @@ public class ProjectController {
         }
     }
 
+    @GetMapping("/filter")
+    public ResponseEntity<?> filterProjects(
+            @RequestParam(required = false) String projectReference,
+            @RequestParam(required = false) String projectCompany,
+            @RequestParam(required = false) String nameCoordinator,
+            @RequestParam(required = false) ProjectClassification projectClassification,
+            @RequestParam(required = false) ProjectStatus projectStatus,
+            @RequestParam(required = false) LocalDate projectStartDate,
+            @RequestParam(required = false) LocalDate projectEndDate) {
+
+        List<ProjectDto> filteredProjects = projectService.filterProjects(
+                projectReference, projectCompany, nameCoordinator,
+                projectClassification, projectStatus,
+                projectStartDate, projectEndDate
+        );
+
+
+        var response = new ResponseModelDTO(filteredProjects);
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/export/{id}/{format}")
     public ResponseEntity<byte[]> exportProject(@PathVariable("id") String id, @PathVariable("format") String format) {
         try {
