@@ -18,6 +18,7 @@ import org.springframework.core.io.Resource;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.util.List;
 
 @RestController
 @RequestMapping("/documents")
@@ -63,6 +64,28 @@ public class DocumentController {
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (RuntimeException | SystemContextException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<?> documentDelete(@RequestBody List<String> documentIds) {
+        try {
+            if (documentIds.isEmpty()) {
+                return new ResponseEntity<>("Nenhum ID de documento fornecido", HttpStatus.BAD_REQUEST);
+            }
+
+            for (String documentId : documentIds) {
+                boolean deleted = documentService.deleteDocuments(documentId);
+                if (!deleted) {
+                    return new ResponseEntity<>("Falha ao excluir o documento com ID: " + documentId, HttpStatus.INTERNAL_SERVER_ERROR);
+                }
+            }
+
+            return new ResponseEntity<>("Documentos excluídos com sucesso", HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (RuntimeException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

@@ -7,12 +7,15 @@ import com.sync.api.model.Project;
 import com.sync.api.operation.uploads.UploadsDocuments;
 import com.sync.api.repository.DocumentRepository;
 import com.sync.api.repository.ProjectRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.swing.text.Document;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.List;
 
 @Service
 public class DocumentService {
@@ -65,4 +68,13 @@ public class DocumentService {
 
         return uploadsDocuments.getDocumento(docDb.getFilePath());
     }
+
+    public boolean deleteDocuments(String documentId) {
+        Documents document = documentRepository.findById(documentId)
+                .orElseThrow(() -> new EntityNotFoundException("Documento não encontrado com o id: " + documentId));
+
+        documentRepository.delete(document);
+        return true;
+    }
+
 }
