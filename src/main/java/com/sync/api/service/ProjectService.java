@@ -1,5 +1,6 @@
 package com.sync.api.service;
 
+import com.sync.api.dto.HistoryProjectDto;
 import com.sync.api.dto.documents.DocumentListDTO;
 import com.sync.api.dto.project.ProjectDto;
 import com.sync.api.dto.project.RegisterProjectDTO;
@@ -9,6 +10,8 @@ import com.sync.api.enums.ProjectStatus;
 import com.sync.api.exception.SystemContextException;
 import com.sync.api.model.Documents;
 import com.sync.api.model.Project;
+import com.sync.api.operation.CompareChanges;
+import com.sync.api.operation.RegisterHistoryProject;
 import com.sync.api.operation.RegisterProject;
 import com.sync.api.operation.UpdateProject;
 import com.sync.api.operation.contract.Exporter;
@@ -37,6 +40,10 @@ public class ProjectService {
     private RegisterProject registerProject;
     @Autowired
     private UpdateProject updateProject;
+    @Autowired
+    private RegisterHistoryProject registerHistoryProject;
+    @Autowired
+    private CompareChanges compareChanges;
 
     public Project createProject(RegisterProjectDTO registerProjectDTO) {
         try {
@@ -88,14 +95,24 @@ public class ProjectService {
     }
 
     public Project updateProject(String projectId, UpdateProjectDto updateProjectDto) {
-        try {
-            Project project = projectRepository.findById(projectId)
-                    .orElseThrow(() -> new IllegalArgumentException("Projeto com o ID " + projectId + " não encontrado"));
-            return  updateProject.updateProject(updateProjectDto, project);
-        } catch (Exception e) {
-            throw new RuntimeException("Erro ao editar o projeto: " + e.getMessage(), e);
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Projeto com o ID " + projectId + " não encontrado"
+                ));
+
+        HistoryProjectDto historyProjectDto = compareChanges.compare(project,updateProjectDto);
+
+        if (historyProjectDto == null) {
+            return project;
         }
+
+        Project newValues = updateProject.updateProject(updateProjectDto, project);
+
+        registerHistoryProject.registerLog(historyProjectDto);
+
+        return newValues;
     }
+
 
     public Boolean deleteProject(String projectId) {
         Project project = projectRepository.findById(projectId)

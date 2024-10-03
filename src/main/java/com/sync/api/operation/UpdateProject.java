@@ -1,9 +1,9 @@
 package com.sync.api.operation;
 
-import com.sync.api.dto.project.ProjectDto;
 import com.sync.api.dto.project.UpdateProjectDto;
 import com.sync.api.model.Project;
 import com.sync.api.repository.ProjectRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -43,7 +43,6 @@ public class UpdateProject {
         if(updateProjectDto.projectStatus() != null){
             project.setProjectStatus(updateProjectDto.projectStatus());
         }
-
         return projectRepository.save(project);
     }
 }

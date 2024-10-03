@@ -37,6 +37,7 @@ public class DocumentController {
         try {
 
             DocumentUploadDto documentUploadDto = new DocumentUploadDto(file, typeFile);
+            System.out.println(documentUploadDto);
 
             Project project = projectService.findProject(projectId);
 
@@ -68,21 +69,21 @@ public class DocumentController {
         }
     }
 
-    @DeleteMapping("/delete")
-    public ResponseEntity<?> documentDelete(@RequestBody List<String> documentIds) {
+    @PutMapping("/removed")
+    public ResponseEntity<?> removedDocument(@RequestBody List<String> documentIds) {
         try {
             if (documentIds.isEmpty()) {
                 return new ResponseEntity<>("Nenhum ID de documento fornecido", HttpStatus.BAD_REQUEST);
             }
 
             for (String documentId : documentIds) {
-                boolean deleted = documentService.deleteDocuments(documentId);
-                if (!deleted) {
-                    return new ResponseEntity<>("Falha ao excluir o documento com ID: " + documentId, HttpStatus.INTERNAL_SERVER_ERROR);
+                boolean removedDocument = documentService.removedDocument(documentId);
+                if (!removedDocument) {
+                    return new ResponseEntity<>("Falha ao remover o documento com ID: " + documentId, HttpStatus.INTERNAL_SERVER_ERROR);
                 }
             }
 
-            return new ResponseEntity<>("Documentos excluídos com sucesso", HttpStatus.OK);
+            return new ResponseEntity<>("Documentos removidos com sucesso", HttpStatus.OK);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (RuntimeException e) {
