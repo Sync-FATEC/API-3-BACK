@@ -28,6 +28,17 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     public PapeisUsuario role;
 
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
+    public List<Documents> documents;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
+    public List<Project> projectList;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
+    public List<HistoryProject> historyProjectList;
+
+
     public User(String userEmail, String userPassword) {
         this.userEmail = userEmail;
         this.login = userEmail;

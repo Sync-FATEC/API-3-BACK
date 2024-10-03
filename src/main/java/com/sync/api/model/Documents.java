@@ -1,5 +1,6 @@
 package com.sync.api.model;
 
+import ch.qos.logback.core.net.server.Client;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sync.api.enums.FileType;
 import jakarta.persistence.*;
@@ -8,6 +9,7 @@ import org.springframework.hateoas.RepresentationModel;
 
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Data
@@ -23,11 +25,21 @@ public class Documents extends RepresentationModel<Documents> {
     @Column(nullable = true)
     public String filePath;
     public LocalDate uploadedAt;
+    @Column(columnDefinition = "boolean default false")
+    public boolean removed ;
 
     @ManyToOne
     @JsonIgnore
     @JoinColumn(name = "project_id")
     public Project project;
+
+    @ManyToOne
+    @JsonIgnore
+    @JoinColumn(name = "user_id", nullable = true)
+    public User user;
+
+    @OneToMany(mappedBy = "documents", cascade = CascadeType.REMOVE)
+    public List<HistoryProject> historyProjectList;
 
 
     public Documents CreateBaseProject(String fileName, FileType fileType, LocalDate uploadedAt, Project project, User user) {
