@@ -19,7 +19,10 @@ import com.sync.api.operation.exporter.GeneratorExcel;
 import com.sync.api.operation.exporter.GeneratorPdf;
 import com.sync.api.repository.ProjectRepository;
 import com.sync.api.specification.ProjectSpecification;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -45,9 +48,12 @@ public class ProjectService {
     @Autowired
     private CompareChanges compareChanges;
 
+    private static final Logger logger = LoggerFactory.getLogger(ProjectService.class);
+
     public Project createProject(RegisterProjectDTO registerProjectDTO) {
         try {
-            return registerProject.registerProject(registerProjectDTO);
+            var projectStatus = VerifyProjectStatus(registerProjectDTO);
+            return registerProject.registerProject(registerProjectDTO, projectStatus);
         } catch (IllegalArgumentException e) {
             throw new RuntimeException("Dados do projeto inválidos: " + e.getMessage(), e);
         } catch (Exception e) {
@@ -154,6 +160,18 @@ public class ProjectService {
                 .orElseThrow(() -> new IllegalArgumentException("Projeto com o ID " + id + " não encontrado"));
     }
 
+    @Scheduled(cron = "0 0 0 * * *", zone = "America/Sao_Paulo")
+    public void VerifyAllProjects() {
+        logger.info("Verificação de status dos projetos iniciada.");
+        List<Project> projects = projectRepository.findAll();
+        for (Project project : projects) {
+            ProjectStatus projectStatus = VerifyProjectStatus(project);
+            project.setProjectStatus(projectStatus);
+            projectRepository.save(project);
+        }
+        logger.info("Verificação de status dos projetos concluída.");
+    }
+
 
 
     private ProjectDto mapProjectToDto(Project project) {
@@ -185,4 +203,23 @@ public class ProjectService {
         );
     }
 
+    private ProjectStatus VerifyProjectStatus(RegisterProjectDTO project) {
+        if (project.projectStartDate().isAfter(LocalDate.now())) {
+            return ProjectStatus.NAO_INICIADOS;
+        } else if (project.projectEndDate().isBefore(LocalDate.now())) {
+            return ProjectStatus.FINALIZADOS;
+        } else {
+            return ProjectStatus.EM_ANDAMENTO;
+        }
+    }
+
+    private ProjectStatus VerifyProjectStatus(Project project) {
+        if (project.projectStartDate.isAfter(LocalDate.now())) {
+            return ProjectStatus.NAO_INICIADOS;
+        } else if (project.projectEndDate.isBefore(LocalDate.now())) {
+            return ProjectStatus.FINALIZADOS;
+        } else {
+            return ProjectStatus.EM_ANDAMENTO;
+        }
+    }
 }

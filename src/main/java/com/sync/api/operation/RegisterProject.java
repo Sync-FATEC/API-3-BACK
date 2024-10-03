@@ -19,7 +19,7 @@ public class RegisterProject {
     @Autowired
     private ProjectRepository projectRepository;
 
-    public Project registerProject(RegisterProjectDTO projectDto){
+    public Project registerProject(RegisterProjectDTO projectDto, ProjectStatus projectStatus) {
         Project project = new Project();
         project.setProjectReference(projectDto.projectReference());
         project.setNameCoordinator(projectDto.nameCoordinator());
@@ -28,7 +28,7 @@ public class RegisterProject {
         project.setProjectValue(projectDto.projectValue());
         project.setProjectEndDate(projectDto.projectEndDate());
         project.setProjectStartDate(projectDto.projectStartDate());
-        project.setProjectStatus(ProjectStatus.NAO_INICIADOS);
+        project.setProjectStatus(projectStatus);
         project.setProjectClassification(ProjectClassification.valueOf(projectDto.projectClassification()));
         project.setProjectDescription(projectDto.projectDescription());
         return projectRepository.save(project);
