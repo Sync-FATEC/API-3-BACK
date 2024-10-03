@@ -29,6 +29,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalDate;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -68,14 +69,14 @@ public class ProjectService {
     }
 
     public List<ProjectDto> listProjectsFiltered(String keyword, LocalDate projectStartDate, LocalDate projectEndDate, ProjectStatus status, ProjectClassification classification) {
-        return projectRepository.findAll(ProjectSpecification.filterByCriteria(keyword, projectStartDate, projectEndDate, status, classification))
-                .stream()
-                .map(this::mapProjectToDto)
-                .collect(Collectors.toList());
-    }
+        List<Project> projects = projectRepository.findAllByOrderByProjectStartDateDesc();
 
-    public List<ProjectDto> listProjects() {
-        return projectRepository.findAllByOrderByProjectStartDateDesc().stream()
+        return projects.stream()
+                .filter(project -> (keyword == null || project.getProjectReference().contains(keyword) || project.getProjectCompany().contains(keyword) || project.getNameCoordinator().contains(keyword)))
+                .filter(project -> (projectStartDate == null || !project.getProjectStartDate().isBefore(projectStartDate)))
+                .filter(project -> (projectEndDate == null || !project.getProjectEndDate().isAfter(projectEndDate)))
+                .filter(project -> (status == null || project.getProjectStatus() == status))
+                .filter(project -> (classification == null || project.getProjectClassification() == classification))
                 .map(this::mapProjectToDto)
                 .collect(Collectors.toList());
     }
@@ -151,9 +152,11 @@ public class ProjectService {
         );
 
         return projects.stream()
+                .sorted(Comparator.comparing(Project::getProjectStartDate).reversed())
                 .map(this::mapProjectToDto)
                 .collect(Collectors.toList());
     }
+
 
     public Project findProject(String id) {
         return projectRepository.findById(id)
