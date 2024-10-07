@@ -22,8 +22,8 @@ public interface ProjectRepository extends JpaRepository<Project, String>, JpaSp
             "(:nameCoordinator IS NULL OR p.nameCoordinator LIKE %:nameCoordinator%) AND " +
             "(:projectClassification IS NULL OR p.projectClassification = :projectClassification) AND " +
             "(:projectStatus IS NULL OR p.projectStatus = :projectStatus) AND " +
-            "(:projectStartDate IS NULL OR p.projectStartDate >= :projectStartDate) AND " +
-            "(:projectEndDate IS NULL OR p.projectEndDate <= :projectEndDate)")
+            "(:projectStartDate IS NULL OR p.projectStartDate = :projectStartDate) AND " +
+            "(:projectEndDate IS NULL OR p.projectEndDate = :projectEndDate)")
     List<Project> filterProjects(
             @Param("projectReference") String projectReference,
             @Param("projectCompany") String projectCompany,
