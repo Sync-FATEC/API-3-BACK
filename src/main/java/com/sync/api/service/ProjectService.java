@@ -152,10 +152,12 @@ public class ProjectService {
         );
 
         return projects.stream()
+                .filter(project -> project.getProjectStartDate() != null)
                 .sorted(Comparator.comparing(Project::getProjectStartDate).reversed())
                 .map(this::mapProjectToDto)
                 .collect(Collectors.toList());
     }
+
 
 
     public Project findProject(String id) {
