@@ -12,7 +12,6 @@ import com.sync.api.repository.ProjectRepository;
 import com.sync.api.service.ProjectService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
-import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpHeaders;
@@ -22,9 +21,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -70,18 +68,20 @@ public class ProjectController {
 
     @GetMapping("/getAll")
     public ResponseEntity<ResponseModelDTO> listProjects(
-        @RequestParam(value = "keyword", required = false) String keyword,
-        @RequestParam(value = "dataInicio", required = false) String projectStartDate,
-        @RequestParam(value = "dataFim", required = false) String projectEndDate,
-        @RequestParam(value = "status", required = false) ProjectStatus status,
-        @RequestParam(value = "classificacao", required = false) ProjectClassification classification
+            @RequestParam(value = "keyword", required = false) String keyword,
+            @RequestParam(value = "dataInicio", required = false) String projectStartDate,
+            @RequestParam(value = "dataFim", required = false) String projectEndDate,
+            @RequestParam(value = "status", required = false) ProjectStatus status,
+            @RequestParam(value = "classificacao", required = false) ProjectClassification classification
     ) {
         try {
-            List<ProjectDto> projectDtoList = projectService.listProjectsFiltered(keyword,
-                    projectStartDate != null ? stringToLocalDate(projectStartDate): null,
+            List<ProjectDto> projectDtoList = projectService.listProjectsFiltered(
+                    keyword,
+                    projectStartDate != null ? stringToLocalDate(projectStartDate) : null,
                     projectEndDate != null ? stringToLocalDate(projectEndDate) : null,
                     status,
-                    classification);
+                    classification
+            );
 
             List<EntityModel<ProjectDto>> entityModels = projectDtoList.stream()
                     .map(projectDto -> {
@@ -96,6 +96,18 @@ public class ProjectController {
             return ResponseEntity.badRequest().body(new ResponseModelDTO(e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseModelDTO(e.getMessage()));
+        }
+    }
+
+    private LocalDate stringToLocalDate(String dateString) {
+        if (dateString == null || dateString.trim().isEmpty()) {
+            return null; // ou lance uma exceção personalizada
+        }
+        DateTimeFormatter parser = DateTimeFormatter.ofPattern("uuuu-MM-dd");
+        try {
+            return LocalDate.parse(dateString, parser);
+        } catch (DateTimeParseException e) {
+            throw new RuntimeException("Data inválida: " + dateString);
         }
     }
 
@@ -122,6 +134,7 @@ public class ProjectController {
             throw new SystemContextException(e.getMessage());
         }
     }
+
     @PutMapping("/update/{id}")
     public ResponseEntity<ResponseModelDTO> updateProject(
             @PathVariable String id,
@@ -144,7 +157,6 @@ public class ProjectController {
                     .body(new ResponseModelDTO("An unexpected error occurred: " + e.getMessage()));
         }
     }
-
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<ResponseModelDTO> deleteProject(@PathVariable String id) {
@@ -175,7 +187,6 @@ public class ProjectController {
                 projectStartDate, projectEndDate
         );
 
-
         var response = new ResponseModelDTO(filteredProjects);
         return ResponseEntity.ok(response);
     }
@@ -200,18 +211,8 @@ public class ProjectController {
         }
     }
 
-
     private void addLinksToProjectDto(EntityModel<ProjectDto> model, String projectId) {
         model.add(linkTo(methodOn(ProjectController.class).readProject(projectId)).withSelfRel());
         model.add(linkTo(methodOn(ProjectController.class).listProjects(null, null, null, null, null)).withRel("list"));
     }
-
-    private LocalDate stringToLocalDate(String dateString){
-        DateTimeFormatter parser = DateTimeFormatter.ofPattern("uuuu-MM-dd");
-        return LocalDate.parse(dateString, parser);
-    }
-
-
-
-
 }
