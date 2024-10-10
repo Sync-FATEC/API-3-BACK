@@ -17,4 +17,5 @@ public class DocumentListDTO extends RepresentationModel<Documents> {
     public FileType fileType;
     public String fileUrl;
     public LocalDate uploadedAt;
+    public boolean removed;
 }

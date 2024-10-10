@@ -204,7 +204,8 @@ public class ProjectService {
             document.getFileName(),
             document.getFileType(),
             document.getFileUrl(),
-            document.getUploadedAt()
+            document.getUploadedAt(),
+                document.isRemoved()
         );
     }
 

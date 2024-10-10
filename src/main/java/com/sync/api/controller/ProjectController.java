@@ -140,6 +140,7 @@ public class ProjectController {
             @PathVariable String id,
             @Valid @RequestBody UpdateProjectDto updateProjectDto) {
         try {
+            System.out.println(updateProjectDto);
             Project project = projectService.updateProject(id, updateProjectDto);
             ResponseModelDTO response = new ResponseModelDTO(project);
             return ResponseEntity.ok(response);
