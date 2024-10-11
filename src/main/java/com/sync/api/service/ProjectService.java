@@ -73,8 +73,13 @@ public class ProjectService {
     public List<ProjectDto> listProjectsFiltered(String keyword, LocalDate projectStartDate, LocalDate projectEndDate, ProjectStatus status, ProjectClassification classification) {
         List<Project> projects = projectRepository.findAllByOrderByProjectStartDateDesc();
 
+        String keywordLower = (keyword != null) ? keyword.toLowerCase() : null;
+
         return projects.stream()
-                .filter(project -> (keyword == null || project.getProjectReference().contains(keyword) || project.getProjectCompany().contains(keyword) || project.getNameCoordinator().contains(keyword)))
+                .filter(project -> (keywordLower == null ||
+                        project.getProjectReference().toLowerCase().contains(keywordLower) ||
+                        project.getProjectCompany().toLowerCase().contains(keywordLower) ||
+                        project.getNameCoordinator().toLowerCase().contains(keywordLower)))
                 .filter(project -> (projectStartDate == null || !project.getProjectStartDate().isBefore(projectStartDate)))
                 .filter(project -> (projectEndDate == null || !project.getProjectEndDate().isAfter(projectEndDate)))
                 .filter(project -> (status == null || project.getProjectStatus() == status))
@@ -82,6 +87,7 @@ public class ProjectService {
                 .map(this::mapProjectToDto)
                 .collect(Collectors.toList());
     }
+
 
     public List<ProjectDto> listProjectsNearEnd() {
         LocalDate startOfWeek = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
