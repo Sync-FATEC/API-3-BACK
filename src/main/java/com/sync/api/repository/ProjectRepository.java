@@ -16,6 +16,7 @@ import java.util.List;
 @Repository
 public interface ProjectRepository extends JpaRepository<Project, String>, JpaSpecificationExecutor<Project> {
     List<Project> findAllByOrderByProjectStartDateDesc();
+
     @Query("SELECT p FROM Project p WHERE " +
             "(:projectReference IS NULL OR p.projectReference LIKE %:projectReference%) AND " +
             "(:projectCompany IS NULL OR p.projectCompany LIKE %:projectCompany%) AND " +
@@ -33,4 +34,9 @@ public interface ProjectRepository extends JpaRepository<Project, String>, JpaSp
             @Param("projectStartDate") LocalDate projectStartDate,
             @Param("projectEndDate") LocalDate projectEndDate
     );
+
+    @Query("SELECT p FROM Project p WHERE p.projectEndDate BETWEEN :startOfWeek AND :endOfWeek")
+    List<Project> findProjectsEndingThisWeek(@Param("startOfWeek") LocalDate startOfWeek,
+                                             @Param("endOfWeek") LocalDate endOfWeek);
+
 }

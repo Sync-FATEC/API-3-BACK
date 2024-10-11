@@ -25,9 +25,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -77,6 +79,14 @@ public class ProjectService {
                 .filter(project -> (projectEndDate == null || !project.getProjectEndDate().isAfter(projectEndDate)))
                 .filter(project -> (status == null || project.getProjectStatus() == status))
                 .filter(project -> (classification == null || project.getProjectClassification() == classification))
+                .map(this::mapProjectToDto)
+                .collect(Collectors.toList());
+    }
+
+    public List<ProjectDto> listProjectsNearEnd() {
+        LocalDate startOfWeek = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        LocalDate endOfWeek = LocalDate.now().with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
+        return projectRepository.findProjectsEndingThisWeek(startOfWeek,endOfWeek).stream()
                 .map(this::mapProjectToDto)
                 .collect(Collectors.toList());
     }

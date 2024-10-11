@@ -99,17 +99,26 @@ public class ProjectController {
         }
     }
 
-    private LocalDate stringToLocalDate(String dateString) {
-        if (dateString == null || dateString.trim().isEmpty()) {
-            return null; // ou lance uma exceção personalizada
-        }
-        DateTimeFormatter parser = DateTimeFormatter.ofPattern("uuuu-MM-dd");
+        @GetMapping("/get/all/near-end")
+    public ResponseEntity<ResponseModelDTO> listProjectsEarlyEnd() {
         try {
-            return LocalDate.parse(dateString, parser);
-        } catch (DateTimeParseException e) {
-            throw new RuntimeException("Data inválida: " + dateString);
+            List<ProjectDto> projectDtoList = projectService.listProjectsNearEnd();
+            List<EntityModel<ProjectDto>> entityModels = projectDtoList.stream()
+                    .map(projectDto -> {
+                        EntityModel<ProjectDto> model = EntityModel.of(projectDto);
+                        addLinksToProjectDto(model, projectDto.projectId());
+                        return model;
+                    })
+                    .toList();
+            return ResponseEntity.ok(new ResponseModelDTO(entityModels));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(new ResponseModelDTO(e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseModelDTO(e.getMessage()));
         }
     }
+
+
 
     @GetMapping("/get/coordinators")
     public ResponseEntity<ResponseModelDTO> listCoordinators() {
@@ -215,5 +224,17 @@ public class ProjectController {
     private void addLinksToProjectDto(EntityModel<ProjectDto> model, String projectId) {
         model.add(linkTo(methodOn(ProjectController.class).readProject(projectId)).withSelfRel());
         model.add(linkTo(methodOn(ProjectController.class).listProjects(null, null, null, null, null)).withRel("list"));
+    }
+
+    private LocalDate stringToLocalDate(String dateString) {
+        if (dateString == null || dateString.trim().isEmpty()) {
+            return null; // ou lance uma exceção personalizada
+        }
+        DateTimeFormatter parser = DateTimeFormatter.ofPattern("uuuu-MM-dd");
+        try {
+            return LocalDate.parse(dateString, parser);
+        } catch (DateTimeParseException e) {
+            throw new RuntimeException("Data inválida: " + dateString);
+        }
     }
 }
