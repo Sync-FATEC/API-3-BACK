@@ -170,12 +170,17 @@ public class ProjectService {
         logger.info("Verificação de status dos projetos iniciada.");
         List<Project> projects = projectRepository.findAll();
         for (Project project : projects) {
-            ProjectStatus projectStatus = VerifyProjectStatus(project);
-            project.setProjectStatus(projectStatus);
-            projectRepository.save(project);
+            if (project.getProjectStartDate() != null || project.getProjectEndDate() != null) {
+                ProjectStatus projectStatus = VerifyProjectStatus(project);
+                project.setProjectStatus(projectStatus);
+                projectRepository.save(project);
+            } else {
+                logger.warn("Projeto com ID {} ignorado: data de início não disponível.", project.getProjectId());
+            }
         }
         logger.info("Verificação de status dos projetos concluída.");
     }
+
 
 
 
@@ -200,11 +205,11 @@ public class ProjectService {
 
     private DocumentListDTO mapDocToDTO(Documents document){
         return new DocumentListDTO(
-            document.getDocuments_id(),
-            document.getFileName(),
-            document.getFileType(),
-            document.getFileUrl(),
-            document.getUploadedAt(),
+                document.getDocuments_id(),
+                document.getFileName(),
+                document.getFileType(),
+                document.getFileUrl(),
+                document.getUploadedAt(),
                 document.isRemoved()
         );
     }
