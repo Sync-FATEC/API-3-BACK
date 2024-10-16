@@ -55,7 +55,7 @@ public class ProjectService {
 
     public Project createProject(RegisterProjectDTO registerProjectDTO) {
         try {
-            var projectStatus = VerifyProjectStatus(registerProjectDTO);
+            var projectStatus = VerifyProjectStatus(registerProjectDTO.projectStartDate(), registerProjectDTO.projectEndDate());
             return registerProject.registerProject(registerProjectDTO, projectStatus);
         } catch (IllegalArgumentException e) {
             throw new RuntimeException("Dados do projeto inválidos: " + e.getMessage(), e);
@@ -123,13 +123,15 @@ public class ProjectService {
                         "Projeto com o ID " + projectId + " não encontrado"
                 ));
 
+
         HistoryProjectDto historyProjectDto = compareChanges.compare(project,updateProjectDto);
 
         if (historyProjectDto == null) {
             return project;
         }
 
-        Project newValues = updateProject.updateProject(updateProjectDto, project);
+        var projectStatus = VerifyProjectStatus(updateProjectDto.projectStartDate(), updateProjectDto.projectEndDate());
+        Project newValues = updateProject.updateProject(updateProjectDto, project, projectStatus);
 
         registerHistoryProject.registerLog(historyProjectDto);
 
@@ -230,10 +232,10 @@ public class ProjectService {
         );
     }
 
-    private ProjectStatus VerifyProjectStatus(RegisterProjectDTO project) {
-        if (project.projectStartDate().isAfter(LocalDate.now())) {
+    private ProjectStatus VerifyProjectStatus(LocalDate projectStartDate, LocalDate projectEndDate) {
+        if (projectStartDate.isAfter(LocalDate.now())) {
             return ProjectStatus.NAO_INICIADOS;
-        } else if (project.projectEndDate().isBefore(LocalDate.now())) {
+        } else if (projectEndDate.isBefore(LocalDate.now())) {
             return ProjectStatus.FINALIZADOS;
         } else {
             return ProjectStatus.EM_ANDAMENTO;

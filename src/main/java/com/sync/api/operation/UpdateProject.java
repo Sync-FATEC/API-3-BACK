@@ -1,6 +1,7 @@
 package com.sync.api.operation;
 
 import com.sync.api.dto.project.UpdateProjectDto;
+import com.sync.api.enums.ProjectStatus;
 import com.sync.api.model.Project;
 import com.sync.api.repository.ProjectRepository;
 import jakarta.transaction.Transactional;
@@ -12,7 +13,7 @@ public class UpdateProject {
     @Autowired
     private ProjectRepository projectRepository;
 
-    public Project updateProject(UpdateProjectDto updateProjectDto, Project project){
+    public Project updateProject(UpdateProjectDto updateProjectDto, Project project, ProjectStatus projectStatus){
         if (updateProjectDto.projectReference() != null){
             project.setProjectReference(updateProjectDto.projectReference());
         }
@@ -40,9 +41,7 @@ public class UpdateProject {
         if( updateProjectDto.projectClassification() != null){
             project.setProjectClassification(updateProjectDto.projectClassification());
         }
-        if(updateProjectDto.projectStatus() != null){
-            project.setProjectStatus(updateProjectDto.projectStatus());
-        }
+        project.setProjectStatus(projectStatus);
         return projectRepository.save(project);
     }
 }
