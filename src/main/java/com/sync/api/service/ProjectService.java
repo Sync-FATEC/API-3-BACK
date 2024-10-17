@@ -189,7 +189,7 @@ public class ProjectService {
         List<Project> projects = projectRepository.findAll();
         for (Project project : projects) {
             if (project.getProjectStartDate() != null || project.getProjectEndDate() != null) {
-                ProjectStatus projectStatus = VerifyProjectStatus(project);
+                ProjectStatus projectStatus = VerifyProjectStatus(project.projectStartDate, project.projectEndDate);
                 project.setProjectStatus(projectStatus);
                 projectRepository.save(project);
             } else {
@@ -236,16 +236,6 @@ public class ProjectService {
         if (projectStartDate.isAfter(LocalDate.now())) {
             return ProjectStatus.NAO_INICIADOS;
         } else if (projectEndDate.isBefore(LocalDate.now())) {
-            return ProjectStatus.FINALIZADOS;
-        } else {
-            return ProjectStatus.EM_ANDAMENTO;
-        }
-    }
-
-    private ProjectStatus VerifyProjectStatus(Project project) {
-        if (project.projectStartDate.isAfter(LocalDate.now())) {
-            return ProjectStatus.NAO_INICIADOS;
-        } else if (project.projectEndDate.isBefore(LocalDate.now())) {
             return ProjectStatus.FINALIZADOS;
         } else {
             return ProjectStatus.EM_ANDAMENTO;
