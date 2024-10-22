@@ -1,10 +1,9 @@
 package com.sync.api.service;
 
-import com.sync.api.dto.HistoryProjectDto;
+import com.sync.api.dto.project.HistoryProjectDto;
 import com.sync.api.dto.documents.DocumentUploadDto;
 import com.sync.api.exception.SystemContextException;
 import com.sync.api.model.Documents;
-import com.sync.api.model.HistoryProject;
 import com.sync.api.model.Project;
 import com.sync.api.operation.RegisterHistoryProject;
 import com.sync.api.operation.uploads.UploadsDocuments;
@@ -14,11 +13,9 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.swing.text.Document;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.List;
 
 @Service
 public class DocumentService {

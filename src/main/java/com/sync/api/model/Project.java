@@ -44,6 +44,10 @@ public class Project {
     @OneToMany(mappedBy = "project", cascade = CascadeType.REMOVE)
     public List<HistoryProject> historyProjectList;
 
+    @ElementCollection
+    private List<String> sensitiveFields;
+
+
     @ManyToOne
     @JsonIgnore
     @JoinColumn(name = "user_id")

@@ -1,6 +1,6 @@
 package com.sync.api.operation;
 
-import com.sync.api.dto.HistoryProjectDto;
+import com.sync.api.dto.project.HistoryProjectDto;
 import com.sync.api.model.HistoryProject;
 import com.sync.api.repository.HistoryProjectRepository;
 import org.springframework.beans.factory.annotation.Autowired;

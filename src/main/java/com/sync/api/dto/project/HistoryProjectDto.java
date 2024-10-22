@@ -1,12 +1,10 @@
-package com.sync.api.dto;
+package com.sync.api.dto.project;
 
 import com.sync.api.model.Documents;
 import com.sync.api.model.Project;
 import com.sync.api.model.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Lob;
-
-import java.time.LocalDate;
 
 public record HistoryProjectDto(
         @Lob

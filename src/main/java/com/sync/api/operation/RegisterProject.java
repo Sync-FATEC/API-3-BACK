@@ -11,6 +11,7 @@ import com.sync.api.model.Project;
 import com.sync.api.repository.DocumentRepository;
 import com.sync.api.repository.ProjectRepository;
 import com.sync.api.service.DocumentService;
+import com.sync.api.service.SensitiveFieldUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,6 +32,9 @@ public class RegisterProject {
         project.setProjectStatus(projectStatus);
         project.setProjectClassification(ProjectClassification.valueOf(projectDto.projectClassification()));
         project.setProjectDescription(projectDto.projectDescription());
+
+        project.setSensitiveFields(SensitiveFieldUtil.getSensitiveFields(projectDto));
+
         return projectRepository.save(project);
     }
 }

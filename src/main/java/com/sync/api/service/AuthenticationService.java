@@ -7,6 +7,7 @@ import com.sync.api.model.User;
 import com.sync.api.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -70,4 +71,24 @@ public class AuthenticationService
 
         return userRepository.save(admin);
     }
+
+
+    public boolean verifyLoggedIn() {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        if(authentication == null) {
+            return false;
+        } else {
+            return authentication.isAuthenticated();
+        }
+    }
+
+    public User getLoggedUser() {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        if(authentication == null) {
+            return null;
+        } else {
+            return (User) authentication.getPrincipal();
+        }
+    }
+
 }

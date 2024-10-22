@@ -1,6 +1,6 @@
 package com.sync.api.service;
 
-import com.sync.api.dto.HistoryProjectDto;
+import com.sync.api.dto.project.HistoryProjectDto;
 import com.sync.api.dto.documents.DocumentListDTO;
 import com.sync.api.dto.project.ProjectDto;
 import com.sync.api.dto.project.RegisterProjectDTO;
@@ -18,16 +18,14 @@ import com.sync.api.operation.contract.Exporter;
 import com.sync.api.operation.exporter.GeneratorExcel;
 import com.sync.api.operation.exporter.GeneratorPdf;
 import com.sync.api.repository.ProjectRepository;
-import com.sync.api.specification.ProjectSpecification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.Field;
 import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 import java.util.Collections;
@@ -38,6 +36,9 @@ import java.util.stream.Collectors;
 
 @Service
 public class ProjectService {
+
+    @Autowired
+    private AuthenticationService authService;
     @Autowired
     private ProjectRepository projectRepository;
     @Autowired
@@ -203,7 +204,8 @@ public class ProjectService {
 
 
     private ProjectDto mapProjectToDto(Project project) {
-        return new ProjectDto(
+        project = RemoveSensitiveData(project);
+        var dto = new ProjectDto(
                 project.getProjectId(),
                 project.getProjectReference(),
                 project.getNameCoordinator(),
@@ -219,6 +221,7 @@ public class ProjectService {
                         ? project.getDocuments().stream().map(this::mapDocToDTO).collect(Collectors.toList())
                         : Collections.emptyList()
         );
+        return dto;
     }
 
     private DocumentListDTO mapDocToDTO(Documents document){
@@ -240,5 +243,27 @@ public class ProjectService {
         } else {
             return ProjectStatus.EM_ANDAMENTO;
         }
+    }
+
+    private Project RemoveSensitiveData(Project project){
+        if(authService.verifyLoggedIn()){
+            if(!project.getSensitiveFields().isEmpty()){
+                // Itera sobre todos os campos do projeto
+                for (Field field : project.getClass().getDeclaredFields()) {
+                    field.setAccessible(true);
+                    // Se o campo for sensível e o usuário não for admin, seta o campo como nulo
+                    if (project.getSensitiveFields().contains(field.getName())) {
+                        try {
+                            field.set(project, null);
+                        } catch (IllegalAccessException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+        } else {
+            return project;
+        }
+        return project;
     }
 }

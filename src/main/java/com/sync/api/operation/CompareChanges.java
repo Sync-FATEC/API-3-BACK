@@ -1,13 +1,9 @@
 package com.sync.api.operation;
 
-import com.sync.api.dto.HistoryProjectDto;
+import com.sync.api.dto.project.HistoryProjectDto;
 import com.sync.api.dto.project.UpdateProjectDto;
 import com.sync.api.model.Project;
 import org.springframework.stereotype.Component;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 
 @Component
 public class CompareChanges {
