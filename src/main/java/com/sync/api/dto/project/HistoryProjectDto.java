@@ -5,20 +5,28 @@ import com.sync.api.model.Project;
 import com.sync.api.model.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Lob;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-public record HistoryProjectDto(
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class HistoryProjectDto {
         @Lob
         @Column(columnDefinition = "TEXT")
-        String changedFields,
+        private String changedFields;
+
         @Lob
         @Column(columnDefinition = "TEXT")
-        String newValues,
+        private String newValues;
+
         @Lob
         @Column(columnDefinition = "TEXT")
-        String oldValues,
-        Project project,
-        Documents documents,
-        User user
-) {
+        private String oldValues;
+
+        private Project project;
+        private Documents documents;
+        private User user;
+
 }
-

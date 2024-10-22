@@ -7,8 +7,10 @@ import com.sync.api.dto.web.ResponseModelDTO;
 import com.sync.api.enums.ProjectClassification;
 import com.sync.api.enums.ProjectStatus;
 import com.sync.api.exception.SystemContextException;
+import com.sync.api.model.HistoryProject;
 import com.sync.api.model.Project;
 import com.sync.api.repository.ProjectRepository;
+import com.sync.api.service.AuthenticationService;
 import com.sync.api.service.ProjectService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
@@ -24,6 +26,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
+import java.util.Optional;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -37,6 +40,9 @@ public class ProjectController {
 
     @Autowired
     private ProjectRepository projectRepository;
+
+    @Autowired
+    private AuthenticationService authenticationService;
 
     @PostMapping("/create")
     public ResponseEntity<ResponseModelDTO> createProject(@RequestBody @Valid RegisterProjectDTO registerProjectDTO) {
@@ -150,7 +156,8 @@ public class ProjectController {
             @Valid @RequestBody UpdateProjectDto updateProjectDto) {
         try {
             System.out.println(updateProjectDto);
-            Project project = projectService.updateProject(id, updateProjectDto);
+            var user = authenticationService.getLoggedUser();
+            Project project = projectService.updateProject(id, updateProjectDto, user);
             ResponseModelDTO response = new ResponseModelDTO(project);
             return ResponseEntity.ok(response);
         } catch (EntityNotFoundException e) {
@@ -165,6 +172,19 @@ public class ProjectController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ResponseModelDTO("An unexpected error occurred: " + e.getMessage()));
+        }
+    }
+
+    @GetMapping("/get/history-projects/{id}")
+    public ResponseEntity<ResponseModelDTO> listHistoryProjects(@PathVariable String id) {
+        try {
+            List<HistoryProject> projectDtoList = projectService.listHistoryChanges(id);
+            ResponseModelDTO response = new ResponseModelDTO(projectDtoList);
+            return ResponseEntity.ok().body(response);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(new ResponseModelDTO(e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseModelDTO(e.getMessage()));
         }
     }
 

@@ -9,7 +9,9 @@ import com.sync.api.enums.ProjectClassification;
 import com.sync.api.enums.ProjectStatus;
 import com.sync.api.exception.SystemContextException;
 import com.sync.api.model.Documents;
+import com.sync.api.model.HistoryProject;
 import com.sync.api.model.Project;
+import com.sync.api.model.User;
 import com.sync.api.operation.CompareChanges;
 import com.sync.api.operation.RegisterHistoryProject;
 import com.sync.api.operation.RegisterProject;
@@ -17,6 +19,7 @@ import com.sync.api.operation.UpdateProject;
 import com.sync.api.operation.contract.Exporter;
 import com.sync.api.operation.exporter.GeneratorExcel;
 import com.sync.api.operation.exporter.GeneratorPdf;
+import com.sync.api.repository.HistoryProjectRepository;
 import com.sync.api.repository.ProjectRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +34,7 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -41,6 +45,8 @@ public class ProjectService {
     private AuthenticationService authService;
     @Autowired
     private ProjectRepository projectRepository;
+    @Autowired
+    private HistoryProjectRepository historyProjectRepository;
     @Autowired
     private  DocumentService documentService;
     @Autowired
@@ -118,7 +124,7 @@ public class ProjectService {
         }
     }
 
-    public Project updateProject(String projectId, UpdateProjectDto updateProjectDto) {
+    public Project updateProject(String projectId, UpdateProjectDto updateProjectDto, User user) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new IllegalArgumentException(
                         "Projeto com o ID " + projectId + " não encontrado"
@@ -126,12 +132,14 @@ public class ProjectService {
 
 
         HistoryProjectDto historyProjectDto = compareChanges.compare(project,updateProjectDto);
+        historyProjectDto.setUser(user);
 
         if (historyProjectDto == null) {
             return project;
         }
 
         var projectStatus = VerifyProjectStatus(updateProjectDto.projectStartDate(), updateProjectDto.projectEndDate());
+
         Project newValues = updateProject.updateProject(updateProjectDto, project, projectStatus);
 
         registerHistoryProject.registerLog(historyProjectDto);
@@ -139,6 +147,12 @@ public class ProjectService {
         return newValues;
     }
 
+    public List<HistoryProject> listHistoryChanges(String projectId) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new IllegalArgumentException("Projeto com o ID " + projectId + " não encontrado"));
+
+        return historyProjectRepository.findByProject_ProjectId(projectId);
+    }
 
     public Boolean deleteProject(String projectId) {
         Project project = projectRepository.findById(projectId)

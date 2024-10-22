@@ -64,7 +64,6 @@ public class CompareChanges {
             newValues.append(updateProjectDto.projectStatus()).append(",");
         }
 
-
         if (changesFields.isEmpty()) {
             return null;
         }
