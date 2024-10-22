@@ -1,5 +1,6 @@
 package com.sync.api.controller;
 
+import com.sync.api.dto.project.HistoryProjectDto;
 import com.sync.api.dto.project.ProjectDto;
 import com.sync.api.dto.project.RegisterProjectDTO;
 import com.sync.api.dto.project.UpdateProjectDto;
@@ -155,7 +156,6 @@ public class ProjectController {
             @PathVariable String id,
             @Valid @RequestBody UpdateProjectDto updateProjectDto) {
         try {
-            System.out.println(updateProjectDto);
             var user = authenticationService.getLoggedUser();
             Project project = projectService.updateProject(id, updateProjectDto, user);
             ResponseModelDTO response = new ResponseModelDTO(project);
@@ -178,7 +178,7 @@ public class ProjectController {
     @GetMapping("/get/history-projects/{id}")
     public ResponseEntity<ResponseModelDTO> listHistoryProjects(@PathVariable String id) {
         try {
-            List<HistoryProject> projectDtoList = projectService.listHistoryChanges(id);
+            List<HistoryProjectDto> projectDtoList = projectService.listHistoryChanges(id);
             ResponseModelDTO response = new ResponseModelDTO(projectDtoList);
             return ResponseEntity.ok().body(response);
         } catch (RuntimeException e) {

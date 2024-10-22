@@ -72,7 +72,9 @@ public class CompareChanges {
                 changesFields.toString(),
                 newValues.toString(),
                 oldValues.toString(),
+                null,
                 oldProject,
+                null,
                 null,
                 null
         );

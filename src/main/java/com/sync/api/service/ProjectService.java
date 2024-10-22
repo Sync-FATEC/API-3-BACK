@@ -133,6 +133,7 @@ public class ProjectService {
 
         HistoryProjectDto historyProjectDto = compareChanges.compare(project,updateProjectDto);
         historyProjectDto.setUser(user);
+        historyProjectDto.setUserEmail(user.getUserEmail());
 
         if (historyProjectDto == null) {
             return project;
@@ -147,11 +148,26 @@ public class ProjectService {
         return newValues;
     }
 
-    public List<HistoryProject> listHistoryChanges(String projectId) {
+    public List<HistoryProjectDto> listHistoryChanges(String projectId) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new IllegalArgumentException("Projeto com o ID " + projectId + " não encontrado"));
 
-        return historyProjectRepository.findByProject_ProjectId(projectId);
+        return historyProjectRepository.findByProject_ProjectId(projectId).stream()
+                .map(this::mapHistoryProjectToDto)
+                .collect(Collectors.toList());
+    }
+
+    private HistoryProjectDto mapHistoryProjectToDto(HistoryProject historyProject) {
+        return new HistoryProjectDto(
+                historyProject.getChangedFields(),
+                historyProject.getNewValues(),
+                historyProject.getOldValues(),
+                historyProject.getChangeDate(),
+                historyProject.getProject(),
+                historyProject.getDocuments(),
+                historyProject.getUser(),
+                historyProject.getUser().getUserEmail()
+        );
     }
 
     public Boolean deleteProject(String projectId) {

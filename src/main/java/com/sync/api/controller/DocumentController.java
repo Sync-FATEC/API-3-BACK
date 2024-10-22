@@ -5,6 +5,7 @@ import com.sync.api.enums.FileType;
 import com.sync.api.exception.SystemContextException;
 import com.sync.api.model.Documents;
 import com.sync.api.model.Project;
+import com.sync.api.service.AuthenticationService;
 import com.sync.api.service.DocumentService;
 import com.sync.api.service.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,9 @@ public class DocumentController {
 
     @Autowired
     private ProjectService projectService;
+
+    @Autowired
+    private AuthenticationService authenticationService;
 
     @PostMapping("/create")
     public ResponseEntity<?> createDocument(@RequestParam("projectId") String projectId,
@@ -72,12 +76,13 @@ public class DocumentController {
     @PutMapping("/removed")
     public ResponseEntity<?> removedDocument(@RequestBody List<String> documentIds) {
         try {
+            var user = authenticationService.getLoggedUser();
             if (documentIds.isEmpty()) {
                 return new ResponseEntity<>("Nenhum ID de documento fornecido", HttpStatus.BAD_REQUEST);
             }
 
             for (String documentId : documentIds) {
-                boolean removedDocument = documentService.removedDocument(documentId);
+                boolean removedDocument = documentService.removedDocument(documentId, user);
                 if (!removedDocument) {
                     return new ResponseEntity<>("Falha ao remover o documento com ID: " + documentId, HttpStatus.INTERNAL_SERVER_ERROR);
                 }

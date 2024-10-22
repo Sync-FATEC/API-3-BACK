@@ -5,6 +5,7 @@ import com.sync.api.dto.documents.DocumentUploadDto;
 import com.sync.api.exception.SystemContextException;
 import com.sync.api.model.Documents;
 import com.sync.api.model.Project;
+import com.sync.api.model.User;
 import com.sync.api.operation.RegisterHistoryProject;
 import com.sync.api.operation.uploads.UploadsDocuments;
 import com.sync.api.repository.DocumentRepository;
@@ -72,13 +73,13 @@ public class DocumentService {
         return uploadsDocuments.getDocumento(docDb.getFilePath());
     }
 
-    public boolean removedDocument(String documentId) {
+    public boolean removedDocument(String documentId, User user) {
         Documents document = documentRepository.findById(documentId)
                 .orElseThrow(() -> new EntityNotFoundException("Documento não encontrado com o id: " + documentId));
 
         document.setRemoved(true);
         documentRepository.save(document);
-        HistoryProjectDto historyProjectDto = new HistoryProjectDto("removed","true","false", document.getProject(),document,null);
+        HistoryProjectDto historyProjectDto = new HistoryProjectDto("removed","true","false",LocalDate.now(), document.getProject(),document, user, user.getUserEmail());
         registerHistoryProject.registerLog(historyProjectDto);
         return true;
     }
