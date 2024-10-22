@@ -15,21 +15,20 @@ public class RegisterHistoryProject {
 
     public void registerLog(HistoryProjectDto historyProjectDto){
         HistoryProject newHistory = new HistoryProject();
-        newHistory.setChangedFields(historyProjectDto.getChangedFields()); // Usando o getter
-        newHistory.setNewValues(historyProjectDto.getNewValues());         // Usando o getter
-        newHistory.setOldValues(historyProjectDto.getOldValues());         // Usando o getter
+        newHistory.setChangedFields(historyProjectDto.getChangedFields());
+        newHistory.setNewValues(historyProjectDto.getNewValues());
+        newHistory.setOldValues(historyProjectDto.getOldValues());
         newHistory.setChangeDate(LocalDate.now());
-
-        if(historyProjectDto.getProject() != null){                        // Usando o getter
+        if(historyProjectDto.getProject() != null){
             newHistory.setProject(historyProjectDto.getProject());
         }
-        if (historyProjectDto.getDocuments() != null){                     // Usando o getter
+        if (historyProjectDto.getDocuments() != null){
             newHistory.setDocuments(historyProjectDto.getDocuments());
         }
-        if (historyProjectDto.getUser() != null){                          // Usando o getter
+        if (historyProjectDto.getUser() != null){
             newHistory.setUser(historyProjectDto.getUser());
         }
-
         historyProjectRepository.save(newHistory);
+
     }
 }

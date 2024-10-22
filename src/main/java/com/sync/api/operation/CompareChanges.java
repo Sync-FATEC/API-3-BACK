@@ -3,12 +3,15 @@ package com.sync.api.operation;
 import com.sync.api.dto.project.HistoryProjectDto;
 import com.sync.api.dto.project.UpdateProjectDto;
 import com.sync.api.model.Project;
+import com.sync.api.model.User;
 import org.springframework.stereotype.Component;
+
+import java.time.LocalDate;
 
 @Component
 public class CompareChanges {
 
-    public HistoryProjectDto compare(Project oldProject, UpdateProjectDto updateProjectDto) {
+    public HistoryProjectDto compare(Project oldProject, UpdateProjectDto updateProjectDto, User user) {
         StringBuilder changesFields = new StringBuilder();
         StringBuilder newValues = new StringBuilder();
         StringBuilder oldValues = new StringBuilder();
@@ -64,6 +67,7 @@ public class CompareChanges {
             newValues.append(updateProjectDto.projectStatus()).append(",");
         }
 
+
         if (changesFields.isEmpty()) {
             return null;
         }
@@ -72,11 +76,12 @@ public class CompareChanges {
                 changesFields.toString(),
                 newValues.toString(),
                 oldValues.toString(),
-                null,
+                LocalDate.now(),
                 oldProject,
                 null,
-                null,
-                null
+                user,
+                user.getUserEmail()
+
         );
     }
 

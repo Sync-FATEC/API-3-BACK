@@ -131,16 +131,13 @@ public class ProjectService {
                 ));
 
 
-        HistoryProjectDto historyProjectDto = compareChanges.compare(project,updateProjectDto);
-        historyProjectDto.setUser(user);
-        historyProjectDto.setUserEmail(user.getUserEmail());
+        HistoryProjectDto historyProjectDto = compareChanges.compare(project,updateProjectDto, user);
 
         if (historyProjectDto == null) {
             return project;
         }
 
         var projectStatus = VerifyProjectStatus(updateProjectDto.projectStartDate(), updateProjectDto.projectEndDate());
-
         Project newValues = updateProject.updateProject(updateProjectDto, project, projectStatus);
 
         registerHistoryProject.registerLog(historyProjectDto);
