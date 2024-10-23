@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Service
 public class DocumentService {
@@ -79,7 +80,7 @@ public class DocumentService {
 
         document.setRemoved(true);
         documentRepository.save(document);
-        HistoryProjectDto historyProjectDto = new HistoryProjectDto("removed","true","false",LocalDate.now(), document.getProject(),document, user, user.getUserEmail());
+        HistoryProjectDto historyProjectDto = new HistoryProjectDto("removed","true","false", LocalDateTime.now(), document.getProject(),document, user, user.getUserEmail());
         registerHistoryProject.registerLog(historyProjectDto);
         return true;
     }

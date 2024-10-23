@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Service
 public class RegisterHistoryProject {
@@ -18,7 +19,7 @@ public class RegisterHistoryProject {
         newHistory.setChangedFields(historyProjectDto.getChangedFields());
         newHistory.setNewValues(historyProjectDto.getNewValues());
         newHistory.setOldValues(historyProjectDto.getOldValues());
-        newHistory.setChangeDate(LocalDate.now());
+        newHistory.setChangeDate(LocalDateTime.now());
         if(historyProjectDto.getProject() != null){
             newHistory.setProject(historyProjectDto.getProject());
         }

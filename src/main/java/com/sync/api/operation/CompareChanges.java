@@ -7,6 +7,7 @@ import com.sync.api.model.User;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Component
 public class CompareChanges {
@@ -76,7 +77,7 @@ public class CompareChanges {
                 changesFields.toString(),
                 newValues.toString(),
                 oldValues.toString(),
-                LocalDate.now(),
+                LocalDateTime.now(),
                 oldProject,
                 null,
                 user,

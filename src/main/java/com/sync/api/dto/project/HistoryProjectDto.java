@@ -11,6 +11,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
@@ -27,7 +28,7 @@ public class HistoryProjectDto {
         @Lob
         @Column(columnDefinition = "TEXT")
         private String oldValues;
-        private LocalDate changeDate;
+        private LocalDateTime changeDate;
 
         @JsonIgnore
         private Project project;
