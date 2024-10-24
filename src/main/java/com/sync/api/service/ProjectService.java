@@ -149,7 +149,7 @@ public class ProjectService {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new IllegalArgumentException("Projeto com o ID " + projectId + " não encontrado"));
 
-        return historyProjectRepository.findByProject_ProjectId(projectId).stream()
+        return historyProjectRepository.findByProject_ProjectIdOrderByChangeDateDesc(projectId).stream()
                 .map(this::mapHistoryProjectToDto)
                 .collect(Collectors.toList());
     }
