@@ -26,7 +26,7 @@ public class Documents extends RepresentationModel<Documents> {
     public String filePath;
     public LocalDate uploadedAt;
     @Column(columnDefinition = "boolean default false")
-    public boolean removed ;
+    public boolean removed;
 
     @ManyToOne
     @JsonIgnore

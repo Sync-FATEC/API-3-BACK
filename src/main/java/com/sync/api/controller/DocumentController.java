@@ -1,6 +1,7 @@
 package com.sync.api.controller;
 
 import com.sync.api.dto.documents.DocumentUploadDto;
+import com.sync.api.dto.web.ResponseModelDTO;
 import com.sync.api.enums.FileType;
 import com.sync.api.exception.SystemContextException;
 import com.sync.api.model.Documents;
@@ -89,6 +90,30 @@ public class DocumentController {
             }
 
             return new ResponseEntity<>("Documentos removidos com sucesso", HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PutMapping("/add")
+    public ResponseEntity<?> addDocument(@RequestBody List<String> documentIds) {
+        try {
+            var user = authenticationService.getLoggedUser();
+            if (documentIds.isEmpty()) {
+                return new ResponseEntity<>("Nenhum ID de documento fornecido", HttpStatus.BAD_REQUEST);
+            }
+
+            for (String documentId : documentIds) {
+                boolean removedDocument = documentService.addDocument(documentId, user);
+                if (!removedDocument) {
+                    return new ResponseEntity<>("Falha ao adicionar o documento com ID: " + documentId, HttpStatus.INTERNAL_SERVER_ERROR);
+                }
+            }
+
+            ResponseModelDTO response = new ResponseModelDTO("Documentos adicionados com sucesso");
+            return ResponseEntity.ok().body(response);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (RuntimeException e) {

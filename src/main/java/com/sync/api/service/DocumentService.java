@@ -85,4 +85,15 @@ public class DocumentService {
         return true;
     }
 
+    public boolean addDocument(String documentId, User user) {
+        Documents document = documentRepository.findById(documentId)
+                .orElseThrow(() -> new EntityNotFoundException("Documento não encontrado com o id: " + documentId));
+
+        document.setRemoved(false);
+        documentRepository.save(document);
+        HistoryProjectDto historyProjectDto = new HistoryProjectDto("add","true","false", LocalDateTime.now(), document.getProject(),document, user, user.getUserEmail());
+        registerHistoryProject.registerLog(historyProjectDto);
+        return true;
+    }
+
 }
