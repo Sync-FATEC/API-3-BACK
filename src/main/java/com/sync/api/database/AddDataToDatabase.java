@@ -13,9 +13,10 @@ public class AddDataToDatabase {
         String jdbcUser = Definitions.JDBC_USER;
         String jdbcPassword = Definitions.JDBC_PASSWORD;
         String tableName = "projects";
-        String pythonInterpreter = "python"; // Or "python" depending on your system
-        String scriptPath = "informacoesBanco/adicionar_dados_no_banco.py";
-        String requirementsPath = "informacoesBanco/requirements.txt"; // Path to requirements file
+        String pythonInterpreter = "python3"; // Or "python" depending on your system
+        String scriptPath = "InformacoesBanco/adicionar_dados_no_banco.py";
+        String requirementsPath = "InformacoesBanco/requirements.txt"; // Path to requirements file
+        String venvPath = "InformacoesBanco/venv"; // Path to the virtual environment
 
         try {
             // Connecting to the database
@@ -31,8 +32,20 @@ public class AddDataToDatabase {
                 int count = resultSet.getInt(1);
 
                 if (count == 0) {
+
+                    // Create a virtual environment
+                    ProcessBuilder venvCreate = new ProcessBuilder(pythonInterpreter, "-m", "venv", venvPath);
+                    Process venvProcess = venvCreate.start();
+                    venvProcess.waitFor(); // Wait for the environment creation
+
+                    System.out.println("Virtual environment created.");
+
+                    // Install Python dependencies in the virtual environment
+                    String venvPip = venvPath + "/bin/pip"; // Path to pip inside the virtual environment (for Linux/macOS)
+                    // para o Windows, colocar "venvPath + \\Scripts\\pip.exe"
+
                     // Install Python dependencies using pip
-                    ProcessBuilder pipInstall = new ProcessBuilder(pythonInterpreter, "-m", "pip", "install", "-r", requirementsPath);
+                    ProcessBuilder pipInstall = new ProcessBuilder(venvPip, "install", "-r", requirementsPath);
                     Process pipProcess = pipInstall.start();
 
                     // Read pip install output
@@ -59,7 +72,8 @@ public class AddDataToDatabase {
                     }
 
                     // Run the Python script
-                    ProcessBuilder pb = new ProcessBuilder(pythonInterpreter, scriptPath);
+                    String venvPython = venvPath + "/bin/python"; // Adjust path for Windows if necessary
+                    ProcessBuilder pb = new ProcessBuilder(venvPython, scriptPath);
                     Process process = pb.start();
 
                     // Read the standard output of the process (stdout)
