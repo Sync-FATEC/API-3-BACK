@@ -133,16 +133,20 @@ public class ProjectService {
 
         HistoryProjectDto historyProjectDto = compareChanges.compare(project,updateProjectDto, user);
 
-        if (historyProjectDto == null) {
+        var newSensitiveFields = SensitiveFieldUtil.getSensitiveFields(updateProjectDto);
+
+        if (historyProjectDto == null && newSensitiveFields.equals(project.getSensitiveFields())) {
             return project;
         }
 
         var projectStatus = VerifyProjectStatus(updateProjectDto.projectStartDate(), updateProjectDto.projectEndDate());
-        Project newValues = updateProject.updateProject(updateProjectDto, project, projectStatus);
+        Project projectUpdated = updateProject.updateProject(updateProjectDto, project, projectStatus);
+
+
 
         registerHistoryProject.registerLog(historyProjectDto);
 
-        return newValues;
+        return projectUpdated;
     }
 
     public List<HistoryProjectDto> listHistoryChanges(String projectId) {
@@ -246,7 +250,8 @@ public class ProjectService {
                 project.getProjectStatus().toString(),
                 project.getDocuments() != null
                         ? project.getDocuments().stream().map(this::mapDocToDTO).collect(Collectors.toList())
-                        : Collections.emptyList()
+                        : Collections.emptyList(),
+                project.getSensitiveFields()
         );
         return dto;
     }
@@ -272,9 +277,9 @@ public class ProjectService {
         }
     }
 
-    private Project RemoveSensitiveData(Project project){
-        if(authService.verifyLoggedIn()){
-            if(!project.getSensitiveFields().isEmpty()){
+    private Project RemoveSensitiveData(Project project) {
+        if (!authService.verifyLoggedIn()) {
+            if (!project.getSensitiveFields().isEmpty()) {
                 // Itera sobre todos os campos do projeto
                 for (Field field : project.getClass().getDeclaredFields()) {
                     field.setAccessible(true);

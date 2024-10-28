@@ -75,10 +75,15 @@ public class AuthenticationService
 
     public boolean verifyLoggedIn() {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
-        if(authentication == null) {
+        if (authentication == null) {
             return false;
         } else {
-            return authentication.isAuthenticated();
+            Object principal = authentication.getPrincipal();
+            if (principal instanceof User) {
+                return authentication.isAuthenticated();
+            } else {
+                return false;
+            }
         }
     }
 

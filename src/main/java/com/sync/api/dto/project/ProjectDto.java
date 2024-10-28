@@ -18,5 +18,6 @@ public record ProjectDto(
         LocalDate projectStartDate,
         String projectClassification,
         String projectStatus,
-        List<DocumentListDTO> documents
+        List<DocumentListDTO> documents,
+        List<String> sensitiveFields
 ) {}
