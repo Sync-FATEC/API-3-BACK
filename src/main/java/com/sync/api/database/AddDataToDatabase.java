@@ -1,5 +1,6 @@
 package com.sync.api.database;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -41,10 +42,11 @@ public class AddDataToDatabase {
                     System.out.println("Virtual environment created.");
 
                     // Install Python dependencies in the virtual environment
-                    String venvPip = venvPath + "/bin/pip"; // Path to pip inside the virtual environment (for Linux/macOS)
-                    // para o Windows, colocar "venvPath + \\Scripts\\pip.exe"
+                    String venvPip = venvPath + File.separator + "Scripts" + File.separator + "pip.exe"; // Windows path
+                    if (!System.getProperty("os.name").toLowerCase().contains("win")) {
+                        venvPip = venvPath + File.separator + "bin" + File.separator + "pip"; // Unix-based path
+                    }
 
-                    // Install Python dependencies using pip
                     ProcessBuilder pipInstall = new ProcessBuilder(venvPip, "install", "-r", requirementsPath);
                     Process pipProcess = pipInstall.start();
 
@@ -72,7 +74,11 @@ public class AddDataToDatabase {
                     }
 
                     // Run the Python script
-                    String venvPython = venvPath + "/bin/python"; // Adjust path for Windows if necessary
+                    String venvPython = venvPath + File.separator + "Scripts" + File.separator + "python.exe"; // Windows
+                    if (!System.getProperty("os.name").toLowerCase().contains("win")) {
+                        venvPython = venvPath + File.separator + "bin" + File.separator + "python"; // Unix-based
+                    }
+
                     ProcessBuilder pb = new ProcessBuilder(venvPython, scriptPath);
                     Process process = pb.start();
 

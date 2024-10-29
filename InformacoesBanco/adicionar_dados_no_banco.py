@@ -148,7 +148,7 @@ def process_json_file(file_path):
 
 ################################################################################
 def main():
-    file_path = 'informacoesBanco/data_project.json'
+    file_path = 'InformacoesBanco/data_project.json'
     process_json_file(file_path)
 
 ################################################################################
