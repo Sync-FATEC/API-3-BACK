@@ -69,6 +69,7 @@ public class CompareChanges {
         }
 
 
+
         if (changesFields.isEmpty()) {
             return null;
         }

@@ -4,6 +4,7 @@ import com.sync.api.dto.project.UpdateProjectDto;
 import com.sync.api.enums.ProjectStatus;
 import com.sync.api.model.Project;
 import com.sync.api.repository.ProjectRepository;
+import com.sync.api.service.SensitiveFieldUtil;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -41,6 +42,9 @@ public class UpdateProject {
         if( updateProjectDto.projectClassification() != null){
             project.setProjectClassification(updateProjectDto.projectClassification());
         }
+
+        project.setSensitiveFields(SensitiveFieldUtil.getSensitiveFields(updateProjectDto));
+
         project.setProjectStatus(projectStatus);
         return projectRepository.save(project);
     }

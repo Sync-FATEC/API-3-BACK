@@ -1,5 +1,6 @@
 package com.sync.api.repository;
 
+import com.fasterxml.jackson.databind.ObjectReader;
 import com.sync.api.enums.ProjectClassification;
 import com.sync.api.enums.ProjectStatus;
 import com.sync.api.model.Project;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @Repository
 public interface ProjectRepository extends JpaRepository<Project, String>, JpaSpecificationExecutor<Project> {
@@ -38,5 +40,34 @@ public interface ProjectRepository extends JpaRepository<Project, String>, JpaSp
     @Query("SELECT p FROM Project p WHERE p.projectEndDate BETWEEN :startOfWeek AND :endOfWeek")
     List<Project> findProjectsEndingThisWeek(@Param("startOfWeek") LocalDate startOfWeek,
                                              @Param("endOfWeek") LocalDate endOfWeek);
+
+    @Query("""
+    SELECT
+        SUM(CASE WHEN p.projectStatus = 'NAO_INICIADOS' THEN 1 ELSE 0 END) AS naoIniciados,
+        SUM(CASE WHEN p.projectStatus = 'EM_ANDAMENTO' THEN 1 ELSE 0 END) AS emAndamento,
+        SUM(CASE WHEN p.projectStatus = 'FINALIZADOS' THEN 1 ELSE 0 END) AS finalizados
+    FROM Project p
+    WHERE (:nameCoordinator IS NULL OR LOWER(p.nameCoordinator) LIKE LOWER(CONCAT('%', :nameCoordinator, '%')))
+    """)
+    List<Object[]> countProjectsByStatusCoordinator(@Param("nameCoordinator") String nameCoordinator);
+
+    @Query("""
+    SELECT
+        SUM(CASE WHEN p.projectClassification = 'OUTROS' THEN 1 ELSE 0 END) AS outros,
+        SUM(CASE WHEN p.projectClassification = 'CONTRATOS' THEN 1 ELSE 0 END) AS contratos,
+        SUM(CASE WHEN p.projectClassification = 'CONVENIO' THEN 1 ELSE 0 END) AS convenio,
+        SUM(CASE WHEN p.projectClassification = 'PATROCINIO' THEN 1 ELSE 0 END) AS patrocinio,
+        SUM(CASE WHEN p.projectClassification = 'TERMO_DE_COOPERACAO' THEN 1 ELSE 0 END) AS termoDeCooperacao,
+        SUM(CASE WHEN p.projectClassification = 'TERMO_DE_OUTORGA' THEN 1 ELSE 0 END) AS termoDeOutorga
+    FROM Project p
+    WHERE (:nameCoordinator IS NULL OR LOWER(p.nameCoordinator) LIKE LOWER(CONCAT('%', :nameCoordinator, '%')))
+    """)
+    List<Object[]> countProjectsByClassificationCoordinator(@Param("nameCoordinator") String nameCoordinator);
+
+    @Query("SELECT FUNCTION('MONTH', p.projectStartDate), COUNT(p) FROM Project p " +
+            "WHERE p.projectStartDate IS NOT NULL " +
+            "AND (:nameCoordinator IS NULL OR p.nameCoordinator LIKE %:nameCoordinator%) " +
+            "GROUP BY FUNCTION('MONTH', p.projectStartDate)")
+    List<Object[]> countProjectsByMonthCoordinator(@Param("nameCoordinator") String nameCoordinator);
 
 }
