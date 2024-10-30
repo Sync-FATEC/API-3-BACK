@@ -1,6 +1,7 @@
 package com.sync.api.repository;
 
 import com.fasterxml.jackson.databind.ObjectReader;
+import com.sync.api.dto.project.Dashboard.ProjectInvestment;
 import com.sync.api.enums.ProjectClassification;
 import com.sync.api.enums.ProjectStatus;
 import com.sync.api.model.Project;
@@ -42,7 +43,8 @@ public interface ProjectRepository extends JpaRepository<Project, String>, JpaSp
                                              @Param("endOfWeek") LocalDate endOfWeek);
 
     @Query("""
-    SELECT
+
+            SELECT
         SUM(CASE WHEN p.projectStatus = 'NAO_INICIADOS' THEN 1 ELSE 0 END) AS naoIniciados,
         SUM(CASE WHEN p.projectStatus = 'EM_ANDAMENTO' THEN 1 ELSE 0 END) AS emAndamento,
         SUM(CASE WHEN p.projectStatus = 'FINALIZADOS' THEN 1 ELSE 0 END) AS finalizados
@@ -69,5 +71,37 @@ public interface ProjectRepository extends JpaRepository<Project, String>, JpaSp
             "AND (:nameCoordinator IS NULL OR p.nameCoordinator LIKE %:nameCoordinator%) " +
             "GROUP BY FUNCTION('MONTH', p.projectStartDate)")
     List<Object[]> countProjectsByMonthCoordinator(@Param("nameCoordinator") String nameCoordinator);
+
+    @Query("""
+    SELECT
+        SUM(CASE WHEN p.projectStatus = 'NAO_INICIADOS' THEN 1 ELSE 0 END) AS naoIniciados,
+        SUM(CASE WHEN p.projectStatus = 'EM_ANDAMENTO' THEN 1 ELSE 0 END) AS emAndamento,
+        SUM(CASE WHEN p.projectStatus = 'FINALIZADOS' THEN 1 ELSE 0 END) AS finalizados
+    FROM Project p
+    """)
+    List<Object[]> countProjectsByStatusForCompany();
+
+    @Query("""
+    SELECT
+        SUM(CASE WHEN p.projectClassification = 'OUTROS' THEN 1 ELSE 0 END) AS outros,
+        SUM(CASE WHEN p.projectClassification = 'CONTRATOS' THEN 1 ELSE 0 END) AS contratos,
+        SUM(CASE WHEN p.projectClassification = 'CONVENIO' THEN 1 ELSE 0 END) AS convenio,
+        SUM(CASE WHEN p.projectClassification = 'PATROCINIO' THEN 1 ELSE 0 END) AS patrocinio,
+        SUM(CASE WHEN p.projectClassification = 'TERMO_DE_COOPERACAO' THEN 1 ELSE 0 END) AS termoDeCooperacao,
+        SUM(CASE WHEN p.projectClassification = 'TERMO_DE_OUTORGA' THEN 1 ELSE 0 END) AS termoDeOutorga
+    FROM Project p
+    """)
+    List<Object[]> countProjectsByClassificationForCompany();
+
+    @Query("SELECT FUNCTION('MONTH', p.projectStartDate), COUNT(p) FROM Project p " +
+            "WHERE p.projectStartDate IS NOT NULL " +
+            "GROUP BY FUNCTION('MONTH', p.projectStartDate)")
+    List<Object[]> countProjectsByMonthForCompany();
+
+    @Query("""
+    SELECT SUM(p.projectValue) FROM Project p
+    WHERE LOWER(p.projectCompany) = LOWER(:companyName)
+""")
+    Long calculateTotalInvestmentByCompany(@Param("companyName") String companyName);
 
 }

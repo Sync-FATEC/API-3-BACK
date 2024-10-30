@@ -1,6 +1,7 @@
 package com.sync.api.controller;
 
 import com.sync.api.dto.project.Dashboard.ProjectClassificationCount;
+import com.sync.api.dto.project.Dashboard.ProjectInvestment;
 import com.sync.api.dto.project.Dashboard.ProjectMonthCount;
 import com.sync.api.dto.project.Dashboard.ProjectStatusCount;
 import com.sync.api.enums.ProjectStatus;
@@ -51,4 +52,46 @@ public class DashboardController {
             throw new RuntimeException(e);
         }
     }
+
+    @GetMapping("/count/status/company")
+    public ResponseEntity<?> countStatusCompany() {
+        try {
+            ProjectStatusCount countStatus = dashboardService.countProjectsByStatusForCompany();
+            return ResponseEntity.status(HttpStatus.OK).body(countStatus);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @GetMapping("/count/classification/company")
+    public ResponseEntity<?> countClassificationCompany() {
+        try {
+            ProjectClassificationCount countClassification = dashboardService.countProjectsByClassificationForCompany();
+            return ResponseEntity.status(HttpStatus.OK).body(countClassification);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @GetMapping("/count/month/company")
+    public ResponseEntity<?> countMonthCompany() {
+        try {
+            ProjectMonthCount countMonth = dashboardService.countProjectsByMonthForCompany();
+            return ResponseEntity.status(HttpStatus.OK).body(countMonth);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @GetMapping("/count/investment/company")
+    public ResponseEntity<?> countInvestmentByCompany(@RequestParam(required = false) String companyName) {
+        System.out.println("Received companyName: " + companyName);
+        try {
+            ProjectInvestment investment = dashboardService.calculateInvestmentByCompany(companyName);
+            return ResponseEntity.status(HttpStatus.OK).body(investment);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao calcular o investimento: " + e.getMessage());
+        }
+    }
 }
+
