@@ -62,44 +62,51 @@ public class DashboardController {
     }
 
     @GetMapping("/count/status/company")
-    public ResponseEntity<?> countStatusCompany() {
+    public ResponseEntity<?> countStatusCompany(
+            @RequestParam String companyName,
+            @RequestParam(required = false) String projectStartDate,
+            @RequestParam(required = false) String projectEndDate) {
         try {
-            ProjectStatusCount countStatus = dashboardService.countProjectsByStatusForCompany();
+            ProjectStatusCount countStatus = dashboardService.countProjectsByStatusForCompany(companyName, projectStartDate, projectEndDate);
             return ResponseEntity.status(HttpStatus.OK).body(countStatus);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao contar projetos: " + e.getMessage());
         }
     }
 
     @GetMapping("/count/classification/company")
-    public ResponseEntity<?> countClassificationCompany() {
+    public ResponseEntity<?> countClassificationCompany(@RequestParam String companyName,
+                                                        @RequestParam(required = false) String projectStartDate,
+                                                        @RequestParam(required = false) String projectEndDate) {
         try {
-            ProjectClassificationCount countClassification = dashboardService.countProjectsByClassificationForCompany();
+            ProjectClassificationCount countClassification = dashboardService.countProjectsByClassificationForCompany(companyName, projectStartDate, projectEndDate);
             return ResponseEntity.status(HttpStatus.OK).body(countClassification);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao contar classificações: " + e.getMessage());
         }
     }
 
     @GetMapping("/count/month/company")
-    public ResponseEntity<?> countMonthCompany() {
+    public ResponseEntity<?> countMonthCompany(@RequestParam String companyName,
+                                               @RequestParam(required = false) String projectStartDate,
+                                               @RequestParam(required = false) String projectEndDate) {
         try {
-            ProjectMonthCount countMonth = dashboardService.countProjectsByMonthForCompany();
+            ProjectMonthCount countMonth = dashboardService.countProjectsByMonthForCompany(companyName, projectStartDate, projectEndDate);
             return ResponseEntity.status(HttpStatus.OK).body(countMonth);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao contar meses: " + e.getMessage());
         }
     }
 
     @GetMapping("/count/investment/company")
-    public ResponseEntity<?> countInvestmentByCompany(@RequestParam(required = false) String companyName) {
-        System.out.println("Received companyName: " + companyName);
+    public ResponseEntity<?> countInvestmentByCompany(@RequestParam String companyName,
+                                                      @RequestParam(required = false) String projectStartDate,
+                                                      @RequestParam(required = false) String projectEndDate) {
         try {
-            ProjectInvestment investment = dashboardService.calculateInvestmentByCompany(companyName);
+            ProjectInvestment investment = dashboardService.calculateInvestmentByCompany(companyName, projectStartDate, projectEndDate);
             return ResponseEntity.status(HttpStatus.OK).body(investment);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao calcular o investimento: " + e.getMessage());
         }
     }
 }
-

@@ -92,8 +92,14 @@ public interface ProjectRepository extends JpaRepository<Project, String>, JpaSp
         SUM(CASE WHEN p.projectStatus = 'EM_ANDAMENTO' THEN 1 ELSE 0 END) AS emAndamento,
         SUM(CASE WHEN p.projectStatus = 'FINALIZADOS' THEN 1 ELSE 0 END) AS finalizados
     FROM Project p
-    """)
-    List<Object[]> countProjectsByStatusForCompany();
+    WHERE LOWER(p.projectCompany) = LOWER(:companyName) AND
+          (:projectStartDate IS NULL OR p.projectEndDate >= :projectStartDate) AND
+          (:projectEndDate IS NULL OR p.projectStartDate <= :projectEndDate)
+""")
+    List<Object[]> countProjectsByStatusForCompany(
+            @Param("projectStartDate") LocalDate projectStartDate,
+            @Param("projectEndDate") LocalDate projectEndDate,
+            @Param("companyName") String companyName);
 
     @Query("""
     SELECT
@@ -104,18 +110,39 @@ public interface ProjectRepository extends JpaRepository<Project, String>, JpaSp
         SUM(CASE WHEN p.projectClassification = 'TERMO_DE_COOPERACAO' THEN 1 ELSE 0 END) AS termoDeCooperacao,
         SUM(CASE WHEN p.projectClassification = 'TERMO_DE_OUTORGA' THEN 1 ELSE 0 END) AS termoDeOutorga
     FROM Project p
+    WHERE LOWER(p.projectCompany) = LOWER(:companyName) AND
+          (:projectStartDate IS NULL OR p.projectEndDate >= :projectStartDate) AND
+          (:projectEndDate IS NULL OR p.projectStartDate <= :projectEndDate)
+          AND (p.projectStartDate IS NOT NULL AND p.projectEndDate IS NOT NULL)
     """)
-    List<Object[]> countProjectsByClassificationForCompany();
+    List<Object[]> countProjectsByClassificationForCompany(
+            @Param("companyName") String companyName,
+            @Param("projectStartDate") LocalDate projectStartDate,
+            @Param("projectEndDate") LocalDate projectEndDate);
 
-    @Query("SELECT FUNCTION('MONTH', p.projectStartDate), COUNT(p) FROM Project p " +
-            "WHERE p.projectStartDate IS NOT NULL " +
-            "GROUP BY FUNCTION('MONTH', p.projectStartDate)")
-    List<Object[]> countProjectsByMonthForCompany();
+    @Query("""
+    SELECT FUNCTION('MONTH', p.projectStartDate), COUNT(p)
+    FROM Project p
+    WHERE LOWER(p.projectCompany) = LOWER(:companyName) AND
+          (:projectStartDate IS NULL OR p.projectEndDate >= :projectStartDate) AND
+          (:projectEndDate IS NULL OR p.projectStartDate <= :projectEndDate)
+          AND (p.projectStartDate IS NOT NULL AND p.projectEndDate IS NOT NULL)
+    GROUP BY FUNCTION('MONTH', p.projectStartDate)
+    """)
+    List<Object[]> countProjectsByMonthForCompany(
+            @Param("companyName") String companyName,
+            @Param("projectStartDate") LocalDate projectStartDate,
+            @Param("projectEndDate") LocalDate projectEndDate);
 
     @Query("""
     SELECT SUM(p.projectValue) FROM Project p
-    WHERE LOWER(p.projectCompany) = LOWER(:companyName)
-""")
-    Long calculateTotalInvestmentByCompany(@Param("companyName") String companyName);
-
+    WHERE LOWER(p.projectCompany) = LOWER(:companyName) AND
+          (:projectStartDate IS NULL OR p.projectEndDate >= :projectStartDate) AND
+          (:projectEndDate IS NULL OR p.projectStartDate <= :projectEndDate)
+          AND (p.projectStartDate IS NOT NULL AND p.projectEndDate IS NOT NULL)
+    """)
+    Long calculateTotalInvestmentByCompany(
+            @Param("companyName") String companyName,
+            @Param("projectStartDate") LocalDate projectStartDate,
+            @Param("projectEndDate") LocalDate projectEndDate);
 }

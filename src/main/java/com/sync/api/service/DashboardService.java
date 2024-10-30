@@ -133,13 +133,13 @@ public class DashboardService {
         return new ProjectMonthCount(janeiro, fevereiro, marco, abril, maio, junho, julho, agosto, setembro, outubro, novembro, dezembro);
     }
 
-    public ProjectStatusCount countProjectsByStatusForCompany() {
-        List<Object[]> resultList = projectRepository.countProjectsByStatusForCompany();
+    public ProjectStatusCount countProjectsByStatusForCompany(String companyName, String startDate, String endDate) {
+        LocalDate projectStartDate = parseDate(startDate, true);
+        LocalDate projectEndDate = parseDate(endDate, false);
 
-        Long naoIniciados = 0L;
-        Long emAndamento = 0L;
-        Long finalizados = 0L;
+        List<Object[]> resultList = projectRepository.countProjectsByStatusForCompany(projectStartDate, projectEndDate, companyName);
 
+        Long naoIniciados = 0L, emAndamento = 0L, finalizados = 0L;
         if (resultList != null && !resultList.isEmpty() && resultList.get(0).length == 3) {
             Object[] resultArray = resultList.get(0);
             naoIniciados = (resultArray[0] != null) ? ((Number) resultArray[0]).longValue() : 0L;
@@ -149,11 +149,13 @@ public class DashboardService {
         return new ProjectStatusCount(naoIniciados, emAndamento, finalizados);
     }
 
-    public ProjectClassificationCount countProjectsByClassificationForCompany() {
-        List<Object[]> resultList = projectRepository.countProjectsByClassificationForCompany();
+    public ProjectClassificationCount countProjectsByClassificationForCompany(String companyName, String startDate, String endDate) {
+        LocalDate projectStartDate = parseDate(startDate, true);
+        LocalDate projectEndDate = parseDate(endDate, false);
+
+        List<Object[]> resultList = projectRepository.countProjectsByClassificationForCompany(companyName, projectStartDate, projectEndDate);
 
         Long outros = 0L, contratos = 0L, convenio = 0L, patrocinio = 0L, termoDeCooperacao = 0L, termoDeOutorga = 0L;
-
         if (resultList != null && !resultList.isEmpty() && resultList.get(0).length == 6) {
             Object[] resultArray = resultList.get(0);
             outros = (resultArray[0] != null) ? ((Number) resultArray[0]).longValue() : 0L;
@@ -167,8 +169,11 @@ public class DashboardService {
         return new ProjectClassificationCount(outros, contratos, convenio, patrocinio, termoDeCooperacao, termoDeOutorga);
     }
 
-    public ProjectMonthCount countProjectsByMonthForCompany() {
-        List<Object[]> results = projectRepository.countProjectsByMonthForCompany();
+    public ProjectMonthCount countProjectsByMonthForCompany(String companyName, String startDate, String endDate) {
+        LocalDate projectStartDate = parseDate(startDate, true);
+        LocalDate projectEndDate = parseDate(endDate, false);
+
+        List<Object[]> results = projectRepository.countProjectsByMonthForCompany(companyName, projectStartDate, projectEndDate);
 
         Long janeiro = 0L, fevereiro = 0L, marco = 0L, abril = 0L, maio = 0L, junho = 0L;
         Long julho = 0L, agosto = 0L, setembro = 0L, outubro = 0L, novembro = 0L, dezembro = 0L;
@@ -176,34 +181,41 @@ public class DashboardService {
         for (Object[] result : results) {
             Integer month = (Integer) result[0];
             Long count = (Long) result[1];
-
-            if (month == null) {
-                continue;
-            }
+            if (month == null) continue;
 
             switch (month) {
-                case 1: janeiro = count; break;
-                case 2: fevereiro = count; break;
-                case 3: marco = count; break;
-                case 4: abril = count; break;
-                case 5: maio = count; break;
-                case 6: junho = count; break;
-                case 7: julho = count; break;
-                case 8: agosto = count; break;
-                case 9: setembro = count; break;
-                case 10: outubro = count; break;
-                case 11: novembro = count; break;
-                case 12: dezembro = count; break;
+                case 1 -> janeiro = count;
+                case 2 -> fevereiro = count;
+                case 3 -> marco = count;
+                case 4 -> abril = count;
+                case 5 -> maio = count;
+                case 6 -> junho = count;
+                case 7 -> julho = count;
+                case 8 -> agosto = count;
+                case 9 -> setembro = count;
+                case 10 -> outubro = count;
+                case 11 -> novembro = count;
+                case 12 -> dezembro = count;
             }
         }
         return new ProjectMonthCount(janeiro, fevereiro, marco, abril, maio, junho, julho, agosto, setembro, outubro, novembro, dezembro);
     }
 
-    public ProjectInvestment calculateInvestmentByCompany(String companyName) {
-        System.out.println("Company name received: " + companyName);
-        Long totalInvestment = projectRepository.calculateTotalInvestmentByCompany(companyName);
-        System.out.println("Total investment calculated: " + totalInvestment);
+    public ProjectInvestment calculateInvestmentByCompany(String companyName, String startDate, String endDate) {
+        LocalDate projectStartDate = parseDate(startDate, true);
+        LocalDate projectEndDate = parseDate(endDate, false);
+
+        Long totalInvestment = projectRepository.calculateTotalInvestmentByCompany(companyName, projectStartDate, projectEndDate);
         return new ProjectInvestment(totalInvestment);
+    }
+
+    private LocalDate parseDate(String date, boolean startOfMonth) {
+        if (date != null && !date.isEmpty()) {
+            date = date.trim();
+            YearMonth yearMonth = YearMonth.parse(date);
+            return startOfMonth ? yearMonth.atDay(1) : yearMonth.atEndOfMonth();
+        }
+        return null;
     }
 }
 
