@@ -24,9 +24,11 @@ public class DashboardController {
     private DashboardService dashboardService;
 
     @GetMapping("/count/status/coordinator")
-    public ResponseEntity<?> countStatusCoordinator(@RequestParam(required = false) String nameCoordinator){
+    public ResponseEntity<?> countStatusCoordinator(@RequestParam(required = false) String nameCoordinator,
+                                                    @RequestParam(required = false) String projectStartDate,
+                                                    @RequestParam(required = false) String projectEndDate){
         try {
-            ProjectStatusCount countStatus = dashboardService.countProjectsByStatus(nameCoordinator);
+            ProjectStatusCount countStatus = dashboardService.countProjectsByStatus(nameCoordinator, projectStartDate, projectEndDate);
             return ResponseEntity.status(HttpStatus.OK).body(countStatus);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -34,9 +36,11 @@ public class DashboardController {
     }
 
     @GetMapping("/count/classification/coordinator")
-    public ResponseEntity<?> countClassificationCoordinator(@RequestParam(required = false) String nameCoordinator){
+    public ResponseEntity<?> countClassificationCoordinator(@RequestParam(required = false) String nameCoordinator,
+                                                            @RequestParam(required = false) String projectStartDate,
+                                                            @RequestParam(required = false) String projectEndDate){
         try {
-            ProjectClassificationCount countClassification = dashboardService.countProjectsByClassification(nameCoordinator);
+            ProjectClassificationCount countClassification = dashboardService.countProjectsByClassification(nameCoordinator, projectStartDate, projectEndDate);
             return ResponseEntity.status(HttpStatus.OK).body(countClassification);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -44,9 +48,13 @@ public class DashboardController {
     }
 
     @GetMapping("/count/month/coordinator")
-    public ResponseEntity<?> countMonthCoordinator(@RequestParam(required = false) String nameCoordinator){
+    public ResponseEntity<?> countMonthCoordinator(@RequestParam(required = false) String nameCoordinator,
+                                                   @RequestParam(required = false) String projectStartDate,
+                                                   @RequestParam(required = false) String projectEndDate){
         try {
-            ProjectMonthCount countMonth = dashboardService.countProjectsByMonth(nameCoordinator);
+            ProjectMonthCount countMonth = dashboardService.countProjectsByMonth(nameCoordinator, projectStartDate, projectEndDate);
+            System.out.println(projectStartDate);
+            System.out.println(projectEndDate);
             return ResponseEntity.status(HttpStatus.OK).body(countMonth);
         } catch (Exception e) {
             throw new RuntimeException(e);

@@ -10,6 +10,8 @@ import com.sync.api.repository.ProjectRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -20,8 +22,22 @@ public class DashboardService {
     @Autowired
     private ProjectRepository projectRepository;
 
-    public ProjectStatusCount countProjectsByStatus(String coordinatorName) {
-        List<Object[]> resultList = projectRepository.countProjectsByStatusCoordinator(coordinatorName);
+    public ProjectStatusCount countProjectsByStatus(String coordinatorName, String startDate, String endDate) {
+
+        LocalDate projectStartDate = null;
+        LocalDate projectEndDate = null;
+
+        if (startDate != null && !startDate.isEmpty()) {
+            projectStartDate = YearMonth.parse(startDate).atDay(1);
+        }
+
+        if (endDate != null && !endDate.isEmpty()) {
+            projectEndDate = YearMonth.parse(endDate).atEndOfMonth();
+        }
+
+        List<Object[]> resultList = projectRepository.countProjectsByStatusCoordinator(
+                coordinatorName, projectStartDate, projectEndDate
+        );
 
         Long naoIniciados = 0L;
         Long emAndamento = 0L;
@@ -36,8 +52,21 @@ public class DashboardService {
         return new ProjectStatusCount(naoIniciados, emAndamento, finalizados);
     }
 
-    public ProjectClassificationCount countProjectsByClassification(String coordinatorName) {
-        List<Object[]> resultList =projectRepository.countProjectsByClassificationCoordinator(coordinatorName);
+    public ProjectClassificationCount countProjectsByClassification(String coordinatorName, String startDate, String endDate) {
+
+        LocalDate projectStartDate = null;
+        LocalDate projectEndDate = null;
+
+        if (startDate != null && !startDate.isEmpty()) {
+            projectStartDate = YearMonth.parse(startDate).atDay(1);
+        }
+
+        if (endDate != null && !endDate.isEmpty()) {
+            projectEndDate = YearMonth.parse(endDate).atEndOfMonth();
+        }
+        List<Object[]> resultList =projectRepository.countProjectsByClassificationCoordinator(
+                coordinatorName, projectStartDate, projectEndDate
+        );
 
         Long outros =0L;
         Long contratos =0L;
@@ -59,8 +88,21 @@ public class DashboardService {
         return new ProjectClassificationCount(outros,contratos,convenio, patrocinio, termoDeCooperacao, termoDeOutorga);
     }
 
-    public ProjectMonthCount countProjectsByMonth(String nameCoordinator) {
-        List<Object[]> results = projectRepository.countProjectsByMonthCoordinator(nameCoordinator);
+    public ProjectMonthCount countProjectsByMonth(String coordinatorName, String startDate, String endDate) {
+
+        LocalDate projectStartDate = null;
+        LocalDate projectEndDate = null;
+
+        if (startDate != null && !startDate.isEmpty()) {
+            projectStartDate = YearMonth.parse(startDate).atDay(1);
+        }
+
+        if (endDate != null && !endDate.isEmpty()) {
+            projectEndDate = YearMonth.parse(endDate).atEndOfMonth();
+        }
+        List<Object[]> results = projectRepository.countProjectsByMonthCoordinator(
+                coordinatorName, projectStartDate, projectEndDate
+        );
 
         Long janeiro = 0L, fevereiro = 0L, marco = 0L, abril = 0L, maio = 0L, junho = 0L;
         Long julho = 0L, agosto = 0L, setembro = 0L, outubro = 0L, novembro = 0L, dezembro = 0L;
