@@ -30,8 +30,10 @@ public class DashboardController {
         try {
             ProjectStatusCount countStatus = dashboardService.countProjectsByStatus(nameCoordinator, projectStartDate, projectEndDate);
             return ResponseEntity.status(HttpStatus.OK).body(countStatus);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao contar status de projetos: " + e.getMessage());
         }
     }
 
@@ -42,8 +44,10 @@ public class DashboardController {
         try {
             ProjectClassificationCount countClassification = dashboardService.countProjectsByClassification(nameCoordinator, projectStartDate, projectEndDate);
             return ResponseEntity.status(HttpStatus.OK).body(countClassification);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao contar classificações: " + e.getMessage());
         }
     }
 
@@ -56,55 +60,65 @@ public class DashboardController {
             System.out.println(projectStartDate);
             System.out.println(projectEndDate);
             return ResponseEntity.status(HttpStatus.OK).body(countMonth);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao contar meses: " + e.getMessage());
         }
     }
 
     @GetMapping("/count/status/company")
     public ResponseEntity<?> countStatusCompany(
-            @RequestParam String companyName,
+            @RequestParam(required = false) String projectCompany,
             @RequestParam(required = false) String projectStartDate,
             @RequestParam(required = false) String projectEndDate) {
         try {
-            ProjectStatusCount countStatus = dashboardService.countProjectsByStatusForCompany(companyName, projectStartDate, projectEndDate);
+            ProjectStatusCount countStatus = dashboardService.countProjectsByStatusForCompany(projectCompany, projectStartDate, projectEndDate);
             return ResponseEntity.status(HttpStatus.OK).body(countStatus);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao contar projetos: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao contar status de projetos: " + e.getMessage());
         }
     }
 
     @GetMapping("/count/classification/company")
-    public ResponseEntity<?> countClassificationCompany(@RequestParam String companyName,
+    public ResponseEntity<?> countClassificationCompany(@RequestParam(required = false) String projectCompany,
                                                         @RequestParam(required = false) String projectStartDate,
                                                         @RequestParam(required = false) String projectEndDate) {
         try {
-            ProjectClassificationCount countClassification = dashboardService.countProjectsByClassificationForCompany(companyName, projectStartDate, projectEndDate);
+            ProjectClassificationCount countClassification = dashboardService.countProjectsByClassificationForCompany(projectCompany, projectStartDate, projectEndDate);
             return ResponseEntity.status(HttpStatus.OK).body(countClassification);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao contar classificações: " + e.getMessage());
         }
     }
 
     @GetMapping("/count/month/company")
-    public ResponseEntity<?> countMonthCompany(@RequestParam String companyName,
+    public ResponseEntity<?> countMonthCompany(@RequestParam(required = false) String projectCompany,
                                                @RequestParam(required = false) String projectStartDate,
                                                @RequestParam(required = false) String projectEndDate) {
         try {
-            ProjectMonthCount countMonth = dashboardService.countProjectsByMonthForCompany(companyName, projectStartDate, projectEndDate);
+            ProjectMonthCount countMonth = dashboardService.countProjectsByMonthForCompany(projectCompany, projectStartDate, projectEndDate);
             return ResponseEntity.status(HttpStatus.OK).body(countMonth);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao contar meses: " + e.getMessage());
         }
     }
 
     @GetMapping("/count/investment/company")
-    public ResponseEntity<?> countInvestmentByCompany(@RequestParam String companyName,
+    public ResponseEntity<?> countInvestmentByCompany(@RequestParam(required = false) String projectCompany,
                                                       @RequestParam(required = false) String projectStartDate,
                                                       @RequestParam(required = false) String projectEndDate) {
         try {
-            ProjectInvestment investment = dashboardService.calculateInvestmentByCompany(companyName, projectStartDate, projectEndDate);
+            ProjectInvestment investment = dashboardService.calculateInvestmentByCompany(projectCompany, projectStartDate, projectEndDate);
             return ResponseEntity.status(HttpStatus.OK).body(investment);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao calcular o investimento: " + e.getMessage());
         }
