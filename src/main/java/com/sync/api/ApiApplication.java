@@ -1,7 +1,7 @@
 package com.sync.api;
 
-import com.sync.api.database.CreateDatabase;
-import com.sync.api.database.AddDataToDatabase;
+import com.sync.api.infra.database.CreateDatabase;
+import com.sync.api.infra.database.AddDataToDatabase;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 

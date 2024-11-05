@@ -1,6 +1,6 @@
 package com.sync.api.infra.security;
 
-import com.sync.api.model.User;
+import com.sync.api.domain.model.User;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 

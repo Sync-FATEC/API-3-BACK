@@ -2,7 +2,7 @@ package com.sync.api.infra.security;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonParser;
-import com.sync.api.repository.UserRepository;
+import com.sync.api.infra.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import jakarta.servlet.FilterChain;
