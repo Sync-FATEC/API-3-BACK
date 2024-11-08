@@ -175,13 +175,13 @@ public class DashboardService {
         }
     }
 
-    public ProjectStatusCount countProjectsByStatusForCompany(String companyName, String startDate, String endDate) {
+    public ProjectStatusCount countProjectsByStatusForCompany(String projectCompany, String startDate, String endDate) {
         try {
             LocalDate projectStartDate = parseDate(startDate, true);
             LocalDate projectEndDate = parseDate(endDate, false);
 
 
-            List<Object[]> resultList = projectRepository.countProjectsByStatusForCompany(projectStartDate, projectEndDate, companyName);
+            List<Object[]> resultList = projectRepository.countProjectsByStatusForCompany(projectStartDate, projectEndDate, projectCompany);
 
             Long naoIniciados = 0L, emAndamento = 0L, finalizados = 0L;
             if (resultList != null && !resultList.isEmpty() && resultList.get(0).length == 3) {
@@ -198,12 +198,12 @@ public class DashboardService {
         }
     }
 
-    public ProjectClassificationCount countProjectsByClassificationForCompany(String companyName, String startDate, String endDate) {
+    public ProjectClassificationCount countProjectsByClassificationForCompany(String projectCompany, String startDate, String endDate) {
         try {
             LocalDate projectStartDate = parseDate(startDate, true);
             LocalDate projectEndDate = parseDate(endDate, false);
 
-            List<Object[]> resultList = projectRepository.countProjectsByClassificationForCompany(companyName, projectStartDate, projectEndDate);
+            List<Object[]> resultList = projectRepository.countProjectsByClassificationForCompany(projectCompany, projectStartDate, projectEndDate);
 
             Long outros = 0L, contratos = 0L, convenio = 0L, patrocinio = 0L, termoDeCooperacao = 0L, termoDeOutorga = 0L;
             if (resultList != null && !resultList.isEmpty() && resultList.get(0).length == 6) {
@@ -223,12 +223,12 @@ public class DashboardService {
         }
     }
 
-    public ProjectMonthCount countProjectsByMonthForCompany(String companyName, String startDate, String endDate) {
+    public ProjectMonthCount countProjectsByMonthForCompany(String projectCompany, String startDate, String endDate) {
         try {
             LocalDate projectStartDate = parseDate(startDate, true);
             LocalDate projectEndDate = parseDate(endDate, false);
 
-            List<Object[]> results = projectRepository.countProjectsByMonthForCompany(companyName, projectStartDate, projectEndDate);
+            List<Object[]> results = projectRepository.countProjectsByMonthForCompany(projectCompany, projectStartDate, projectEndDate);
 
             Long janeiro = 0L, fevereiro = 0L, marco = 0L, abril = 0L, maio = 0L, junho = 0L;
             Long julho = 0L, agosto = 0L, setembro = 0L, outubro = 0L, novembro = 0L, dezembro = 0L;
@@ -261,12 +261,12 @@ public class DashboardService {
         }
     }
 
-    public ProjectInvestment calculateInvestmentByCompany(String companyName, String startDate, String endDate) {
+    public ProjectInvestment calculateInvestmentByCompany(String projectCompany, String startDate, String endDate) {
         try {
             LocalDate projectStartDate = parseDate(startDate, true);
             LocalDate projectEndDate = parseDate(endDate, false);
 
-            Long totalInvestment = projectRepository.calculateTotalInvestmentByCompany(companyName, projectStartDate, projectEndDate);
+            Long totalInvestment = projectRepository.calculateTotalInvestmentByCompany(projectCompany, projectStartDate, projectEndDate);
             return new ProjectInvestment(totalInvestment);
         } catch (DateTimeParseException e) {
             throw new IllegalArgumentException("Erro no formato de data. Use o formato 'yyyy-MM'.", e);
