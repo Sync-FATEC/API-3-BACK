@@ -89,17 +89,13 @@ public class DashboardService {
 
         if (resultList != null && !resultList.isEmpty() && resultList.get(0).length == 6) {
             Object[] resultArray = resultList.get(0);
-            outros = (resultArray[0] != null) ? ((Number) resultArray[0]).longValue() : 0L;
             contratos = (resultArray[1] != null) ? ((Number) resultArray[1]).longValue() : 0L;
-            convenio = (resultArray[2] != null) ? ((Number) resultArray[2]).longValue() : 0L;
             patrocinio = (resultArray[3] != null) ? ((Number) resultArray[2]).longValue() : 0L;
-            termoDeCooperacao = (resultArray[4] != null) ? ((Number) resultArray[2]).longValue() : 0L;
-            termoDeOutorga = (resultArray[5] != null) ? ((Number) resultArray[2]).longValue() : 0L;
         }
 
-            return new ProjectClassificationCount(outros, contratos, convenio, patrocinio, termoDeCooperacao, termoDeOutorga);
+            return new ProjectClassificationCount(contratos, patrocinio);
         } catch (Exception e) {
-            return new ProjectClassificationCount(0L, 0L, 0L, 0L, 0L, 0L);
+            return new ProjectClassificationCount(0L, 0L);
         }
     }
 
@@ -215,7 +211,7 @@ public class DashboardService {
                 termoDeCooperacao = (resultArray[4] != null) ? ((Number) resultArray[4]).longValue() : 0L;
                 termoDeOutorga = (resultArray[5] != null) ? ((Number) resultArray[5]).longValue() : 0L;
             }
-            return new ProjectClassificationCount(outros, contratos, convenio, patrocinio, termoDeCooperacao, termoDeOutorga);
+            return new ProjectClassificationCount(contratos, patrocinio);
         } catch (DateTimeParseException e) {
             throw new IllegalArgumentException("Erro no formato de data. Use o formato 'yyyy-MM'.", e);
         } catch (Exception e) {
@@ -346,18 +342,10 @@ public class DashboardService {
             classificationTable.setWidthPercentage(100);
             classificationTable.addCell(new PdfPCell(new Paragraph("Classificação", labelFont)));
             classificationTable.addCell(new PdfPCell(new Paragraph("Contagem", labelFont)));
-            classificationTable.addCell(new PdfPCell(new Paragraph("Outros", valueFont)));
-            classificationTable.addCell(new PdfPCell(new Paragraph(String.valueOf(classificationCount.outros()), valueFont)));
             classificationTable.addCell(new PdfPCell(new Paragraph("Contratos", valueFont)));
             classificationTable.addCell(new PdfPCell(new Paragraph(String.valueOf(classificationCount.contratos()), valueFont)));
-            classificationTable.addCell(new PdfPCell(new Paragraph("Convênio", valueFont)));
-            classificationTable.addCell(new PdfPCell(new Paragraph(String.valueOf(classificationCount.convenio()), valueFont)));
             classificationTable.addCell(new PdfPCell(new Paragraph("Patrocínio", valueFont)));
             classificationTable.addCell(new PdfPCell(new Paragraph(String.valueOf(classificationCount.patrocinio()), valueFont)));
-            classificationTable.addCell(new PdfPCell(new Paragraph("Termo de Cooperação", valueFont)));
-            classificationTable.addCell(new PdfPCell(new Paragraph(String.valueOf(classificationCount.termoDeCooperacao()), valueFont)));
-            classificationTable.addCell(new PdfPCell(new Paragraph("Termo de Outorga", valueFont)));
-            classificationTable.addCell(new PdfPCell(new Paragraph(String.valueOf(classificationCount.termoDeOutorga()), valueFont)));
             classificationTable.setSpacingAfter(20f); // Espaçamento após a tabela
             document.add(classificationTable);
 
@@ -433,24 +421,12 @@ public class DashboardService {
             classificationHeader.createCell(1).setCellValue("Quantidade");
 
             ProjectClassificationCount classificationCount = countProjectsByClassification(nameCoordinator, startDate, endDate);
-            Row outrosRow = sheet.createRow(6);
-            outrosRow.createCell(0).setCellValue("Outros");
-            outrosRow.createCell(1).setCellValue(classificationCount.outros());
             Row contratosRow = sheet.createRow(7);
             contratosRow.createCell(0).setCellValue("Contratos");
             contratosRow.createCell(1).setCellValue(classificationCount.contratos());
-            Row convenioRow = sheet.createRow(8);
-            convenioRow.createCell(0).setCellValue("Convênio");
-            convenioRow.createCell(1).setCellValue(classificationCount.convenio());
             Row patrocinioRow = sheet.createRow(9);
             patrocinioRow.createCell(0).setCellValue("Patrocínio");
             patrocinioRow.createCell(1).setCellValue(classificationCount.patrocinio());
-            Row termoDeCooperacaoRow = sheet.createRow(10);
-            termoDeCooperacaoRow.createCell(0).setCellValue("Termo de Cooperação");
-            termoDeCooperacaoRow.createCell(1).setCellValue(classificationCount.termoDeCooperacao());
-            Row termoDeOutorgaRow = sheet.createRow(11);
-            termoDeOutorgaRow.createCell(0).setCellValue("Termo de Outorga");
-            termoDeOutorgaRow.createCell(1).setCellValue(classificationCount.termoDeOutorga());
 
             // Adiciona cabeçalho de meses
             Row monthHeader = sheet.createRow(15);
