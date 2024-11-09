@@ -126,6 +126,7 @@ public class DashboardController {
     public ResponseEntity<byte[]> exportDashboard(
             @PathVariable("format") String format,
             @RequestParam(required = false) String nameCoordinator,
+            @RequestParam(required = false) String projectCompany,
             @RequestParam(required = false) String startDate,
             @RequestParam(required = false) String endDate) {
         try {
@@ -133,11 +134,11 @@ public class DashboardController {
             HttpHeaders headers = new HttpHeaders();
 
             if ("pdf".equalsIgnoreCase(format)) {
-                fileData = dashboardService.exportDashboardToPDF(nameCoordinator, startDate, endDate);
+                fileData = dashboardService.exportDashboardToPDF(nameCoordinator, projectCompany, startDate, endDate);
                 headers.setContentType(MediaType.APPLICATION_PDF);
                 headers.setContentDispositionFormData("inline", "dashboard_report.pdf");
             } else if ("excel".equalsIgnoreCase(format)) {
-                fileData = dashboardService.exportDashboardToExcel(nameCoordinator, startDate, endDate);
+                fileData = dashboardService.exportDashboardToExcel(nameCoordinator, projectCompany, startDate, endDate);
                 headers.setContentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
                 headers.setContentDispositionFormData("attachment", "dashboard_report.xlsx");
             } else {

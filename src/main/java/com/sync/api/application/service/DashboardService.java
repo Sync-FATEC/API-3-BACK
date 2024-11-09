@@ -284,198 +284,333 @@ public class DashboardService {
         return null;
     }
 
-    // Gera o PDF dos dados do dashboard
-    public byte[] exportDashboardToPDF(String nameCoordinator, String startDate, String endDate) {
+    // Gera o PDF do Dashboard com base no Coordenador ou Empresa
+    public byte[] exportDashboardToPDF(String nameCoordinator, String projectCompany, String startDate, String endDate) {
+        return gerarRelatorioPDF(nameCoordinator, projectCompany, startDate, endDate);
+    }
+
+    // Gera o Excel do Dashboard com base no Coordenador ou Empresa
+    public byte[] exportDashboardToExcel(String nameCoordinator, String projectCompany, String startDate, String endDate) {
+        return gerarRelatorioExcel(nameCoordinator, projectCompany, startDate, endDate);
+    }
+
+    private byte[] gerarRelatorioPDF(String nameCoordinator, String projectCompany, String startDate, String endDate) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         Document document = new Document();
+        Font labelFont = new Font(Font.FontFamily.HELVETICA, 14, Font.BOLD);
+        Font valueFont = new Font(Font.FontFamily.HELVETICA, 12);
 
         try {
             PdfWriter.getInstance(document, baos);
             document.open();
+            adicionarCabecalhoPDF(document);
 
-            // Adiciona uma imagem (logo) centralizada no documento
-            String imagePath = "src/main/resources/images/logo.jpg"; // Caminho para o logo, altere conforme necessário
-            Image logo = Image.getInstance(imagePath);
-            logo.scaleToFit(140, 120);
-            logo.setAlignment(Element.ALIGN_CENTER);
-            document.add(logo);
-            document.add(new Paragraph(" ")); // Espaço em branco
-
-            // Título do documento
             Font titleFont = new Font(Font.FontFamily.HELVETICA, 24, Font.BOLD);
-            Paragraph title = new Paragraph("Dashboard - Relatório de Projetos", titleFont);
+            String titleText = "";
+            // Verifica se o relatório é para um coordenador ou empresa e ajusta o título
+            if (nameCoordinator != null) {
+                titleText += "Coordenador: " + nameCoordinator;
+                document.add(new Paragraph(" ")); // Espaço em branco
+            } else if (projectCompany != null) {
+                titleText += "Empresa: " + projectCompany;
+                document.add(new Paragraph(" ")); // Espaço em branco
+            }
+            Paragraph title = new Paragraph(titleText, titleFont);
             title.setAlignment(Element.ALIGN_CENTER);
             document.add(title);
+
             document.add(new Paragraph(" ")); // Espaço em branco
 
-            // Subtítulo
-            Font subtitleFont = new Font(Font.FontFamily.HELVETICA, 16, Font.BOLD);
-            Paragraph subtitle = new Paragraph("Dados Consolidados", subtitleFont);
-            subtitle.setAlignment(Element.ALIGN_CENTER);
-            document.add(subtitle);
+            // Adicionar informações de data se presentes
+            if (startDate != null && endDate != null) {
+                Paragraph dateInfo = new Paragraph("Período: De " + startDate + " até " + endDate, valueFont);
+                dateInfo.setAlignment(Element.ALIGN_CENTER);
+                document.add(dateInfo);
+            } else if (startDate != null) {
+                Paragraph dateInfo = new Paragraph("Data de Início: " + startDate, valueFont);
+                dateInfo.setAlignment(Element.ALIGN_CENTER);
+                document.add(dateInfo);
+            } else if (endDate != null) {
+                Paragraph dateInfo = new Paragraph("Data de Fim: " + endDate, valueFont);
+                dateInfo.setAlignment(Element.ALIGN_CENTER);
+                document.add(dateInfo);
+            }
+
             document.add(new Paragraph(" ")); // Espaço em branco
 
-            // Fontes para os rótulos e valores
-            Font labelFont = new Font(Font.FontFamily.HELVETICA, 14, Font.BOLD);
-            Font valueFont = new Font(Font.FontFamily.HELVETICA, 12);
-
-            // Seção de Status
+            // Determina o tipo de relatório com base nos parâmetros
             document.add(new Paragraph("Status dos Projetos", labelFont));
-            ProjectStatusCount statusCount = countProjectsByStatus(nameCoordinator, startDate, endDate);
-            PdfPTable statusTable = new PdfPTable(2);
-            statusTable.setWidthPercentage(100);
-            statusTable.addCell(new PdfPCell(new Paragraph("Status", labelFont)));
-            statusTable.addCell(new PdfPCell(new Paragraph("Contagem", labelFont)));
-            statusTable.addCell(new PdfPCell(new Paragraph("Não Iniciado", valueFont)));
-            statusTable.addCell(new PdfPCell(new Paragraph(String.valueOf(statusCount.naoIniciados()), valueFont)));
-            statusTable.addCell(new PdfPCell(new Paragraph("Em Andamento", valueFont)));
-            statusTable.addCell(new PdfPCell(new Paragraph(String.valueOf(statusCount.emAndamento()), valueFont)));
-            statusTable.addCell(new PdfPCell(new Paragraph("Concluído", valueFont)));
-            statusTable.addCell(new PdfPCell(new Paragraph(String.valueOf(statusCount.finalizados()), valueFont)));
-            statusTable.setSpacingAfter(20f); // Espaçamento após a tabela
-            document.add(statusTable);
+            ProjectStatusCount statusCount = (nameCoordinator != null)
+                    ? countProjectsByStatus(nameCoordinator, startDate, endDate)
+                    : countProjectsByStatusForCompany(projectCompany, startDate, endDate);
+            adicionarTabelaStatusNoPDF(document, statusCount);
+            document.add(new Paragraph(" ")); // Espaço em branco
 
-            // Seção de Classificação
             document.add(new Paragraph("Classificação dos Projetos", labelFont));
-            ProjectClassificationCount classificationCount = countProjectsByClassification(nameCoordinator, startDate, endDate);
-            PdfPTable classificationTable = new PdfPTable(2);
-            classificationTable.setWidthPercentage(100);
-            classificationTable.addCell(new PdfPCell(new Paragraph("Classificação", labelFont)));
-            classificationTable.addCell(new PdfPCell(new Paragraph("Contagem", labelFont)));
-            classificationTable.addCell(new PdfPCell(new Paragraph("Contratos", valueFont)));
-            classificationTable.addCell(new PdfPCell(new Paragraph(String.valueOf(classificationCount.contratos()), valueFont)));
-            classificationTable.addCell(new PdfPCell(new Paragraph("Patrocínio", valueFont)));
-            classificationTable.addCell(new PdfPCell(new Paragraph(String.valueOf(classificationCount.patrocinio()), valueFont)));
-            classificationTable.setSpacingAfter(20f); // Espaçamento após a tabela
-            document.add(classificationTable);
+            ProjectClassificationCount classificationCount = (nameCoordinator != null)
+                    ? countProjectsByClassification(nameCoordinator, startDate, endDate)
+                    : countProjectsByClassificationForCompany(projectCompany, startDate, endDate);
+            adicionarTabelaClassificacaoNoPDF(document, classificationCount);
+            document.add(new Paragraph(" ")); // Espaço em branco
 
-            // Seção de Projetos por Mês
             document.add(new Paragraph("Distribuição de Projetos por Mês", labelFont));
-            ProjectMonthCount monthCount = countProjectsByMonth(nameCoordinator, startDate, endDate);
-            PdfPTable monthTable = new PdfPTable(2);
-            monthTable.setWidthPercentage(100);
-            monthTable.addCell(new PdfPCell(new Paragraph("Mês", labelFont)));
-            monthTable.addCell(new PdfPCell(new Paragraph("Contagem", labelFont)));
-            monthTable.addCell(new PdfPCell(new Paragraph("Janeiro", valueFont)));
-            monthTable.addCell(new PdfPCell(new Paragraph(String.valueOf(monthCount.janeiro()), valueFont)));
-            monthTable.addCell(new PdfPCell(new Paragraph("Fevereiro", valueFont)));
-            monthTable.addCell(new PdfPCell(new Paragraph(String.valueOf(monthCount.fevereiro()), valueFont)));
-            monthTable.addCell(new PdfPCell(new Paragraph("Março", valueFont)));
-            monthTable.addCell(new PdfPCell(new Paragraph(String.valueOf(monthCount.marco()), valueFont)));
-            monthTable.addCell(new PdfPCell(new Paragraph("Abril", valueFont)));
-            monthTable.addCell(new PdfPCell(new Paragraph(String.valueOf(monthCount.abril()), valueFont)));
-            monthTable.addCell(new PdfPCell(new Paragraph("Maio", valueFont)));
-            monthTable.addCell(new PdfPCell(new Paragraph(String.valueOf(monthCount.maio()), valueFont)));
-            monthTable.addCell(new PdfPCell(new Paragraph("Junho", valueFont)));
-            monthTable.addCell(new PdfPCell(new Paragraph(String.valueOf(monthCount.junho()), valueFont)));
-            monthTable.addCell(new PdfPCell(new Paragraph("Julho", valueFont)));
-            monthTable.addCell(new PdfPCell(new Paragraph(String.valueOf(monthCount.julho()), valueFont)));
-            monthTable.addCell(new PdfPCell(new Paragraph("Agosto", valueFont)));
-            monthTable.addCell(new PdfPCell(new Paragraph(String.valueOf(monthCount.agosto()), valueFont)));
-            monthTable.addCell(new PdfPCell(new Paragraph("Setembro", valueFont)));
-            monthTable.addCell(new PdfPCell(new Paragraph(String.valueOf(monthCount.setembro()), valueFont)));
-            monthTable.addCell(new PdfPCell(new Paragraph("Outubro", valueFont)));
-            monthTable.addCell(new PdfPCell(new Paragraph(String.valueOf(monthCount.outubro()), valueFont)));
-            monthTable.addCell(new PdfPCell(new Paragraph("Novembro", valueFont)));
-            monthTable.addCell(new PdfPCell(new Paragraph(String.valueOf(monthCount.novembro()), valueFont)));
-            monthTable.addCell(new PdfPCell(new Paragraph("Dezembro", valueFont)));
-            monthTable.addCell(new PdfPCell(new Paragraph(String.valueOf(monthCount.dezembro()), valueFont)));
-            monthTable.setSpacingAfter(20f); // Espaçamento após a tabela
-            document.add(monthTable);
+            ProjectMonthCount monthCount = (nameCoordinator != null)
+                    ? countProjectsByMonth(nameCoordinator, startDate, endDate)
+                    : countProjectsByMonthForCompany(projectCompany, startDate, endDate);
+            adicionarTabelaMesNoPDF(document, monthCount);
+            document.add(new Paragraph(" ")); // Espaço em branco
+
+            // Seção de Investimento Total (somente para empresas)
+            if (projectCompany != null) {
+                document.add(new Paragraph("Total de Investimento", labelFont));
+                ProjectInvestment investment = calculateInvestmentByCompany(projectCompany, startDate, endDate);
+                Paragraph investmentParagraph = new Paragraph("R$ " + investment.totalInvestment(), valueFont);
+                investmentParagraph.setAlignment(Element.ALIGN_CENTER);
+                document.add(investmentParagraph);
+                document.add(new Paragraph(" ")); // Espaço em branco
+            }
 
         } catch (DocumentException | IOException e) {
-            throw new RuntimeException("Erro ao gerar PDF do dashboard: " + e.toString(), e);
+            throw new RuntimeException("Erro ao gerar PDF do dashboard", e);
         } finally {
             document.close();
         }
-
         return baos.toByteArray();
     }
 
+    private void adicionarCabecalhoPDF(Document document) throws DocumentException, IOException {
+        Font titleFont = new Font(Font.FontFamily.HELVETICA, 24, Font.BOLD);
+        Paragraph title = new Paragraph("Dashboard - Relatório de Projetos", titleFont);
+        title.setAlignment(Element.ALIGN_CENTER);
+        document.add(title);
+        document.add(new Paragraph(" ")); // Espaço em branco
+        // Adiciona uma imagem (logo) centralizada no documento
+        String imagePath = "src/main/resources/images/logo.jpg"; // Caminho para o logo, altere conforme necessário
+        Image logo = Image.getInstance(imagePath);
+        logo.scaleToFit(140, 120);
+        logo.setAlignment(Element.ALIGN_CENTER);
+        document.add(logo);
+        document.add(new Paragraph(" ")); // Espaço em branco
+    }
 
+    private void adicionarTabelaStatusNoPDF(Document document, ProjectStatusCount statusCount) throws DocumentException {
+        Font labelFont = new Font(Font.FontFamily.HELVETICA, 14, Font.BOLD);
+        Font valueFont = new Font(Font.FontFamily.HELVETICA, 12);
+        PdfPTable statusTable = new PdfPTable(2);
+        statusTable.setWidthPercentage(100);
+        statusTable.addCell(new PdfPCell(new Paragraph("Status", labelFont)));
+        statusTable.addCell(new PdfPCell(new Paragraph("Contagem", labelFont)));
+        statusTable.addCell(new PdfPCell(new Paragraph("Não Iniciado", valueFont)));
+        statusTable.addCell(new PdfPCell(new Paragraph(String.valueOf(statusCount.naoIniciados()), valueFont)));
+        statusTable.addCell(new PdfPCell(new Paragraph("Em Andamento", valueFont)));
+        statusTable.addCell(new PdfPCell(new Paragraph(String.valueOf(statusCount.emAndamento()), valueFont)));
+        statusTable.addCell(new PdfPCell(new Paragraph("Concluído", valueFont)));
+        statusTable.addCell(new PdfPCell(new Paragraph(String.valueOf(statusCount.finalizados()), valueFont)));
+        document.add(statusTable);
+    }
 
-    // Gera o Excel dos dados do dashboard
-    public byte[] exportDashboardToExcel(String nameCoordinator, String startDate, String endDate) {
+    private void adicionarTabelaClassificacaoNoPDF(Document document, ProjectClassificationCount classificationCount) throws DocumentException {
+        Font labelFont = new Font(Font.FontFamily.HELVETICA, 14, Font.BOLD);
+        Font valueFont = new Font(Font.FontFamily.HELVETICA, 12);
+        PdfPTable classificationTable = new PdfPTable(2);
+        classificationTable.setWidthPercentage(100);
+        classificationTable.addCell(new PdfPCell(new Paragraph("Classificação", labelFont)));
+        classificationTable.addCell(new PdfPCell(new Paragraph("Contagem", labelFont)));
+        classificationTable.addCell(new PdfPCell(new Paragraph("Contratos", valueFont)));
+        classificationTable.addCell(new PdfPCell(new Paragraph(String.valueOf(classificationCount.contratos()), valueFont)));
+        classificationTable.addCell(new PdfPCell(new Paragraph("Patrocínio", valueFont)));
+        classificationTable.addCell(new PdfPCell(new Paragraph(String.valueOf(classificationCount.patrocinio()), valueFont)));
+        document.add(classificationTable);
+    }
+
+    private void adicionarTabelaMesNoPDF(Document document, ProjectMonthCount monthCount) throws DocumentException {
+        Font labelFont = new Font(Font.FontFamily.HELVETICA, 14, Font.BOLD);
+        Font valueFont = new Font(Font.FontFamily.HELVETICA, 12);
+        PdfPTable monthTable = new PdfPTable(2);
+        monthTable.setWidthPercentage(100);
+        monthTable.addCell(new PdfPCell(new Paragraph("Mês", labelFont)));
+        monthTable.addCell(new PdfPCell(new Paragraph("Contagem", labelFont)));
+
+        // Preenchendo os dados dos meses
+        monthTable.addCell(new PdfPCell(new Paragraph("Janeiro", valueFont)));
+        monthTable.addCell(new PdfPCell(new Paragraph(String.valueOf(monthCount.janeiro()), valueFont)));
+        monthTable.addCell(new PdfPCell(new Paragraph("Fevereiro", valueFont)));
+        monthTable.addCell(new PdfPCell(new Paragraph(String.valueOf(monthCount.fevereiro()), valueFont)));
+        monthTable.addCell(new PdfPCell(new Paragraph("Março", valueFont)));
+        monthTable.addCell(new PdfPCell(new Paragraph(String.valueOf(monthCount.marco()), valueFont)));
+        monthTable.addCell(new PdfPCell(new Paragraph("Abril", valueFont)));
+        monthTable.addCell(new PdfPCell(new Paragraph(String.valueOf(monthCount.abril()), valueFont)));
+        monthTable.addCell(new PdfPCell(new Paragraph("Maio", valueFont)));
+        monthTable.addCell(new PdfPCell(new Paragraph(String.valueOf(monthCount.maio()), valueFont)));
+        monthTable.addCell(new PdfPCell(new Paragraph("Junho", valueFont)));
+        monthTable.addCell(new PdfPCell(new Paragraph(String.valueOf(monthCount.junho()), valueFont)));
+        monthTable.addCell(new PdfPCell(new Paragraph("Julho", valueFont)));
+        monthTable.addCell(new PdfPCell(new Paragraph(String.valueOf(monthCount.julho()), valueFont)));
+        monthTable.addCell(new PdfPCell(new Paragraph("Agosto", valueFont)));
+        monthTable.addCell(new PdfPCell(new Paragraph(String.valueOf(monthCount.agosto()), valueFont)));
+        monthTable.addCell(new PdfPCell(new Paragraph("Setembro", valueFont)));
+        monthTable.addCell(new PdfPCell(new Paragraph(String.valueOf(monthCount.setembro()), valueFont)));
+        monthTable.addCell(new PdfPCell(new Paragraph("Outubro", valueFont)));
+        monthTable.addCell(new PdfPCell(new Paragraph(String.valueOf(monthCount.outubro()), valueFont)));
+        monthTable.addCell(new PdfPCell(new Paragraph("Novembro", valueFont)));
+        monthTable.addCell(new PdfPCell(new Paragraph(String.valueOf(monthCount.novembro()), valueFont)));
+        monthTable.addCell(new PdfPCell(new Paragraph("Dezembro", valueFont)));
+        monthTable.addCell(new PdfPCell(new Paragraph(String.valueOf(monthCount.dezembro()), valueFont)));
+
+        document.add(monthTable);
+    }
+
+    private byte[] gerarRelatorioExcel(String nameCoordinator, String projectCompany, String startDate, String endDate) {
         try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             Sheet sheet = workbook.createSheet("Dados do Dashboard");
 
-            // Adiciona cabeçalho de status
-            Row statusHeader = sheet.createRow(0);
-            statusHeader.createCell(0).setCellValue("Status");
-            statusHeader.createCell(1).setCellValue("Quantidade");
+            int currentRow = 0;
 
-            ProjectStatusCount statusCount = countProjectsByStatus(nameCoordinator, startDate, endDate);
-            Row statusRow = sheet.createRow(1);
-            statusRow.createCell(0).setCellValue("Não iniciados");
-            statusRow.createCell(1).setCellValue(statusCount.naoIniciados());
-            Row inProgressRow = sheet.createRow(2);
-            inProgressRow.createCell(0).setCellValue("Em andamento");
-            inProgressRow.createCell(1).setCellValue(statusCount.emAndamento());
-            Row completedRow = sheet.createRow(3);
-            completedRow.createCell(0).setCellValue("Finalizados");
-            completedRow.createCell(1).setCellValue(statusCount.finalizados());
+            // Adicionar cabeçalho com o nome do coordenador ou empresa
+            Row headerRow = sheet.createRow(currentRow++);
+            if (nameCoordinator != null) {
+                headerRow.createCell(0).setCellValue("Relatório do Coordenador:");
+                headerRow.createCell(1).setCellValue(nameCoordinator);
+            } else if (projectCompany != null) {
+                headerRow.createCell(0).setCellValue("Relatório da Empresa:");
+                headerRow.createCell(1).setCellValue(projectCompany);
 
-            // Adiciona cabeçalho de classificação
-            Row classificationHeader = sheet.createRow(5);
-            classificationHeader.createCell(0).setCellValue("Classificação");
-            classificationHeader.createCell(1).setCellValue("Quantidade");
+                // Adicionar total de investimento para empresa
+                ProjectInvestment investment = calculateInvestmentByCompany(projectCompany, startDate, endDate);
+                Row investmentRow = sheet.createRow(currentRow++);
+                investmentRow.createCell(0).setCellValue("Total de Investimento:");
+                investmentRow.createCell(1).setCellValue("R$ " + investment.totalInvestment());
+            }
 
-            ProjectClassificationCount classificationCount = countProjectsByClassification(nameCoordinator, startDate, endDate);
-            Row contratosRow = sheet.createRow(7);
-            contratosRow.createCell(0).setCellValue("Contratos");
-            contratosRow.createCell(1).setCellValue(classificationCount.contratos());
-            Row patrocinioRow = sheet.createRow(9);
-            patrocinioRow.createCell(0).setCellValue("Patrocínio");
-            patrocinioRow.createCell(1).setCellValue(classificationCount.patrocinio());
+            // Adicionar informações de data se presentes
+            if (startDate != null && endDate != null) {
+                Row dateRow = sheet.createRow(currentRow++);
+                dateRow.createCell(0).setCellValue("Período:");
+                dateRow.createCell(1).setCellValue("De " + startDate + " até " + endDate);
+            } else if (startDate != null) {
+                Row dateRow = sheet.createRow(currentRow++);
+                dateRow.createCell(0).setCellValue("Data de Início:");
+                dateRow.createCell(1).setCellValue(startDate);
+            } else if (endDate != null) {
+                Row dateRow = sheet.createRow(currentRow++);
+                dateRow.createCell(0).setCellValue("Data de Fim:");
+                dateRow.createCell(1).setCellValue(endDate);
+            }
+            currentRow++;
 
-            // Adiciona cabeçalho de meses
-            Row monthHeader = sheet.createRow(15);
-            monthHeader.createCell(0).setCellValue("Mês");
-            monthHeader.createCell(1).setCellValue("Quantidade");
+            // Seção de Status
+            ProjectStatusCount statusCount = (nameCoordinator != null)
+                    ? countProjectsByStatus(nameCoordinator, startDate, endDate)
+                    : countProjectsByStatusForCompany(projectCompany, startDate, endDate);
+            currentRow = adicionarTabelaStatusNoExcel(sheet, statusCount, currentRow);
 
-            ProjectMonthCount monthCount = countProjectsByMonth(nameCoordinator, startDate, endDate);
-            Row janeiroRow = sheet.createRow(16);
-            Row fevereiroRow = sheet.createRow(17);
-            Row marcoRow = sheet.createRow(18);
-            Row abrilRow = sheet.createRow(19);
-            Row maioRow = sheet.createRow(20);
-            Row junhoRow = sheet.createRow(21);
-            Row julhoRow = sheet.createRow(22);
-            Row agostoRow = sheet.createRow(23);
-            Row setembroRow = sheet.createRow(24);
-            Row outubroRow = sheet.createRow(25);
-            Row novembroRow = sheet.createRow(26);
-            Row dezembroRow = sheet.createRow(27);
-            janeiroRow.createCell(0).setCellValue("Janeiro");
-            janeiroRow.createCell(1).setCellValue(monthCount.janeiro());
-            fevereiroRow.createCell(0).setCellValue("Fevereiro");
-            fevereiroRow.createCell(1).setCellValue(monthCount.fevereiro());
-            marcoRow.createCell(0).setCellValue("Março");
-            marcoRow.createCell(1).setCellValue(monthCount.marco());
-            abrilRow.createCell(0).setCellValue("Abril");
-            abrilRow.createCell(1).setCellValue(monthCount.abril());
-            maioRow.createCell(0).setCellValue("Maio");
-            maioRow.createCell(1).setCellValue(monthCount.maio());
-            junhoRow.createCell(0).setCellValue("Junho");
-            junhoRow.createCell(1).setCellValue(monthCount.junho());
-            julhoRow.createCell(0).setCellValue("Julho");
-            julhoRow.createCell(1).setCellValue(monthCount.julho());
-            agostoRow.createCell(0).setCellValue("Agosto");
-            agostoRow.createCell(1).setCellValue(monthCount.agosto());
-            setembroRow.createCell(0).setCellValue("Setembro");
-            setembroRow.createCell(1).setCellValue(monthCount.setembro());
-            outubroRow.createCell(0).setCellValue("Outubro");
-            outubroRow.createCell(1).setCellValue(monthCount.outubro());
-            novembroRow.createCell(0).setCellValue("Novembro");
-            novembroRow.createCell(1).setCellValue(monthCount.novembro());
-            dezembroRow.createCell(0).setCellValue("Dezembro");
-            dezembroRow.createCell(1).setCellValue(monthCount.dezembro());
+            // Seção de Classificação
+            ProjectClassificationCount classificationCount = (nameCoordinator != null)
+                    ? countProjectsByClassification(nameCoordinator, startDate, endDate)
+                    : countProjectsByClassificationForCompany(projectCompany, startDate, endDate);
+            currentRow = adicionarTabelaClassificacaoNoExcel(sheet, classificationCount, currentRow);
+
+            // Seção de Projetos por Mês
+            ProjectMonthCount monthCount = (nameCoordinator != null)
+                    ? countProjectsByMonth(nameCoordinator, startDate, endDate)
+                    : countProjectsByMonthForCompany(projectCompany, startDate, endDate);
+            adicionarTabelaMesNoExcel(sheet, monthCount, currentRow);
 
             workbook.write(baos);
             return baos.toByteArray();
         } catch (IOException e) {
             throw new RuntimeException("Erro ao gerar Excel do dashboard", e);
         }
+    }
+
+    private int adicionarTabelaStatusNoExcel(Sheet sheet, ProjectStatusCount statusCount, int startRow) {
+        Row statusHeader = sheet.createRow(startRow++);
+        statusHeader.createCell(0).setCellValue("Status");
+        statusHeader.createCell(1).setCellValue("Quantidade");
+
+        Row statusRow = sheet.createRow(startRow++);
+        statusRow.createCell(0).setCellValue("Não Iniciado");
+        statusRow.createCell(1).setCellValue(statusCount.naoIniciados());
+
+        Row inProgressRow = sheet.createRow(startRow++);
+        inProgressRow.createCell(0).setCellValue("Em andamento");
+        inProgressRow.createCell(1).setCellValue(statusCount.emAndamento());
+
+        Row completedRow = sheet.createRow(startRow++);
+        completedRow.createCell(0).setCellValue("Finalizados");
+        completedRow.createCell(1).setCellValue(statusCount.finalizados());
+
+        return startRow + 1;
+    }
+
+    private int adicionarTabelaClassificacaoNoExcel(Sheet sheet, ProjectClassificationCount classificationCount, int startRow) {
+        Row classificationHeader = sheet.createRow(startRow++);
+        classificationHeader.createCell(0).setCellValue("Classificação");
+        classificationHeader.createCell(1).setCellValue("Quantidade");
+
+        Row contratosRow = sheet.createRow(startRow++);
+        contratosRow.createCell(0).setCellValue("Contratos");
+        contratosRow.createCell(1).setCellValue(classificationCount.contratos());
+
+        Row patrocinioRow = sheet.createRow(startRow++);
+        patrocinioRow.createCell(0).setCellValue("Patrocínio");
+        patrocinioRow.createCell(1).setCellValue(classificationCount.patrocinio());
+
+        return startRow + 1;
+    }
+
+    private void adicionarTabelaMesNoExcel(Sheet sheet, ProjectMonthCount monthCount, int startRow) {
+        Row monthHeader = sheet.createRow(startRow++);
+        monthHeader.createCell(0).setCellValue("Mês");
+        monthHeader.createCell(1).setCellValue("Quantidade");
+
+        Row janeiroRow = sheet.createRow(startRow++);
+        janeiroRow.createCell(0).setCellValue("Janeiro");
+        janeiroRow.createCell(1).setCellValue(monthCount.janeiro());
+
+        Row fevereiroRow = sheet.createRow(startRow++);
+        fevereiroRow.createCell(0).setCellValue("Fevereiro");
+        fevereiroRow.createCell(1).setCellValue(monthCount.fevereiro());
+
+        Row marcoRow = sheet.createRow(startRow++);
+        marcoRow.createCell(0).setCellValue("Março");
+        marcoRow.createCell(1).setCellValue(monthCount.marco());
+
+        Row abrilRow = sheet.createRow(startRow++);
+        abrilRow.createCell(0).setCellValue("Abril");
+        abrilRow.createCell(1).setCellValue(monthCount.abril());
+
+        Row maioRow = sheet.createRow(startRow++);
+        maioRow.createCell(0).setCellValue("Maio");
+        maioRow.createCell(1).setCellValue(monthCount.maio());
+
+        Row junhoRow = sheet.createRow(startRow++);
+        junhoRow.createCell(0).setCellValue("Junho");
+        junhoRow.createCell(1).setCellValue(monthCount.junho());
+
+        Row julhoRow = sheet.createRow(startRow++);
+        julhoRow.createCell(0).setCellValue("Julho");
+        julhoRow.createCell(1).setCellValue(monthCount.julho());
+
+        Row agostoRow = sheet.createRow(startRow++);
+        agostoRow.createCell(0).setCellValue("Agosto");
+        agostoRow.createCell(1).setCellValue(monthCount.agosto());
+
+        Row setembroRow = sheet.createRow(startRow++);
+        setembroRow.createCell(0).setCellValue("Setembro");
+        setembroRow.createCell(1).setCellValue(monthCount.setembro());
+
+        Row outubroRow = sheet.createRow(startRow++);
+        outubroRow.createCell(0).setCellValue("Outubro");
+        outubroRow.createCell(1).setCellValue(monthCount.outubro());
+
+        Row novembroRow = sheet.createRow(startRow++);
+        novembroRow.createCell(0).setCellValue("Novembro");
+        novembroRow.createCell(1).setCellValue(monthCount.novembro());
+
+        Row dezembroRow = sheet.createRow(startRow++);
+        dezembroRow.createCell(0).setCellValue("Dezembro");
+        dezembroRow.createCell(1).setCellValue(monthCount.dezembro());
     }
 
 }
