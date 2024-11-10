@@ -40,19 +40,6 @@ public class AuthenticationService
         }
     }
 
-    // Method to register a user
-    public User registrarUsuario(String email, String senha) throws SystemContextException {
-        if(this.userRepository.findByLogin(email) != null) {
-            throw new SystemContextException("Usuário já cadastrado");
-        }
-
-        String senhaCriptografada = new BCryptPasswordEncoder().encode(senha);
-
-        var usuario = new User(email, senhaCriptografada);
-
-        return userRepository.save(usuario);
-    }
-
     // Method to register an admin
     public User registrarAdmin() throws SystemContextException {
         String emailAdmin = "admin@admin.com";

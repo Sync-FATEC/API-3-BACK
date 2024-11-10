@@ -52,16 +52,6 @@ public class AuthenticationController {
         return ResponseEntity.ok().body(response);
     }
 
-    @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody RegisterModelDTO data) {
-        try {
-            logger.info("Register request received for email: {}", data.email);
-            var usuario = authenticationService.registrarUsuario(data.email, data.password);
-            return ResponseEntity.status(HttpStatus.CREATED).body(usuario);
-        } catch (SystemContextException e) {
-            logger.error("Error during registration: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseModelDTO(e.getMessage()));
-        }
-    }
+    
 
 }
