@@ -132,9 +132,9 @@ public class ProjectController {
             ResponseModelDTO response = new ResponseModelDTO(coordinators);
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(new ResponseModelDTO(e.getMessage()));
+            return ResponseEntity.badRequest().body(new ResponseModelDTO(HttpStatus.BAD_REQUEST, e.getMessage()));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseModelDTO(e.getMessage()));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseModelDTO(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage()));
         }
     }
 

@@ -52,50 +52,30 @@ def format_date(date_str):
 def normalize_coordinator_name(name):
     """ Normalize coordinator name by removing titles and standardizing variations """
     name = name.strip().lower()
-
-    # Remove os títulos com pontos (Prof., Dr., MSc, PhD, Eng)
     name = re.sub(r'\b(prof|dr|msc|phd|eng)\.', '', name, flags=re.IGNORECASE)
-
     name = name.replace(".", "")
-
-    # Normaliza os espaços (substitui múltiplos espaços por um único)
     name = re.sub(r'\s+', ' ', name).strip()
-
-    # Normaliza variações específicas de nomes
-    name = name.replace('vicente borille', 'anderson vicente borille')
-    name = name.replace('vinícius', 'vinicius')
-    name = name.replace('silva e souza', 'silva souza')
-    name = name.replace('rocha de faria', 'alfredo rocha de faria')
-    name = name.replace('santos', 'davi antonio dos santos')
-    name = name.replace('marcos da silva e souza', 'marcos da silva souza')
-    name = name.replace('silva de souza', 'silva souza')
-
-    # Retorna o nome normalizado
     return name
 
+def insert_coordinator(cursor, coordinator_name, seen_coordinators):
+    normalized_name = normalize_coordinator_name(coordinator_name)
+
+    if normalized_name in seen_coordinators:
+        return seen_coordinators[normalized_name]  # Return existing ID if already in the dictionary
+
+    coordinator_id = str(uuid.uuid4())
+    cursor.execute(
+        "INSERT INTO coordinators (coordinator_id, coordinator_name) VALUES (%s, %s)",
+        (coordinator_id, coordinator_name)
+    )
+    seen_coordinators[normalized_name] = coordinator_id  # Store in dictionary
+    return coordinator_id
 
 def normalize_company_name(company_name):
     """ Normalize company name by removing abbreviations, extra spaces, and standardizing variations """
     company_name = company_name.strip().lower()
-
-    # Remove common suffixes (e.g., S.A., LTDA, EIRELI, etc.)
     company_name = re.sub(r'\b(s\.a\.|ltda\.?|eireli)\b', '', company_name, flags=re.IGNORECASE)
-
-    # Remove extra spaces
     company_name = re.sub(r'\s+', ' ', company_name).strip()
-
-    # Normalize specific variations of company names
-    company_name = company_name.replace('bradar industria sa', 'bradar industria')
-    company_name = company_name.replace('brasil sat harald', 'brasilsat harald')
-    company_name = company_name.replace('general motors do brasil', 'general motors')
-    company_name = company_name.replace('fotosensores tecnologia eletrônica', 'fotosensores tecnologia electronica')
-
-    # Further specific company variations can be added here as needed
-    company_name = company_name.replace('embraer s.a.', 'embraer')
-    company_name = company_name.replace('embrarer', 'embraer')
-    company_name = company_name.replace('flextronics instituto de tecnologia', 'flextronics')
-
-    # Return the normalized company name
     return company_name
 
 def insert_document(cursor, project_id, file_url):
@@ -119,19 +99,11 @@ def insert_projeto(cursor, data, seen_coordinators, seen_companies):
     coordinator_name = data.get("Coordenador", "SEM COORDENADOR")
     company_name = data.get("Empresa", "")
 
-    # Normalize the coordinator's name
-    normalized_name = normalize_coordinator_name(coordinator_name)
-
-    # If the coordinator has already been seen (even with different variants), use the normalized version
-    if normalized_name in seen_coordinators:
-        coordinator_name = seen_coordinators[normalized_name]
-    else:
-        seen_coordinators[normalized_name] = coordinator_name
+    # Insert coordinator and get coordinator_id
+    coordinator_id = insert_coordinator(cursor, coordinator_name, seen_coordinators)
 
     # Normalize the company name
     normalized_company_name = normalize_company_name(company_name)
-
-    # If the company has already been seen (even with different variants), use the normalized version
     if normalized_company_name in seen_companies:
         company_name = seen_companies[normalized_company_name]
     else:
@@ -142,10 +114,10 @@ def insert_projeto(cursor, data, seen_coordinators, seen_companies):
     data_termino = format_date(data.get("Data de término", ""))
 
     cursor.execute(
-        "INSERT INTO projects (project_id, name_coordinator, project_company, project_description, project_end_date, project_objective, project_reference, project_start_date, project_value, project_classification, project_status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+        "INSERT INTO projects (project_id, coordinator_id, project_company, project_description, project_end_date, project_objective, project_reference, project_start_date, project_value, project_classification, project_status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
         (
             project_id,
-            coordinator_name,
+            coordinator_id,
             company_name,
             data.get("Descrição", ""),
             data_termino,
@@ -158,7 +130,7 @@ def insert_projeto(cursor, data, seen_coordinators, seen_companies):
         )
     )
 
-    # Insert documents (Contratos, Propostas, Artigos)
+    # Insert documents
     for url in data.get("Contratos", []):
         insert_document(cursor, project_id, url)
 

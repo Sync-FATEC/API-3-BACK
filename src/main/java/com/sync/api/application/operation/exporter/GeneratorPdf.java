@@ -62,7 +62,7 @@ public class GeneratorPdf implements Exporter {
             document.add(new Paragraph(" ")); // Espaço em branco
 
             document.add(new Paragraph("Coordenador:", subTitleFont));
-            document.add(new Paragraph(project.getNameCoordinator(), normalFont));
+            document.add(new Paragraph(String.valueOf(project.getCoordinators()), normalFont));
             document.add(new Paragraph(" ")); // Espaço em branco
 
             document.add(new Paragraph("Valor do projeto:", subTitleFont));

@@ -1,5 +1,6 @@
 package com.sync.api.web.dto.project;
 
+import com.sync.api.domain.model.Coordinators;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -13,6 +14,7 @@ public record RegisterProjectDTO(
         boolean projectReferenceSensitive,
         @NotBlank String nameCoordinator,
         boolean nameCoordinatorSensitive,
+        Coordinators Coordinator,
         @NotBlank String projectCompany,
         boolean projectCompanySensitive,
         @NotBlank String projectObjective,
@@ -27,6 +29,7 @@ public record RegisterProjectDTO(
         boolean projectStartDateSensitive,
         @NotNull String projectClassification,
         boolean projectClassificationSensitive
-) {}
+) {
+}
 
 

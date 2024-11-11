@@ -16,10 +16,10 @@ import java.util.List;
 public interface ProjectRepository extends JpaRepository<Project, String>, JpaSpecificationExecutor<Project> {
     List<Project> findAllByOrderByProjectStartDateDesc();
 
-    @Query("SELECT p FROM Project p WHERE " +
+    @Query("SELECT p FROM Project p JOIN p.coordinators c WHERE " +
             "(:projectReference IS NULL OR p.projectReference LIKE %:projectReference%) AND " +
             "(:projectCompany IS NULL OR p.projectCompany LIKE %:projectCompany%) AND " +
-            "(:nameCoordinator IS NULL OR p.nameCoordinator LIKE %:nameCoordinator%) AND " +
+            "(:nameCoordinator IS NULL OR c.coordinatorName LIKE %:nameCoordinator%) AND " +
             "(:projectClassification IS NULL OR p.projectClassification = :projectClassification) AND " +
             "(:projectStatus IS NULL OR p.projectStatus = :projectStatus) AND " +
             "(:projectStartDate IS NULL OR p.projectStartDate = :projectStartDate) AND " +
@@ -34,20 +34,24 @@ public interface ProjectRepository extends JpaRepository<Project, String>, JpaSp
             @Param("projectEndDate") LocalDate projectEndDate
     );
 
+
+
+
     @Query("SELECT p FROM Project p WHERE p.projectEndDate BETWEEN :startOfWeek AND :endOfWeek")
     List<Project> findProjectsEndingThisWeek(@Param("startOfWeek") LocalDate startOfWeek,
                                              @Param("endOfWeek") LocalDate endOfWeek);
 
     @Query("""
-        SELECT
-        SUM(CASE WHEN p.projectStatus = 'NAO_INICIADOS' THEN 1 ELSE 0 END) AS naoIniciados,
-        SUM(CASE WHEN p.projectStatus = 'EM_ANDAMENTO' THEN 1 ELSE 0 END) AS emAndamento,
-        SUM(CASE WHEN p.projectStatus = 'FINALIZADOS' THEN 1 ELSE 0 END) AS finalizados
+    SELECT
+    SUM(CASE WHEN p.projectStatus = 'NAO_INICIADOS' THEN 1 ELSE 0 END) AS naoIniciados,
+    SUM(CASE WHEN p.projectStatus = 'EM_ANDAMENTO' THEN 1 ELSE 0 END) AS emAndamento,
+    SUM(CASE WHEN p.projectStatus = 'FINALIZADOS' THEN 1 ELSE 0 END) AS finalizados
     FROM Project p
-    WHERE (:nameCoordinator IS NULL OR p.nameCoordinator LIKE %:nameCoordinator%) AND
+    JOIN p.coordinators c
+    WHERE (:nameCoordinator IS NULL OR c.coordinatorName LIKE %:nameCoordinator%) AND
           (:projectStartDate IS NULL OR p.projectStartDate >= :projectStartDate) AND
           (:projectEndDate IS NULL OR p.projectEndDate <= :projectEndDate)
-    """)
+""")
     List<Object[]> countProjectsByStatusCoordinator(
             @Param("nameCoordinator") String nameCoordinator,
             @Param("projectStartDate") LocalDate projectStartDate,
@@ -55,32 +59,36 @@ public interface ProjectRepository extends JpaRepository<Project, String>, JpaSp
 
     @Query("""
     SELECT
-        SUM(CASE WHEN p.projectClassification = 'OUTROS' THEN 1 ELSE 0 END) AS outros,
-        SUM(CASE WHEN p.projectClassification = 'CONTRATOS' THEN 1 ELSE 0 END) AS contratos,
-        SUM(CASE WHEN p.projectClassification = 'CONVENIO' THEN 1 ELSE 0 END) AS convenio,
-        SUM(CASE WHEN p.projectClassification = 'PATROCINIO' THEN 1 ELSE 0 END) AS patrocinio,
-        SUM(CASE WHEN p.projectClassification = 'TERMO_DE_COOPERACAO' THEN 1 ELSE 0 END) AS termoDeCooperacao,
-        SUM(CASE WHEN p.projectClassification = 'TERMO_DE_OUTORGA' THEN 1 ELSE 0 END) AS termoDeOutorga
+    SUM(CASE WHEN p.projectClassification = 'OUTROS' THEN 1 ELSE 0 END) AS outros,
+    SUM(CASE WHEN p.projectClassification = 'CONTRATOS' THEN 1 ELSE 0 END) AS contratos,
+    SUM(CASE WHEN p.projectClassification = 'CONVENIO' THEN 1 ELSE 0 END) AS convenio,
+    SUM(CASE WHEN p.projectClassification = 'PATROCINIO' THEN 1 ELSE 0 END) AS patrocinio,
+    SUM(CASE WHEN p.projectClassification = 'TERMO_DE_COOPERACAO' THEN 1 ELSE 0 END) AS termoDeCooperacao,
+    SUM(CASE WHEN p.projectClassification = 'TERMO_DE_OUTORGA' THEN 1 ELSE 0 END) AS termoDeOutorga
     FROM Project p
-    WHERE (:nameCoordinator IS NULL OR p.nameCoordinator LIKE %:nameCoordinator%) AND
+    JOIN p.coordinators c
+    WHERE (:nameCoordinator IS NULL OR c.coordinatorName LIKE %:nameCoordinator%) AND
           (:projectStartDate IS NULL OR p.projectStartDate >= :projectStartDate) AND
           (:projectEndDate IS NULL OR p.projectEndDate <= :projectEndDate)
-    """)
-    List<Object[]> countProjectsByClassificationCoordinator(@Param("nameCoordinator") String nameCoordinator,
-                                                            @Param("projectStartDate") LocalDate projectStartDate,
-                                                            @Param("projectEndDate") LocalDate projectEndDate);
+""")
+    List<Object[]> countProjectsByClassificationCoordinator(
+            @Param("nameCoordinator") String nameCoordinator,
+            @Param("projectStartDate") LocalDate projectStartDate,
+            @Param("projectEndDate") LocalDate projectEndDate);
 
     @Query("""
-            SELECT FUNCTION('MONTH', p.projectStartDate), COUNT(p)
-            FROM Project p
-            WHERE  (:projectStartDate IS NULL OR p.projectStartDate >= :projectStartDate) AND
-                   (:projectEndDate IS NULL OR p.projectEndDate <= :projectEndDate) AND
-                   (:nameCoordinator IS NULL OR p.nameCoordinator LIKE %:nameCoordinator%)
-            GROUP BY FUNCTION('MONTH', p.projectStartDate)
-            """)
-    List<Object[]> countProjectsByMonthCoordinator(@Param("nameCoordinator") String nameCoordinator,
-                                                   @Param("projectStartDate") LocalDate projectStartDate,
-                                                   @Param("projectEndDate") LocalDate projectEndDate);
+    SELECT FUNCTION('MONTH', p.projectStartDate), COUNT(p)
+    FROM Project p
+    JOIN p.coordinators c
+    WHERE (:nameCoordinator IS NULL OR c.coordinatorName LIKE %:nameCoordinator%) AND
+          (:projectStartDate IS NULL OR p.projectStartDate >= :projectStartDate) AND
+          (:projectEndDate IS NULL OR p.projectEndDate <= :projectEndDate)
+    GROUP BY FUNCTION('MONTH', p.projectStartDate)
+""")
+    List<Object[]> countProjectsByMonthCoordinator(
+            @Param("nameCoordinator") String nameCoordinator,
+            @Param("projectStartDate") LocalDate projectStartDate,
+            @Param("projectEndDate") LocalDate projectEndDate);
 
     @Query("""
     SELECT

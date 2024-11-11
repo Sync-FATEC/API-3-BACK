@@ -1,5 +1,7 @@
 package com.sync.api.application.service;
 
+import com.sync.api.domain.model.*;
+import com.sync.api.infra.repository.CoordinatorsRepository;
 import com.sync.api.web.dto.project.HistoryProjectDto;
 import com.sync.api.web.dto.documents.DocumentListDTO;
 import com.sync.api.web.dto.project.ProjectDto;
@@ -8,10 +10,6 @@ import com.sync.api.web.dto.project.UpdateProjectDto;
 import com.sync.api.domain.enums.ProjectClassification;
 import com.sync.api.domain.enums.ProjectStatus;
 import com.sync.api.web.exception.SystemContextException;
-import com.sync.api.domain.model.Documents;
-import com.sync.api.domain.model.HistoryProject;
-import com.sync.api.domain.model.Project;
-import com.sync.api.domain.model.User;
 import com.sync.api.application.operation.CompareChanges;
 import com.sync.api.application.operation.RegisterHistoryProject;
 import com.sync.api.application.operation.RegisterProject;
@@ -56,18 +54,53 @@ public class ProjectService {
     private RegisterHistoryProject registerHistoryProject;
     @Autowired
     private CompareChanges compareChanges;
-
+    @Autowired
+    private CoordinatorsRepository coordinatorsRepository;
     private static final Logger logger = LoggerFactory.getLogger(ProjectService.class);
 
     public Project createProject(RegisterProjectDTO registerProjectDTO) {
         try {
             var projectStatus = VerifyProjectStatus(registerProjectDTO.projectStartDate(), registerProjectDTO.projectEndDate());
-            return registerProject.registerProject(registerProjectDTO, projectStatus);
+
+            RegisterProjectDTO registerProjectWithCoordinator = registerCoordinator(registerProjectDTO);
+
+            return registerProject.registerProject(registerProjectWithCoordinator, projectStatus);
         } catch (IllegalArgumentException e) {
             throw new RuntimeException("Dados do projeto inválidos: " + e.getMessage(), e);
         } catch (Exception e) {
             throw new RuntimeException("Erro ao criar o projeto: " + e.getMessage(), e);
         }
+    }
+
+    private RegisterProjectDTO registerCoordinator(RegisterProjectDTO registerProjectDTO) {
+        Coordinators coordinator = coordinatorsRepository.findByCoordinatorName(registerProjectDTO.nameCoordinator());
+        if (coordinator == null) {
+            throw new IllegalArgumentException("Coordenador não encontrado: " + registerProjectDTO.nameCoordinator());
+        }
+
+        RegisterProjectDTO dtoWithCoordinator = new RegisterProjectDTO(
+                registerProjectDTO.projectReference(),
+                registerProjectDTO.projectReferenceSensitive(),
+                registerProjectDTO.nameCoordinator(),
+                registerProjectDTO.nameCoordinatorSensitive(),
+                coordinator,
+                registerProjectDTO.projectCompany(),
+                registerProjectDTO.projectCompanySensitive(),
+                registerProjectDTO.projectObjective(),
+                registerProjectDTO.projectObjectiveSensitive(),
+                registerProjectDTO.projectDescription(),
+                registerProjectDTO.projectDescriptionSensitive(),
+                registerProjectDTO.projectValue(),
+                registerProjectDTO.projectValueSensitive(),
+                registerProjectDTO.projectEndDate(),
+                registerProjectDTO.projectEndDateSensitive(),
+                registerProjectDTO.projectStartDate(),
+                registerProjectDTO.projectStartDateSensitive(),
+                registerProjectDTO.projectClassification(),
+                registerProjectDTO.projectClassificationSensitive()
+        );
+
+        return dtoWithCoordinator;
     }
 
     public ProjectDto readProject(String projectId) {
@@ -103,12 +136,16 @@ public class ProjectService {
                 .collect(Collectors.toList());
     }
 
-    public List<String> listCoordinators() {
-        return projectRepository.findAll().stream()
-                .map(Project::getNameCoordinator)
-                .distinct()
-                .sorted()
-                .collect(Collectors.toList());
+    public List<String> listCoordinators() throws SystemContextException {
+        try {
+            return coordinatorsRepository.findAll().stream()
+                    .map(Coordinators::getCoordinatorName)
+                    .distinct()
+                    .sorted()
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            throw new SystemContextException("Erro ao listar coordenadores: " + e.getMessage());
+        }
     }
 
     public List<String> listCompanies() throws SystemContextException {
@@ -238,7 +275,7 @@ public class ProjectService {
         var dto = new ProjectDto(
                 project.getProjectId(),
                 project.getProjectReference(),
-                project.getNameCoordinator(),
+                project.coordinators.getCoordinatorName(),
                 project.getProjectCompany(),
                 project.getProjectObjective(),
                 project.getProjectDescription(),

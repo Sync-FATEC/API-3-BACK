@@ -17,7 +17,7 @@ public class RegisterProject {
     public Project registerProject(RegisterProjectDTO projectDto, ProjectStatus projectStatus) {
         Project project = new Project();
         project.setProjectReference(projectDto.projectReference());
-        project.setNameCoordinator(projectDto.nameCoordinator());
+        project.setCoordinators(projectDto.Coordinator());
         project.setProjectCompany(projectDto.projectCompany());
         project.setProjectObjective(projectDto.projectObjective());
         project.setProjectValue(projectDto.projectValue());
