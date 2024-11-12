@@ -47,7 +47,6 @@ public class Project {
     @ElementCollection
     private List<String> sensitiveFields;
 
-
     @ManyToOne
     @JsonIgnore
     @JoinColumn(name = "user_id")
