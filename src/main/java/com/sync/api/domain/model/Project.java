@@ -48,6 +48,11 @@ public class Project {
     private List<String> sensitiveFields;
 
     @ManyToOne
+    @JoinColumn(name = "coordinator_id")
+    public Coordinators coordinators;
+
+
+    @ManyToOne
     @JsonIgnore
     @JoinColumn(name = "user_id")
     public User user;
