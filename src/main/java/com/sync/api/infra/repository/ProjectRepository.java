@@ -149,4 +149,26 @@ public interface ProjectRepository extends JpaRepository<Project, String>, JpaSp
             @Param("projectCompany") String projectCompany,
             @Param("projectStartDate") LocalDate projectStartDate,
             @Param("projectEndDate") LocalDate projectEndDate);
+
+    @Query("""
+    SELECT p FROM Project p
+    JOIN p.coordinators c
+    WHERE 
+        (:keyword IS NULL OR 
+            p.projectReference LIKE %:keyword% OR
+            p.projectCompany LIKE %:keyword% OR
+            c.coordinatorName LIKE %:keyword%) 
+        AND (:projectStartDate IS NULL OR p.projectStartDate >= :projectStartDate)
+        AND (:projectEndDate IS NULL OR p.projectEndDate <= :projectEndDate)
+        AND (:status IS NULL OR p.projectStatus = :status)
+        AND (:classification IS NULL OR p.projectClassification = :classification)
+""")
+    List<Project> filterProjectsKeyWord(
+            @Param("keyword") String keyword,
+            @Param("projectStartDate") LocalDate projectStartDate,
+            @Param("projectEndDate") LocalDate projectEndDate,
+            @Param("status") ProjectStatus status,
+            @Param("classification") ProjectClassification classification
+    );
+
 }

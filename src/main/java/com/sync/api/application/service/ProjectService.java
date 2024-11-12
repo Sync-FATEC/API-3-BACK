@@ -29,9 +29,7 @@ import java.lang.reflect.Field;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -109,20 +107,26 @@ public class ProjectService {
                 .orElseThrow(() -> new IllegalArgumentException("Projeto com o ID " + projectId + " não encontrado"));
     }
 
-    public List<ProjectDto> listProjectsFiltered(String keyword, LocalDate projectStartDate, LocalDate projectEndDate, ProjectStatus status, ProjectClassification classification) {
+    public List<ProjectDto> listProjectsFiltered(
+            String keyword,
+            LocalDate projectStartDate,
+            LocalDate projectEndDate,
+            ProjectStatus status,
+            ProjectClassification classification) {
+
         List<Project> projects = projectRepository.findAllByOrderByProjectStartDateDesc();
 
         String keywordLower = (keyword != null) ? keyword.toLowerCase() : null;
 
-        return projects.stream()
-                .filter(project -> (keywordLower == null ||
-                        project.getProjectReference().toLowerCase().contains(keywordLower) ||
-                        project.getProjectCompany().toLowerCase().contains(keywordLower) ||
-                        project.getNameCoordinator().toLowerCase().contains(keywordLower)))
-                .filter(project -> (projectStartDate == null || !project.getProjectStartDate().isBefore(projectStartDate)))
-                .filter(project -> (projectEndDate == null || !project.getProjectEndDate().isAfter(projectEndDate)))
-                .filter(project -> (status == null || project.getProjectStatus() == status))
-                .filter(project -> (classification == null || project.getProjectClassification() == classification))
+        return projectRepository.filterProjectsKeyWord(
+                keywordLower,
+                projectStartDate,
+                projectEndDate,
+                status,
+                classification
+        ).stream()
+                .filter(project -> project.getProjectStartDate() != null)
+                .sorted(Comparator.comparing(Project::getProjectStartDate).reversed())
                 .map(this::mapProjectToDto)
                 .collect(Collectors.toList());
     }
@@ -175,10 +179,10 @@ public class ProjectService {
             return project;
         }
 
+
+
         var projectStatus = VerifyProjectStatus(updateProjectDto.projectStartDate(), updateProjectDto.projectEndDate());
         Project projectUpdated = updateProject.updateProject(updateProjectDto, project, projectStatus);
-
-
 
         registerHistoryProject.registerLog(historyProjectDto);
 

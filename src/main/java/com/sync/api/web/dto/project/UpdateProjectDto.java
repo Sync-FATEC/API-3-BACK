@@ -14,6 +14,8 @@ public record UpdateProjectDto(
         boolean projectReferenceSensitive,
         String nameCoordinator,
         boolean nameCoordinatorSensitive,
+        String coordinator,
+        boolean coordinatorSensitive,
         String projectCompany,
         boolean projectCompanySensitive,
         @Lob
