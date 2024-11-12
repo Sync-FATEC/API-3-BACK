@@ -1,7 +1,9 @@
 package com.sync.api.application.service;
 
+import com.sync.api.application.operation.*;
 import com.sync.api.domain.model.*;
 import com.sync.api.infra.repository.CoordinatorsRepository;
+import com.sync.api.infra.repository.DraftEditProjectRepository;
 import com.sync.api.web.dto.project.HistoryProjectDto;
 import com.sync.api.web.dto.documents.DocumentListDTO;
 import com.sync.api.web.dto.project.ProjectDto;
@@ -10,10 +12,6 @@ import com.sync.api.web.dto.project.UpdateProjectDto;
 import com.sync.api.domain.enums.ProjectClassification;
 import com.sync.api.domain.enums.ProjectStatus;
 import com.sync.api.web.exception.SystemContextException;
-import com.sync.api.application.operation.CompareChanges;
-import com.sync.api.application.operation.RegisterHistoryProject;
-import com.sync.api.application.operation.RegisterProject;
-import com.sync.api.application.operation.UpdateProject;
 import com.sync.api.application.operation.contract.Exporter;
 import com.sync.api.application.operation.exporter.GeneratorExcel;
 import com.sync.api.application.operation.exporter.GeneratorPdf;
@@ -54,6 +52,11 @@ public class ProjectService {
     private CompareChanges compareChanges;
     @Autowired
     private CoordinatorsRepository coordinatorsRepository;
+    @Autowired
+    private DraftEditProjectRepository draftEditProjectRepository;
+    @Autowired
+    private UpdateDraftEditProject updateDraftEditProject;
+
     private static final Logger logger = LoggerFactory.getLogger(ProjectService.class);
 
     public Project createProject(RegisterProjectDTO registerProjectDTO) {
@@ -254,6 +257,27 @@ public class ProjectService {
         return projectRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Projeto com o ID " + id + " não encontrado"));
     }
+
+    public DraftEditProject UpdateDraft(String projectId, UpdateProjectDto updateProjectDto, User user)
+    {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new IllegalArgumentException("Projeto com o ID " + projectId + " não encontrado"));
+
+        Optional<DraftEditProject> projectDraftOp = draftEditProjectRepository.findById(projectId);
+
+        DraftEditProject projectDraft;
+
+        projectDraft = projectDraftOp.orElseGet(() -> DraftEditProject.from(project));
+
+        var newSensitiveFields = SensitiveFieldUtil.getSensitiveFields(updateProjectDto);
+
+        if (newSensitiveFields.equals(project.getSensitiveFields())) {
+            return projectDraft;
+        }
+
+        return updateDraftEditProject.update(updateProjectDto, projectDraft);
+    }
+
 
     @Scheduled(cron = "0 0 0 * * *", zone = "America/Sao_Paulo")
     public void VerifyAllProjects() {
