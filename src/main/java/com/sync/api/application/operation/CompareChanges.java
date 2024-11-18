@@ -36,9 +36,9 @@ public class CompareChanges {
             oldValues.append(oldProject.getProjectDescription()).append(",");
             newValues.append(updateProjectDto.projectDescription()).append(",");
         }
-        if (!oldProject.getCoordinators().equals(updateProjectDto.nameCoordinator())) {
+        if (!oldProject.getCoordinators().coordinatorName.equals(updateProjectDto.nameCoordinator())) {
             changesFields.append("nameCoordinator,");
-            oldValues.append(oldProject.getCoordinators()).append(",");
+            oldValues.append(oldProject.getCoordinators().coordinatorName).append(",");
             newValues.append(updateProjectDto.nameCoordinator()).append(",");
         }
         if (!oldProject.getProjectValue().equals(updateProjectDto.projectValue())) {

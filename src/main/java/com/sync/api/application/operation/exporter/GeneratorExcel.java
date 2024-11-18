@@ -48,7 +48,7 @@ public class GeneratorExcel implements Exporter {
         // Criar uma nova linha para os dados do projeto
         Row dataRow = sheet.createRow(1);
         dataRow.createCell(0).setCellValue(project.getProjectReference());
-        dataRow.createCell(1).setCellValue((RichTextString) project.getCoordinators());
+        dataRow.createCell(1).setCellValue(project.getCoordinators().coordinatorName);
         dataRow.createCell(2).setCellValue(project.getProjectDescription());
         dataRow.createCell(3).setCellValue(project.getProjectCompany());
         dataRow.createCell(4).setCellValue(project.getProjectObjective());

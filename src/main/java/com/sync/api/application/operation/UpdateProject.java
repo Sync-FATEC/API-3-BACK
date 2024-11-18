@@ -1,5 +1,7 @@
 package com.sync.api.application.operation;
 
+import com.sync.api.domain.model.Coordinators;
+import com.sync.api.infra.repository.CoordinatorsRepository;
 import com.sync.api.web.dto.project.UpdateProjectDto;
 import com.sync.api.domain.enums.ProjectStatus;
 import com.sync.api.domain.model.Project;
@@ -12,6 +14,8 @@ import org.springframework.stereotype.Service;
 public class UpdateProject {
     @Autowired
     private ProjectRepository projectRepository;
+    @Autowired
+    private CoordinatorsRepository coordinatorsRepository;
 
     public Project updateProject(UpdateProjectDto updateProjectDto, Project project, ProjectStatus projectStatus){
         if (updateProjectDto.projectReference() != null){
@@ -27,7 +31,11 @@ public class UpdateProject {
             project.setProjectDescription(updateProjectDto.projectDescription());
         }
         if (updateProjectDto.nameCoordinator() != null){
-            project.setNameCoordinator(updateProjectDto.nameCoordinator());
+            Coordinators coordinator = coordinatorsRepository.findByCoordinatorName(updateProjectDto.nameCoordinator());
+            if (coordinator == null) {
+                throw new IllegalArgumentException("Coordenador não encontrado.");
+            }
+            project.setCoordinators(coordinator);
         }
         if(updateProjectDto.projectValue() != null){
             project.setProjectValue(updateProjectDto.projectValue());

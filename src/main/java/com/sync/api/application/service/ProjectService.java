@@ -27,10 +27,7 @@ import java.lang.reflect.Field;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -44,19 +41,22 @@ public class ProjectService {
     @Autowired
     private HistoryProjectRepository historyProjectRepository;
     @Autowired
+    private  DocumentService documentService;
+    @Autowired
     private RegisterProject registerProject;
     @Autowired
     private UpdateProject updateProject;
     @Autowired
-    private UpdateDraftEditProject updateDraftEditProject;
-    @Autowired
     private RegisterHistoryProject registerHistoryProject;
-    @Autowired
-    private DraftEditProjectRepository draftEditProjectRepository;
     @Autowired
     private CompareChanges compareChanges;
     @Autowired
     private CoordinatorsRepository coordinatorsRepository;
+    @Autowired
+    private DraftEditProjectRepository draftEditProjectRepository;
+    @Autowired
+    private UpdateDraftEditProject updateDraftEditProject;
+
     private static final Logger logger = LoggerFactory.getLogger(ProjectService.class);
 
     public Project createProject(RegisterProjectDTO registerProjectDTO) {
@@ -110,20 +110,26 @@ public class ProjectService {
                 .orElseThrow(() -> new IllegalArgumentException("Projeto com o ID " + projectId + " não encontrado"));
     }
 
-    public List<ProjectDto> listProjectsFiltered(String keyword, LocalDate projectStartDate, LocalDate projectEndDate, ProjectStatus status, ProjectClassification classification) {
+    public List<ProjectDto> listProjectsFiltered(
+            String keyword,
+            LocalDate projectStartDate,
+            LocalDate projectEndDate,
+            ProjectStatus status,
+            ProjectClassification classification) {
+
         List<Project> projects = projectRepository.findAllByOrderByProjectStartDateDesc();
 
         String keywordLower = (keyword != null) ? keyword.toLowerCase() : null;
 
-        return projects.stream()
-                .filter(project -> (keywordLower == null ||
-                        project.getProjectReference().toLowerCase().contains(keywordLower) ||
-                        project.getProjectCompany().toLowerCase().contains(keywordLower) ||
-                        project.getNameCoordinator().toLowerCase().contains(keywordLower)))
-                .filter(project -> (projectStartDate == null || !project.getProjectStartDate().isBefore(projectStartDate)))
-                .filter(project -> (projectEndDate == null || !project.getProjectEndDate().isAfter(projectEndDate)))
-                .filter(project -> (status == null || project.getProjectStatus() == status))
-                .filter(project -> (classification == null || project.getProjectClassification() == classification))
+        return projectRepository.filterProjectsKeyWord(
+                keywordLower,
+                projectStartDate,
+                projectEndDate,
+                status,
+                classification
+        ).stream()
+                .filter(project -> project.getProjectStartDate() != null)
+                .sorted(Comparator.comparing(Project::getProjectStartDate).reversed())
                 .map(this::mapProjectToDto)
                 .collect(Collectors.toList());
     }
@@ -176,36 +182,15 @@ public class ProjectService {
             return project;
         }
 
+
+
         var projectStatus = VerifyProjectStatus(updateProjectDto.projectStartDate(), updateProjectDto.projectEndDate());
         Project projectUpdated = updateProject.updateProject(updateProjectDto, project, projectStatus);
-
-
 
         registerHistoryProject.registerLog(historyProjectDto);
 
         return projectUpdated;
     }
-
-    public DraftEditProject UpdateDraft(String projectId, UpdateProjectDto updateProjectDto, User user)
-    {
-        Project project = projectRepository.findById(projectId)
-            .orElseThrow(() -> new IllegalArgumentException("Projeto com o ID " + projectId + " não encontrado"));
-
-        Optional<DraftEditProject> projectDraftOp = draftEditProjectRepository.findById(projectId);
-
-        DraftEditProject projectDraft;
-
-        projectDraft = projectDraftOp.orElseGet(() -> DraftEditProject.from(project));
-
-        var newSensitiveFields = SensitiveFieldUtil.getSensitiveFields(updateProjectDto);
-
-        if (newSensitiveFields.equals(project.getSensitiveFields())) {
-            return projectDraft;
-        }
-
-        return updateDraftEditProject.update(updateProjectDto, projectDraft);
-    }
-
 
     public List<HistoryProjectDto> listHistoryChanges(String projectId) {
         Project project = projectRepository.findById(projectId)
@@ -273,6 +258,27 @@ public class ProjectService {
                 .orElseThrow(() -> new IllegalArgumentException("Projeto com o ID " + id + " não encontrado"));
     }
 
+    public DraftEditProject UpdateDraft(String projectId, UpdateProjectDto updateProjectDto, User user)
+    {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new IllegalArgumentException("Projeto com o ID " + projectId + " não encontrado"));
+
+        Optional<DraftEditProject> projectDraftOp = draftEditProjectRepository.findById(projectId);
+
+        DraftEditProject projectDraft;
+
+        projectDraft = projectDraftOp.orElseGet(() -> DraftEditProject.from(project));
+
+        var newSensitiveFields = SensitiveFieldUtil.getSensitiveFields(updateProjectDto);
+
+        if (newSensitiveFields.equals(project.getSensitiveFields())) {
+            return projectDraft;
+        }
+
+        return updateDraftEditProject.update(updateProjectDto, projectDraft);
+    }
+
+
     @Scheduled(cron = "0 0 0 * * *", zone = "America/Sao_Paulo")
     public void VerifyAllProjects() {
         logger.info("Verificação de status dos projetos iniciada.");
@@ -294,10 +300,10 @@ public class ProjectService {
 
     private ProjectDto mapProjectToDto(Project project) {
         project = RemoveSensitiveData(project);
-        return new ProjectDto(
+        var dto = new ProjectDto(
                 project.getProjectId(),
                 project.getProjectReference(),
-                project.getNameCoordinator(),
+                project.coordinators.getCoordinatorName(),
                 project.getProjectCompany(),
                 project.getProjectObjective(),
                 project.getProjectDescription(),
@@ -311,6 +317,7 @@ public class ProjectService {
                         : Collections.emptyList(),
                 project.getSensitiveFields()
         );
+        return dto;
     }
 
     private DocumentListDTO mapDocToDTO(Documents document){

@@ -27,7 +27,6 @@ public class Project {
     @Lob
     @Column(columnDefinition = "TEXT")
     public String projectDescription;
-    public String nameCoordinator;
     public Float projectValue;
     public LocalDate projectStartDate;
     public LocalDate projectEndDate;

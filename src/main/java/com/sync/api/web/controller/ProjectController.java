@@ -160,40 +160,16 @@ public class ProjectController {
             return ResponseEntity.ok(response);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new ResponseModelDTO("Project not found: " + e.getMessage()));
+                    .body(new ResponseModelDTO(HttpStatus.NOT_FOUND, e.getMessage()));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest()
-                    .body(new ResponseModelDTO("Invalid data: " + e.getMessage()));
+                    .body(new ResponseModelDTO(HttpStatus.BAD_REQUEST ,e.getMessage()));
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ResponseModelDTO("Runtime exception: " + e.getMessage()));
+                    .body(new ResponseModelDTO(HttpStatus.INTERNAL_SERVER_ERROR,"Runtime exception: " + e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ResponseModelDTO("An unexpected error occurred: " + e.getMessage()));
-        }
-    }
-
-    @PutMapping("/update/draft/{id}")
-    public ResponseEntity<ResponseModelDTO> updateDraftProject(
-            @PathVariable String id,
-            @Valid @RequestBody UpdateProjectDto updateProjectDto) {
-        try {
-            var user = authenticationService.getLoggedUser();
-            Project project = projectService.updateProject(id, updateProjectDto, user);
-            ResponseModelDTO response = new ResponseModelDTO(project);
-            return ResponseEntity.ok(response);
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new ResponseModelDTO("Project not found: " + e.getMessage()));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest()
-                    .body(new ResponseModelDTO("Invalid data: " + e.getMessage()));
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ResponseModelDTO("Runtime exception: " + e.getMessage()));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ResponseModelDTO("An unexpected error occurred: " + e.getMessage()));
+                    .body(new ResponseModelDTO(HttpStatus.INTERNAL_SERVER_ERROR,"An unexpected error occurred: " + e.getMessage()));
         }
     }
 
