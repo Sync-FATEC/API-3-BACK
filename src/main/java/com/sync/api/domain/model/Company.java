@@ -15,6 +15,7 @@ public class Company {
     private String phone;
     private boolean privateCompany;
 
-    @OneToOne(mappedBy = "company")
+    @OneToOne
+    @JoinColumn(name = "address_id")
     private Address address;
 }

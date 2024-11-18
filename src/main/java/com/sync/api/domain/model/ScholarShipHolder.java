@@ -16,7 +16,8 @@ public class ScholarShipHolder {
     private String rg;
     private String nationality;
 
-    @OneToOne(mappedBy = "scholarShipHolder")
+    @OneToOne
+    @JoinColumn(name = "address_id")
     private Address address;
 
     @ManyToOne
