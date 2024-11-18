@@ -5,7 +5,9 @@ import com.sync.api.domain.model.DraftEditProject;
 import com.sync.api.infra.repository.DraftEditProjectRepository;
 import com.sync.api.web.dto.project.UpdateProjectDto;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+@Component
 public class UpdateDraftEditProject {
     @Autowired
     private DraftEditProjectRepository draftEditProjectRepository;

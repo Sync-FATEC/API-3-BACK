@@ -8,6 +8,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Data
+@Entity
 public class DraftEditProject {
 
     @Id
