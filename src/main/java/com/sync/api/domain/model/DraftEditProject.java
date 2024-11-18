@@ -44,7 +44,6 @@ public class DraftEditProject {
         draftEditProject.draftEditProjectCompany = project.projectCompany;
         draftEditProject.draftEditProjectObjective = project.projectObjective;
         draftEditProject.draftEditProjectDescription = project.projectDescription;
-        draftEditProject.nameCoordinator = project.nameCoordinator;
         draftEditProject.draftEditProjectValue = project.projectValue;
         draftEditProject.draftEditProjectStartDate = project.projectStartDate;
         draftEditProject.draftEditProjectEndDate = project.projectEndDate;

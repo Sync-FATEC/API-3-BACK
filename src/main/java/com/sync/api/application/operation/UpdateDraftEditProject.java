@@ -23,9 +23,7 @@ public class UpdateDraftEditProject {
         if(updateProjectDto.projectDescription() != null){
             draft.setDraftEditProjectDescription(updateProjectDto.projectDescription());
         }
-        if (updateProjectDto.nameCoordinator() != null){
-            draft.setNameCoordinator(updateProjectDto.nameCoordinator());
-        }
+
         if(updateProjectDto.projectValue() != null){
             draft.setDraftEditProjectValue(updateProjectDto.projectValue());
         }
