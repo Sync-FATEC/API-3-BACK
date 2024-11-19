@@ -19,7 +19,6 @@ public class Project {
     public String projectId;
     public String projectReference;
     public String projectTitle;
-    public String projectCompany;
 
     @Lob
     @Column(columnDefinition = "TEXT")
@@ -51,6 +50,10 @@ public class Project {
     @ManyToOne
     @JoinColumn(name = "coordinator_id")
     public Coordinators coordinators;
+
+    @ManyToOne
+    @JoinColumn(name = "company_id")
+    public Company company;
 
 
     @ManyToOne

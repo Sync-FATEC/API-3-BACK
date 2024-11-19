@@ -94,31 +94,49 @@ def insert_document(cursor, project_id, file_url):
         (str(uuid.uuid4()), file_url.split("/")[-1], file_type, file_url, project_id)
     )
 
+def insert_company(cursor, company_name, seen_companies):
+    """ Insert company into the company table and return its ID """
+    normalized_company_name = normalize_company_name(company_name)
+
+    # Verifica se a empresa já está no dicionário de empresas vistas
+    if normalized_company_name in seen_companies:
+        return seen_companies[normalized_company_name]  # Retorna o ID já armazenado
+
+    # Gera um novo UUID para a empresa
+    company_id = str(uuid.uuid4())
+
+    # Insere a empresa na tabela company
+    cursor.execute(
+        "INSERT INTO company (id, corporate_name, private_company) VALUES (%s, %s, %s)",
+        (company_id, company_name, 0)
+    )
+
+    # Armazena o ID da empresa no dicionário para evitar inserções duplicadas
+    seen_companies[normalized_company_name] = company_id
+    return company_id
+
 def insert_projeto(cursor, data, seen_coordinators, seen_companies):
     project_id = str(uuid.uuid4())
     coordinator_name = data.get("Coordenador", "SEM COORDENADOR")
     company_name = data.get("Empresa", "")
 
-    # Insert coordinator and get coordinator_id
+    # Insere o coordenador e obtém seu ID
     coordinator_id = insert_coordinator(cursor, coordinator_name, seen_coordinators)
 
-    # Normalize the company name
-    normalized_company_name = normalize_company_name(company_name)
-    if normalized_company_name in seen_companies:
-        company_name = seen_companies[normalized_company_name]
-    else:
-        seen_companies[normalized_company_name] = company_name
+    # Insere a empresa e obtém o ID da empresa
+    company_id = insert_company(cursor, company_name, seen_companies)
 
     value_project = data.get("Valor do projeto", "")
     data_inicio = format_date(data.get("Data de início", ""))
     data_termino = format_date(data.get("Data de término", ""))
 
+    # Insere o projeto na tabela projects
     cursor.execute(
-        "INSERT INTO projects (project_id, coordinator_id, project_company, project_description, project_end_date, project_objective, project_reference, project_title, project_start_date, project_value, project_classification, project_status, is_draft) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+        "INSERT INTO projects (project_id, coordinator_id, company_id, project_description, project_end_date, project_objective, project_reference, project_title, project_start_date, project_value, project_classification, project_status, is_draft) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
         (
             project_id,
             coordinator_id,
-            company_name,
+            company_id,  # Usa o ID da empresa em vez do nome
             data.get("Descrição", ""),
             data_termino,
             data.get("Objeto", ""),
@@ -132,7 +150,7 @@ def insert_projeto(cursor, data, seen_coordinators, seen_companies):
         )
     )
 
-    # Insert documents
+    # Insere os documentos
     for url in data.get("Contratos", []):
         insert_document(cursor, project_id, url)
 

@@ -52,7 +52,7 @@ public class GeneratorExcel implements Exporter {
         dataRow.createCell(0).setCellValue(project.getProjectTitle());
         dataRow.createCell(1).setCellValue(project.getCoordinators().coordinatorName);
         dataRow.createCell(2).setCellValue(project.getProjectDescription());
-        dataRow.createCell(3).setCellValue(project.getProjectCompany());
+        dataRow.createCell(3).setCellValue(project.getCompany().getCorporateName());
         dataRow.createCell(4).setCellValue(project.getProjectObjective());
         dataRow.createCell(5).setCellValue(project.getProjectValue());
         dataRow.createCell(6).setCellValue(project.getProjectStartDate().toString());

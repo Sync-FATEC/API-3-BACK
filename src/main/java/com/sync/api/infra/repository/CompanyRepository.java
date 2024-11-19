@@ -4,4 +4,5 @@ import com.sync.api.domain.model.Company;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface CompanyRepository extends JpaRepository<Company, String> {
+    Company findByCorporateName(String corporateName);
 }

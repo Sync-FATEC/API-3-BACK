@@ -2,8 +2,7 @@ package com.sync.api.application.service;
 
 import com.sync.api.application.operation.*;
 import com.sync.api.domain.model.*;
-import com.sync.api.infra.repository.CoordinatorsRepository;
-import com.sync.api.infra.repository.DraftEditProjectRepository;
+import com.sync.api.infra.repository.*;
 import com.sync.api.web.dto.project.HistoryProjectDto;
 import com.sync.api.web.dto.documents.DocumentListDTO;
 import com.sync.api.web.dto.project.ProjectDto;
@@ -15,8 +14,6 @@ import com.sync.api.web.exception.SystemContextException;
 import com.sync.api.application.operation.contract.Exporter;
 import com.sync.api.application.operation.exporter.GeneratorExcel;
 import com.sync.api.application.operation.exporter.GeneratorPdf;
-import com.sync.api.infra.repository.HistoryProjectRepository;
-import com.sync.api.infra.repository.ProjectRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,6 +53,8 @@ public class ProjectService {
     private DraftEditProjectRepository draftEditProjectRepository;
     @Autowired
     private UpdateDraftEditProject updateDraftEditProject;
+    @Autowired
+    private CompanyRepository companyRepository;
 
     private static final Logger logger = LoggerFactory.getLogger(ProjectService.class);
 
@@ -63,8 +62,7 @@ public class ProjectService {
         try {
             var projectStatus = VerifyProjectStatus(registerProjectDTO.projectStartDate(), registerProjectDTO.projectEndDate());
 
-            RegisterProjectDTO registerProjectWithCoordinator = registerCoordinator(registerProjectDTO);
-
+            RegisterProjectDTO registerProjectWithCoordinator = registerCoordinatorAndCompany(registerProjectDTO);
             return registerProject.registerProject(registerProjectWithCoordinator, projectStatus);
         } catch (IllegalArgumentException e) {
             throw new RuntimeException("Dados do projeto inválidos: " + e.getMessage(), e);
@@ -73,10 +71,15 @@ public class ProjectService {
         }
     }
 
-    private RegisterProjectDTO registerCoordinator(RegisterProjectDTO registerProjectDTO) {
+    private RegisterProjectDTO registerCoordinatorAndCompany(RegisterProjectDTO registerProjectDTO) {
         Coordinators coordinator = coordinatorsRepository.findByCoordinatorName(registerProjectDTO.nameCoordinator());
         if (coordinator == null) {
             throw new IllegalArgumentException("Coordenador não encontrado: " + registerProjectDTO.nameCoordinator());
+        }
+
+        Company company = companyRepository.findByCorporateName(registerProjectDTO.projectCompany());
+        if (company == null) {
+            throw new IllegalArgumentException("Empresa não encontrada: " + registerProjectDTO.projectCompany());
         }
 
         RegisterProjectDTO dtoWithCoordinator = new RegisterProjectDTO(
@@ -87,8 +90,11 @@ public class ProjectService {
                 registerProjectDTO.nameCoordinator(),
                 registerProjectDTO.nameCoordinatorSensitive(),
                 coordinator,
+                registerProjectDTO.CoordinatorSensitive(),
                 registerProjectDTO.projectCompany(),
                 registerProjectDTO.projectCompanySensitive(),
+                company,
+                registerProjectDTO.companySensitive(),
                 registerProjectDTO.projectObjective(),
                 registerProjectDTO.projectObjectiveSensitive(),
                 registerProjectDTO.projectDescription(),
@@ -163,8 +169,8 @@ public class ProjectService {
 
     public List<String> listCompanies() throws SystemContextException {
         try {
-            return projectRepository.findAll().stream()
-                    .map(Project::getProjectCompany)
+            return companyRepository.findAll().stream()
+                    .map(Company::getCorporateName)
                     .distinct()
                     .sorted()
                     .collect(Collectors.toList());
@@ -311,7 +317,7 @@ public class ProjectService {
                 project.getProjectReference(),
                 project.getProjectTitle(),
                 project.coordinators.getCoordinatorName(),
-                project.getProjectCompany(),
+                project.company.getCorporateName(),
                 project.getProjectObjective(),
                 project.getProjectDescription(),
                 project.getProjectValue(),

@@ -42,7 +42,7 @@ public class DraftEditProject {
     public static DraftEditProject from(Project project) {
         DraftEditProject draftEditProject = new DraftEditProject();
         draftEditProject.draftEditProjectReference = project.projectReference;
-        draftEditProject.draftEditProjectCompany = project.projectCompany;
+        draftEditProject.draftEditProjectCompany = project.company.getCorporateName();
         draftEditProject.draftEditProjectObjective = project.projectObjective;
         draftEditProject.draftEditProjectDescription = project.projectDescription;
         draftEditProject.draftEditProjectValue = project.projectValue;

@@ -20,6 +20,8 @@ public record UpdateProjectDto(
         boolean coordinatorSensitive,
         String projectCompany,
         boolean projectCompanySensitive,
+        String company,
+        boolean companySensitive,
         @Lob
         @Column(columnDefinition = "TEXT")
         String projectObjective,

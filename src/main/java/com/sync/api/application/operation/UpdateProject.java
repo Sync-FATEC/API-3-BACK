@@ -1,6 +1,8 @@
 package com.sync.api.application.operation;
 
+import com.sync.api.domain.model.Company;
 import com.sync.api.domain.model.Coordinators;
+import com.sync.api.infra.repository.CompanyRepository;
 import com.sync.api.infra.repository.CoordinatorsRepository;
 import com.sync.api.web.dto.project.UpdateProjectDto;
 import com.sync.api.domain.enums.ProjectStatus;
@@ -16,6 +18,8 @@ public class UpdateProject {
     private ProjectRepository projectRepository;
     @Autowired
     private CoordinatorsRepository coordinatorsRepository;
+    @Autowired
+    private CompanyRepository companyRepository;
 
     public Project updateProject(UpdateProjectDto updateProjectDto, Project project, ProjectStatus projectStatus){
         if (updateProjectDto.projectReference() != null){
@@ -25,7 +29,11 @@ public class UpdateProject {
             project.setProjectTitle(updateProjectDto.projectTitle());
         }
         if(updateProjectDto.projectCompany() != null){
-            project.setProjectCompany(updateProjectDto.projectCompany());
+            Company company = companyRepository.findByCorporateName(updateProjectDto.projectCompany());
+            if (company == null) {
+                throw new IllegalArgumentException("Empresa não encontrada.");
+            }
+            project.setCompany(company);
         }
         if (updateProjectDto.projectObjective() != null){
             project.setProjectObjective(updateProjectDto.projectObjective());

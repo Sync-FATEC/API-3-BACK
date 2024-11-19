@@ -54,7 +54,7 @@ public class GeneratorPdf implements Exporter {
             document.add(new Paragraph(" ")); // Espaço em branco
 
             document.add(new Paragraph("Empresa:", subTitleFont));
-            document.add(new Paragraph(project.getProjectCompany(), normalFont));
+            document.add(new Paragraph(project.getCompany().getCorporateName(), normalFont));
             document.add(new Paragraph(" ")); // Espaço em branco
 
             document.add(new Paragraph("Objetivo:", subTitleFont));
