@@ -26,6 +26,7 @@ public class RegisterProject {
         project.setProjectStatus(projectStatus);
         project.setProjectClassification(ProjectClassification.valueOf(projectDto.projectClassification()));
         project.setProjectDescription(projectDto.projectDescription());
+        project.setDraft(projectDto.isDraft());
 
         project.setSensitiveFields(SensitiveFieldUtil.getSensitiveFields(projectDto));
 

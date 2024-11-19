@@ -98,7 +98,8 @@ public class ProjectService {
                 registerProjectDTO.projectStartDate(),
                 registerProjectDTO.projectStartDateSensitive(),
                 registerProjectDTO.projectClassification(),
-                registerProjectDTO.projectClassificationSensitive()
+                registerProjectDTO.projectClassificationSensitive(),
+                registerProjectDTO.isDraft()
         );
 
         return dtoWithCoordinator;
@@ -115,7 +116,9 @@ public class ProjectService {
             LocalDate projectStartDate,
             LocalDate projectEndDate,
             ProjectStatus status,
-            ProjectClassification classification) {
+            ProjectClassification classification,
+            Boolean isDraft
+            ) {
 
         List<Project> projects = projectRepository.findAllByOrderByProjectStartDateDesc();
 
@@ -126,7 +129,8 @@ public class ProjectService {
                 projectStartDate,
                 projectEndDate,
                 status,
-                classification
+                classification,
+                isDraft
         ).stream()
                 .filter(project -> project.getProjectStartDate() != null)
                 .sorted(Comparator.comparing(Project::getProjectStartDate).reversed())

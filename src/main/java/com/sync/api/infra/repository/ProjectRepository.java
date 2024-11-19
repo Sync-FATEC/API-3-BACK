@@ -23,7 +23,8 @@ public interface ProjectRepository extends JpaRepository<Project, String>, JpaSp
             "(:projectClassification IS NULL OR p.projectClassification = :projectClassification) AND " +
             "(:projectStatus IS NULL OR p.projectStatus = :projectStatus) AND " +
             "(:projectStartDate IS NULL OR p.projectStartDate = :projectStartDate) AND " +
-            "(:projectEndDate IS NULL OR p.projectEndDate = :projectEndDate)")
+            "(:projectEndDate IS NULL OR p.projectEndDate = :projectEndDate) AND " +
+            "p.isDraft = false")
     List<Project> filterProjects(
             @Param("projectReference") String projectReference,
             @Param("projectCompany") String projectCompany,
@@ -153,7 +154,7 @@ public interface ProjectRepository extends JpaRepository<Project, String>, JpaSp
     @Query("""
     SELECT p FROM Project p
     JOIN p.coordinators c
-    WHERE 
+    WHERE
         (:keyword IS NULL OR 
             p.projectReference LIKE %:keyword% OR
             p.projectCompany LIKE %:keyword% OR
@@ -162,13 +163,15 @@ public interface ProjectRepository extends JpaRepository<Project, String>, JpaSp
         AND (:projectEndDate IS NULL OR p.projectEndDate <= :projectEndDate)
         AND (:status IS NULL OR p.projectStatus = :status)
         AND (:classification IS NULL OR p.projectClassification = :classification)
+        AND (:isDraft IS NULL OR p.isDraft = :isDraft)
 """)
     List<Project> filterProjectsKeyWord(
             @Param("keyword") String keyword,
             @Param("projectStartDate") LocalDate projectStartDate,
             @Param("projectEndDate") LocalDate projectEndDate,
             @Param("status") ProjectStatus status,
-            @Param("classification") ProjectClassification classification
+            @Param("classification") ProjectClassification classification,
+            @Param("isDraft") Boolean isDraft
     );
 
 }

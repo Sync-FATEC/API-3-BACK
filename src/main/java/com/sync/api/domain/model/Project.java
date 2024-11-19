@@ -30,6 +30,7 @@ public class Project {
     public Float projectValue;
     public LocalDate projectStartDate;
     public LocalDate projectEndDate;
+    public boolean isDraft;
 
     @Enumerated(EnumType.STRING)
     public ProjectClassification projectClassification;

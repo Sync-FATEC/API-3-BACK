@@ -28,7 +28,9 @@ public record RegisterProjectDTO(
         @NotNull LocalDate projectStartDate,
         boolean projectStartDateSensitive,
         @NotNull String projectClassification,
-        boolean projectClassificationSensitive
+        boolean projectClassificationSensitive,
+
+        boolean isDraft
 ) {
 }
 
