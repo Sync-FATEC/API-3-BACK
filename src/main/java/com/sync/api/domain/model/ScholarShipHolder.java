@@ -15,12 +15,13 @@ public class ScholarShipHolder {
     private String cpf;
     private String rg;
     private String nationality;
+    private boolean removed;
 
     @OneToOne
     @JoinColumn(name = "address_id")
     private Address address;
 
-    @ManyToOne
-    @JoinColumn(name = "grant_id")
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "grant_id", nullable = false)
     private Grant grant;
 }
