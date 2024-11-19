@@ -18,6 +18,7 @@ public class Project {
     @GeneratedValue(strategy = GenerationType.UUID)
     public String projectId;
     public String projectReference;
+    public String projectTitle;
     public String projectCompany;
 
     @Lob

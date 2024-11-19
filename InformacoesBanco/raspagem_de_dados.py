@@ -66,6 +66,31 @@ def scrape_project_information(url):
     info_project['Contratos'] = urls_contracts
     info_project['Artigos'] = urls_articles
 
+    reference_number = ''
+    title_project = ''
+
+    for index, item in enumerate(info_project['Referência do projeto']):
+        if item not in '0123456789' and index == 0:
+            title_project = info_project['Referência do projeto']
+            break
+        elif item in '0123456789-/':
+            reference_number += item
+        elif item == " ":
+            title_project = info_project['Referência do projeto'][index+1:]
+            break
+
+    if reference_number == '':
+        reference_number = 'Sem referência'
+
+    if reference_number[-1] == '-':
+        reference_number = reference_number[:-1]
+
+    info_project['Referência do projeto'] = reference_number
+    info_project['Titulo do projeto'] = title_project
+
+    if info_project['Titulo do projeto'][0] == '-':
+        info_project['Titulo do projeto'] = info_project['Titulo do projeto'][2:]
+
     return info_project
 
 ################################################################################
