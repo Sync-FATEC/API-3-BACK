@@ -1,12 +1,11 @@
 package com.sync.api.web.controller;
 
 import com.sync.api.application.service.GrantService;
-import com.sync.api.domain.model.Grant;
+import com.sync.api.domain.model.ScholarGrant;
 import com.sync.api.web.dto.grant.GrantDto;
 import com.sync.api.web.dto.grant.GrantResponseDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.repository.Repository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +23,7 @@ public class GrantController {
     public ResponseEntity<?> createGrant(@RequestBody GrantDto grantDto){
         try {
             System.out.println(grantDto);
-            Grant grant = grantService.createGrant(grantDto);
+            ScholarGrant grant = grantService.createGrant(grantDto);
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body("Bolsa Criada");
         } catch (DataIntegrityViolationException e) {

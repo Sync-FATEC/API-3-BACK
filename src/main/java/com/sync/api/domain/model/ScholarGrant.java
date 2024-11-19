@@ -23,6 +23,6 @@ public class ScholarGrant {
     @Column(columnDefinition = "tinyint(1) default 1")
     private boolean active;
 
-    @OneToMany(mappedBy = "scholarGrant", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "grant", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ScholarShipHolder> scholarShipHolders;
 }

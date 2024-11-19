@@ -1,6 +1,6 @@
 package com.sync.api.application.service;
 
-import com.sync.api.domain.model.Grant;
+import com.sync.api.domain.model.ScholarGrant;
 import com.sync.api.infra.repository.GrantRepository;
 import com.sync.api.web.dto.grant.GrantDto;
 import com.sync.api.web.dto.grant.GrantResponseDto;
@@ -23,10 +23,10 @@ public class GrantService {
     @Autowired
     private GrantRepository grantRepository;
 
-    public Grant createGrant(GrantDto grantDto){
+    public ScholarGrant createGrant(GrantDto grantDto){
         try{
             logger.info(grantDto.toString());
-            Grant grant = new Grant();
+            ScholarGrant grant = new ScholarGrant();
             grant.setType(grantDto.type());
             grant.setActing(grantDto.acting());
             grant.setActive(true);
@@ -44,7 +44,7 @@ public class GrantService {
 
     public GrantResponseDto getGrant(String id){
         try{
-            Grant grant = grantRepository.findById(id)
+            ScholarGrant grant = grantRepository.findById(id)
                     .orElseThrow(() ->{
                         throw  new RuntimeException("Erro ao encontrar bolsa.");
                     });
@@ -62,7 +62,7 @@ public class GrantService {
 
     public List<GrantResponseDto> getAllGrant(){
         try{
-            List<Grant> grantList = grantRepository.findAll();
+            List<ScholarGrant> grantList = grantRepository.findAll();
             return grantList.stream()
                     .map((grant) -> new GrantResponseDto(
                             grant.getId(),
@@ -78,7 +78,7 @@ public class GrantService {
 
     public void deactiveteGrant(String id){
         try{
-            Grant grant = grantRepository.findById(id)
+            ScholarGrant grant = grantRepository.findById(id)
                     .orElseThrow(() -> new EntityNotFoundException("Bolsa não encontrada com o id: " + id));
 
             grant.setActive(false);
