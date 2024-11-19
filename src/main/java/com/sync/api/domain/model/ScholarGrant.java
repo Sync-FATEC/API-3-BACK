@@ -8,7 +8,7 @@ import java.util.List;
 
 @Data
 @Entity
-public class Grant {
+public class ScholarGrant {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

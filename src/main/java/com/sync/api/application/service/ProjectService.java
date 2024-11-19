@@ -307,6 +307,7 @@ public class ProjectService {
         var dto = new ProjectDto(
                 project.getProjectId(),
                 project.getProjectReference(),
+                project.getProjectTitle(),
                 project.coordinators.getCoordinatorName(),
                 project.getProjectCompany(),
                 project.getProjectObjective(),

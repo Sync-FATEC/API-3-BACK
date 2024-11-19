@@ -22,5 +22,5 @@ public class ScholarShipHolder {
 
     @ManyToOne
     @JoinColumn(name = "grant_id")
-    private Grant grant;
+    private ScholarGrant grant;
 }
