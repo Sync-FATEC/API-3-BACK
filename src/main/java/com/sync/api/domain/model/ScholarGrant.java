@@ -3,7 +3,7 @@ package com.sync.api.domain.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.time.Duration;
+import java.time.Period;
 import java.util.List;
 
 @Data
@@ -16,10 +16,13 @@ public class ScholarGrant {
 
     private String type;
 
-    private Duration duration;
+    private Period duration;
 
     private String acting;
 
-    @OneToMany(mappedBy = "grant")
+    @Column(columnDefinition = "tinyint(1) default 1")
+    private boolean active;
+
+    @OneToMany(mappedBy = "grant", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ScholarShipHolder> scholarShipHolders;
 }

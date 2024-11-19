@@ -15,6 +15,7 @@ public class ScholarShipHolder {
     private String cpf;
     private String rg;
     private String nationality;
+    private boolean removed;
 
     @OneToOne
     @JoinColumn(name = "address_id")
