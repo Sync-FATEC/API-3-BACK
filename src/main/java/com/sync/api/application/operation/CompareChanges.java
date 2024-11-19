@@ -21,6 +21,11 @@ public class CompareChanges {
             oldValues.append(oldProject.getProjectReference()).append(",");
             newValues.append(updateProjectDto.projectReference()).append(",");
         }
+        if (!oldProject.getProjectTitle().equals(updateProjectDto.projectTitle())) {
+            changesFields.append("projectTitle,");
+            oldValues.append(oldProject.getProjectTitle()).append(",");
+            newValues.append(updateProjectDto.projectTitle()).append(",");
+        }
         if (!oldProject.getProjectCompany().equals(updateProjectDto.projectCompany())) {
             changesFields.append("projectCompany,");
             oldValues.append(oldProject.getProjectCompany()).append(",");

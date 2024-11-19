@@ -21,6 +21,9 @@ public class UpdateProject {
         if (updateProjectDto.projectReference() != null){
             project.setProjectReference(updateProjectDto.projectReference());
         }
+        if(updateProjectDto.projectTitle() != null){
+            project.setProjectTitle(updateProjectDto.projectTitle());
+        }
         if(updateProjectDto.projectCompany() != null){
             project.setProjectCompany(updateProjectDto.projectCompany());
         }

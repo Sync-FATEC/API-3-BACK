@@ -157,6 +157,7 @@ public interface ProjectRepository extends JpaRepository<Project, String>, JpaSp
     WHERE
         (:keyword IS NULL OR 
             p.projectReference LIKE %:keyword% OR
+            p.projectTitle LIKE %:keyword% OR
             p.projectCompany LIKE %:keyword% OR
             c.coordinatorName LIKE %:keyword%) 
         AND (:projectStartDate IS NULL OR p.projectStartDate >= :projectStartDate)

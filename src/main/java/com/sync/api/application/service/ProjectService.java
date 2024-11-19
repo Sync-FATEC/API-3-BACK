@@ -82,6 +82,8 @@ public class ProjectService {
         RegisterProjectDTO dtoWithCoordinator = new RegisterProjectDTO(
                 registerProjectDTO.projectReference(),
                 registerProjectDTO.projectReferenceSensitive(),
+                registerProjectDTO.projectTitle(),
+                registerProjectDTO.projectTitleSensitive(),
                 registerProjectDTO.nameCoordinator(),
                 registerProjectDTO.nameCoordinatorSensitive(),
                 coordinator,
