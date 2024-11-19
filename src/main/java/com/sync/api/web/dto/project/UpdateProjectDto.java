@@ -12,6 +12,8 @@ import java.time.LocalDate;
 public record UpdateProjectDto(
         String projectReference,
         boolean projectReferenceSensitive,
+        String projectTitle,
+        boolean projectTitleSensitive,
         String nameCoordinator,
         boolean nameCoordinatorSensitive,
         String coordinator,

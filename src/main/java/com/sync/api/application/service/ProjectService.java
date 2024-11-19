@@ -82,6 +82,8 @@ public class ProjectService {
         RegisterProjectDTO dtoWithCoordinator = new RegisterProjectDTO(
                 registerProjectDTO.projectReference(),
                 registerProjectDTO.projectReferenceSensitive(),
+                registerProjectDTO.projectTitle(),
+                registerProjectDTO.projectTitleSensitive(),
                 registerProjectDTO.nameCoordinator(),
                 registerProjectDTO.nameCoordinatorSensitive(),
                 coordinator,
@@ -98,7 +100,8 @@ public class ProjectService {
                 registerProjectDTO.projectStartDate(),
                 registerProjectDTO.projectStartDateSensitive(),
                 registerProjectDTO.projectClassification(),
-                registerProjectDTO.projectClassificationSensitive()
+                registerProjectDTO.projectClassificationSensitive(),
+                registerProjectDTO.isDraft()
         );
 
         return dtoWithCoordinator;
@@ -115,7 +118,9 @@ public class ProjectService {
             LocalDate projectStartDate,
             LocalDate projectEndDate,
             ProjectStatus status,
-            ProjectClassification classification) {
+            ProjectClassification classification,
+            Boolean isDraft
+            ) {
 
         List<Project> projects = projectRepository.findAllByOrderByProjectStartDateDesc();
 
@@ -126,7 +131,8 @@ public class ProjectService {
                 projectStartDate,
                 projectEndDate,
                 status,
-                classification
+                classification,
+                isDraft
         ).stream()
                 .filter(project -> project.getProjectStartDate() != null)
                 .sorted(Comparator.comparing(Project::getProjectStartDate).reversed())
@@ -303,6 +309,7 @@ public class ProjectService {
         var dto = new ProjectDto(
                 project.getProjectId(),
                 project.getProjectReference(),
+                project.getProjectTitle(),
                 project.coordinators.getCoordinatorName(),
                 project.getProjectCompany(),
                 project.getProjectObjective(),

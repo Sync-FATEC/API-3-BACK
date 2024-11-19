@@ -12,6 +12,8 @@ import java.util.List;
 public record RegisterProjectDTO(
         @NotBlank String projectReference,
         boolean projectReferenceSensitive,
+        @NotBlank String projectTitle,
+        boolean projectTitleSensitive,
         @NotBlank String nameCoordinator,
         boolean nameCoordinatorSensitive,
         Coordinators Coordinator,
@@ -28,7 +30,9 @@ public record RegisterProjectDTO(
         @NotNull LocalDate projectStartDate,
         boolean projectStartDateSensitive,
         @NotNull String projectClassification,
-        boolean projectClassificationSensitive
+        boolean projectClassificationSensitive,
+
+        boolean isDraft
 ) {
 }
 

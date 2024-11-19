@@ -77,7 +77,8 @@ public class ProjectController {
             @RequestParam(value = "dataInicio", required = false) String projectStartDate,
             @RequestParam(value = "dataFim", required = false) String projectEndDate,
             @RequestParam(value = "status", required = false) ProjectStatus status,
-            @RequestParam(value = "classificacao", required = false) ProjectClassification classification
+            @RequestParam(value = "classificacao", required = false) ProjectClassification classification,
+            @RequestParam(value = "isDraft", required = false) Boolean isDraft
     ) {
         try {
             List<ProjectDto> projectDtoList = projectService.listProjectsFiltered(
@@ -85,7 +86,8 @@ public class ProjectController {
                     projectStartDate != null ? stringToLocalDate(projectStartDate) : null,
                     projectEndDate != null ? stringToLocalDate(projectEndDate) : null,
                     status,
-                    classification
+                    classification,
+                    isDraft
             );
 
             List<EntityModel<ProjectDto>> entityModels = projectDtoList.stream()
@@ -241,7 +243,7 @@ public class ProjectController {
 
     private void addLinksToProjectDto(EntityModel<ProjectDto> model, String projectId) {
         model.add(linkTo(methodOn(ProjectController.class).readProject(projectId)).withSelfRel());
-        model.add(linkTo(methodOn(ProjectController.class).listProjects(null, null, null, null, null)).withRel("list"));
+        model.add(linkTo(methodOn(ProjectController.class).listProjects(null, null, null, null, null, null)).withRel("list"));
     }
 
     private LocalDate stringToLocalDate(String dateString) {

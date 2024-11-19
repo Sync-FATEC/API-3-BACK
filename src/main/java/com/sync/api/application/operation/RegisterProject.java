@@ -17,6 +17,7 @@ public class RegisterProject {
     public Project registerProject(RegisterProjectDTO projectDto, ProjectStatus projectStatus) {
         Project project = new Project();
         project.setProjectReference(projectDto.projectReference());
+        project.setProjectTitle(projectDto.projectTitle());
         project.setCoordinators(projectDto.Coordinator());
         project.setProjectCompany(projectDto.projectCompany());
         project.setProjectObjective(projectDto.projectObjective());
@@ -26,6 +27,7 @@ public class RegisterProject {
         project.setProjectStatus(projectStatus);
         project.setProjectClassification(ProjectClassification.valueOf(projectDto.projectClassification()));
         project.setProjectDescription(projectDto.projectDescription());
+        project.setDraft(projectDto.isDraft());
 
         project.setSensitiveFields(SensitiveFieldUtil.getSensitiveFields(projectDto));
 

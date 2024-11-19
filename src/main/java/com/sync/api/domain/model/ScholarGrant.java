@@ -8,8 +8,7 @@ import java.util.List;
 
 @Data
 @Entity
-@Table(name = "grants")
-public class Grant {
+public class ScholarGrant {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -24,6 +23,6 @@ public class Grant {
     @Column(columnDefinition = "tinyint(1) default 1")
     private boolean active;
 
-    @OneToMany(mappedBy = "grant", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "scholarGrant", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ScholarShipHolder> scholarShipHolders;
 }

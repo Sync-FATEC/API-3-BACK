@@ -21,7 +21,7 @@ public class ScholarShipHolder {
     @JoinColumn(name = "address_id")
     private Address address;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "grant_id", nullable = false)
-    private Grant grant;
+    @ManyToOne
+    @JoinColumn(name = "grant_id")
+    private ScholarGrant grant;
 }
