@@ -7,5 +7,5 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface CoordinatorsRepository extends JpaRepository<Coordinators, Long> {
-    Coordinators findByCoordinatorName(String name);
+    Optional <Coordinators> findByCoordinatorName(String name);
 }

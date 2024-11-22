@@ -12,6 +12,8 @@ import com.sync.api.application.service.SensitiveFieldUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class UpdateProject {
     @Autowired
@@ -29,12 +31,11 @@ public class UpdateProject {
             project.setProjectTitle(updateProjectDto.projectTitle());
         }
         if(updateProjectDto.projectCompany() != null){
-            Company company = companyRepository.findByCorporateName(updateProjectDto.projectCompany());
-            if (company == null) {
+            Optional<Company> company = companyRepository.findByCorporateName(updateProjectDto.projectCompany());
+            if (company.isEmpty()) {
                 throw new IllegalArgumentException("Empresa não encontrada.");
             }
-            project.setCompany(company);
-        }
+            project.setCompany(company.orElseThrow(() -> new IllegalArgumentException("Empresa não encontrada.")));        }
         if (updateProjectDto.projectObjective() != null){
             project.setProjectObjective(updateProjectDto.projectObjective());
         }
@@ -42,12 +43,11 @@ public class UpdateProject {
             project.setProjectDescription(updateProjectDto.projectDescription());
         }
         if (updateProjectDto.nameCoordinator() != null){
-            Coordinators coordinator = coordinatorsRepository.findByCoordinatorName(updateProjectDto.nameCoordinator());
-            if (coordinator == null) {
+            Optional<Coordinators> coordinator = coordinatorsRepository.findByCoordinatorName(updateProjectDto.nameCoordinator());
+            if (coordinator.isEmpty()) {
                 throw new IllegalArgumentException("Coordenador não encontrado.");
             }
-            project.setCoordinators(coordinator);
-        }
+            project.setCoordinators(coordinator.orElseThrow(() -> new IllegalArgumentException("Coordenador não encontrado.")));        }
         if(updateProjectDto.projectValue() != null){
             project.setProjectValue(updateProjectDto.projectValue());
         }

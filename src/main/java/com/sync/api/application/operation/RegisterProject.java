@@ -18,8 +18,8 @@ public class RegisterProject {
         Project project = new Project();
         project.setProjectReference(projectDto.projectReference());
         project.setProjectTitle(projectDto.projectTitle());
-        project.setCoordinators(projectDto.Coordinator());
-        project.setCompany(projectDto.company());
+        project.setCoordinators(projectDto.Coordinator().orElse(null));
+        project.setCompany(projectDto.company().orElse(null));
         project.setProjectObjective(projectDto.projectObjective());
         project.setProjectValue(projectDto.projectValue());
         project.setProjectEndDate(projectDto.projectEndDate());

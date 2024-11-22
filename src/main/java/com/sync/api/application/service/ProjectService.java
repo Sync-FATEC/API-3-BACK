@@ -72,12 +72,12 @@ public class ProjectService {
     }
 
     private RegisterProjectDTO registerCoordinatorAndCompany(RegisterProjectDTO registerProjectDTO) {
-        Coordinators coordinator = coordinatorsRepository.findByCoordinatorName(registerProjectDTO.nameCoordinator());
-        if (coordinator == null) {
+        Optional<Coordinators> coordinator = coordinatorsRepository.findByCoordinatorName(registerProjectDTO.nameCoordinator());
+        if (coordinator.isEmpty()) {
             throw new IllegalArgumentException("Coordenador não encontrado: " + registerProjectDTO.nameCoordinator());
         }
 
-        Company company = companyRepository.findByCorporateName(registerProjectDTO.projectCompany());
+        Optional<Company> company = companyRepository.findByCorporateName(registerProjectDTO.projectCompany());
         if (company == null) {
             throw new IllegalArgumentException("Empresa não encontrada: " + registerProjectDTO.projectCompany());
         }
