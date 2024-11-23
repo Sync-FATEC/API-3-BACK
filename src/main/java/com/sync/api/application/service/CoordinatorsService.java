@@ -7,6 +7,7 @@ import com.sync.api.web.dto.coordinators.UpdateCoordinatorsDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -26,15 +27,17 @@ public class CoordinatorsService {
 
     public List<Coordinators> getCoordinators() {
         try {
-            return coordinatorsRepository.findAll();
+            List<Coordinators> coordinatorsList = coordinatorsRepository.findAll();
+            coordinatorsList.sort(Comparator.comparing(Coordinators::getCoordinatorName));
+            return coordinatorsList;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    public Coordinators getCoordinator(Long id) {
+    public Coordinators getCoordinator(String id) {
         try {
-            return coordinatorsRepository.findById(id)
+            return coordinatorsRepository.findByCoordinatorId(id)
                     .orElseThrow(() -> new RuntimeException("Erro ao encontrar coordenador."));
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -51,11 +54,21 @@ public class CoordinatorsService {
         }
     }
 
-    public void deleteCoordinator(Long id) {
+    public void deleteCoordinator(String id) {
         try {
-            coordinatorsRepository.deleteById(id);
+            Coordinators coordinators = coordinatorsRepository.findByCoordinatorId(id)
+                    .orElseThrow(() -> new RuntimeException("Erro ao encontrar coordenador."));
+            coordinatorsRepository.delete(coordinators);
         } catch (Exception e) {
             throw new RuntimeException("Erro ao deletar coordenador: " + e.getMessage(), e);
+        }
+    }
+
+    public List<Coordinators> filterCoordinators(String keyword) {
+        try {
+            return coordinatorsRepository.findByAnyField(keyword);
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao buscar coordenadores: " + e.getMessage(), e);
         }
     }
 
