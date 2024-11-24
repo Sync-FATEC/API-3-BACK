@@ -14,8 +14,6 @@ public interface CoordinatorsRepository extends JpaRepository<Coordinators, Long
 
     Optional<Coordinators> findByCoordinatorId(String id);
 
-    void deleteByCoordinatorId(String id);
-
     @Query("SELECT c FROM Coordinators c WHERE " +
             "LOWER(c.coordinatorName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
             "LOWER(c.coordinatorCPF) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
