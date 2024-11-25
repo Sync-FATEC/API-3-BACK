@@ -302,7 +302,7 @@ public class ProjectService {
 
     private void sendEmailNotification(Project project) {
         SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo("");
+        message.setTo("eduardo.fapg@gmail.com");
         message.setSubject("Projeto com data de vencimento hoje");
         message.setText("O projeto com a referência " + project.getProjectReference() + " e titulo " + project.getProjectTitle() + "está com a data de vencimento hoje.");
         message.setFrom(remetente);
