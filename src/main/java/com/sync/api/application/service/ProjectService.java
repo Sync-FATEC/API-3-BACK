@@ -51,8 +51,7 @@ public class ProjectService {
     private CoordinatorsRepository coordinatorsRepository;
     @Autowired
     private DraftEditProjectRepository draftEditProjectRepository;
-    @Autowired
-    private UpdateDraftEditProject updateDraftEditProject;
+
     @Autowired
     private CompanyRepository companyRepository;
 
@@ -270,25 +269,7 @@ public class ProjectService {
                 .orElseThrow(() -> new IllegalArgumentException("Projeto com o ID " + id + " não encontrado"));
     }
 
-    public DraftEditProject UpdateDraft(String projectId, UpdateProjectDto updateProjectDto, User user)
-    {
-        Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new IllegalArgumentException("Projeto com o ID " + projectId + " não encontrado"));
 
-        Optional<DraftEditProject> projectDraftOp = draftEditProjectRepository.findById(projectId);
-
-        DraftEditProject projectDraft;
-
-        projectDraft = projectDraftOp.orElseGet(() -> DraftEditProject.from(project));
-
-        var newSensitiveFields = SensitiveFieldUtil.getSensitiveFields(updateProjectDto);
-
-        if (newSensitiveFields.equals(project.getSensitiveFields())) {
-            return projectDraft;
-        }
-
-        return updateDraftEditProject.update(updateProjectDto, projectDraft);
-    }
 
 
     @Scheduled(cron = "0 0 0 * * *", zone = "America/Sao_Paulo")
@@ -306,9 +287,6 @@ public class ProjectService {
         }
         logger.info("Verificação de status dos projetos concluída.");
     }
-
-
-
 
     private ProjectDto mapProjectToDto(Project project) {
         project = RemoveSensitiveData(project);

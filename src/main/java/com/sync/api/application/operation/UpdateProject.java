@@ -61,6 +61,8 @@ public class UpdateProject {
             project.setProjectClassification(updateProjectDto.projectClassification());
         }
 
+        project.setDraft(updateProjectDto.isDraft());
+
         project.setSensitiveFields(SensitiveFieldUtil.getSensitiveFields(updateProjectDto));
 
         project.setProjectStatus(projectStatus);

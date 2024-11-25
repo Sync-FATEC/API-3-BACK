@@ -14,8 +14,10 @@ public class DraftEditProject {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     public String draftEditProjectId;
+    public String draftEditTitle;
     public String draftEditProjectReference;
     public String draftEditProjectCompany;
+    public String draftEditNameCoordinator;
 
     @Lob
     @Column(columnDefinition = "TEXT")
@@ -32,16 +34,16 @@ public class DraftEditProject {
     @Enumerated(EnumType.STRING)
     public ProjectClassification draftEditProjectClassification;
 
-    @ElementCollection
     private List<String> sensitiveFields;
 
     @OneToOne
-    @JoinColumn(name = "project_id")
+    @JoinColumn(name = "project_projectId")
     public Project project;
 
     public static DraftEditProject from(Project project) {
         DraftEditProject draftEditProject = new DraftEditProject();
         draftEditProject.draftEditProjectReference = project.projectReference;
+        draftEditProject.draftEditTitle = project.projectTitle;
         draftEditProject.draftEditProjectCompany = project.company.getCorporateName();
         draftEditProject.draftEditProjectObjective = project.projectObjective;
         draftEditProject.draftEditProjectDescription = project.projectDescription;
@@ -49,6 +51,7 @@ public class DraftEditProject {
         draftEditProject.draftEditProjectStartDate = project.projectStartDate;
         draftEditProject.draftEditProjectEndDate = project.projectEndDate;
         draftEditProject.draftEditProjectClassification = project.projectClassification;
+        draftEditProject.draftEditNameCoordinator = project.getCoordinators().getCoordinatorName();
         draftEditProject.sensitiveFields = project.getSensitiveFields();
         draftEditProject.project = project;
         return draftEditProject;
