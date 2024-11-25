@@ -2,6 +2,7 @@ package com.sync.api.application.operation;
 
 import com.sync.api.application.service.SensitiveFieldUtil;
 import com.sync.api.domain.model.DraftEditProject;
+import com.sync.api.infra.repository.CoordinatorsRepository;
 import com.sync.api.infra.repository.DraftEditProjectRepository;
 import com.sync.api.web.dto.project.UpdateProjectDto;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,8 @@ import org.springframework.stereotype.Component;
 public class UpdateDraftEditProject {
     @Autowired
     private DraftEditProjectRepository draftEditProjectRepository;
+    @Autowired
+    private CoordinatorsRepository coordinatorsRepository;
 
     public DraftEditProject update(UpdateProjectDto updateProjectDto, DraftEditProject draft){
         if (updateProjectDto.projectReference() != null){
@@ -25,7 +28,6 @@ public class UpdateDraftEditProject {
         if(updateProjectDto.projectDescription() != null){
             draft.setDraftEditProjectDescription(updateProjectDto.projectDescription());
         }
-
         if(updateProjectDto.projectValue() != null){
             draft.setDraftEditProjectValue(updateProjectDto.projectValue());
         }
@@ -38,6 +40,13 @@ public class UpdateDraftEditProject {
         if( updateProjectDto.projectClassification() != null){
             draft.setDraftEditProjectClassification(updateProjectDto.projectClassification());
         }
+        if(updateProjectDto.projectTitle() != null){
+            draft.setDraftEditTitle(updateProjectDto.projectTitle());
+        }
+        if(updateProjectDto.nameCoordinator() != null){
+            draft.setDraftEditNameCoordinator(updateProjectDto.nameCoordinator());
+        }
+
         draft.setSensitiveFields(SensitiveFieldUtil.getSensitiveFields(updateProjectDto));
 
         return draftEditProjectRepository.save(draft);

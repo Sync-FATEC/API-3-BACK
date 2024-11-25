@@ -41,6 +41,7 @@ public record UpdateProjectDto(
         boolean projectClassificationSensitive,
         @Enumerated(EnumType.STRING)
         ProjectStatus projectStatus,
-        boolean projectStatusSensitive
+        boolean projectStatusSensitive,
+        boolean isDraft
 ) {
 }

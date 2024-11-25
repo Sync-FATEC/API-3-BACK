@@ -130,6 +130,16 @@ def insert_projeto(cursor, data, seen_coordinators, seen_companies):
     data_inicio = format_date(data.get("Data de início", ""))
     data_termino = format_date(data.get("Data de término", ""))
 
+    # Verifica se o campo "Objeto" está presente, caso contrário, define uma mensagem padrão
+    project_objective = data.get("Objeto")
+    if project_objective == "":
+        project_objective = "Sem objeto definido"
+
+    project_description = data.get("Descrição", "")
+
+    if project_description == "":
+        project_description = "Sem descrição definida"
+
     # Insere o projeto na tabela projects
     cursor.execute(
         "INSERT INTO projects (project_id, coordinator_id, company_id, project_description, project_end_date, project_objective, project_reference, project_title, project_start_date, project_value, project_classification, project_status, is_draft) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
@@ -137,9 +147,9 @@ def insert_projeto(cursor, data, seen_coordinators, seen_companies):
             project_id,
             coordinator_id,
             company_id,  # Usa o ID da empresa em vez do nome
-            data.get("Descrição", ""),
+            project_description,
             data_termino,
-            data.get("Objeto", ""),
+            project_objective,
             data.get("Referência do projeto", ""),
             data.get("Titulo do projeto", ""),
             data_inicio,
