@@ -1,7 +1,10 @@
 package com.sync.api.application.service;
 
 import com.sync.api.domain.model.ScholarGrant;
+import com.sync.api.domain.model.ScholarShipHolder;
+import com.sync.api.domain.model.User;
 import com.sync.api.infra.repository.GrantRepository;
+import com.sync.api.infra.repository.ScholarShipHolderRepository;
 import com.sync.api.web.dto.grant.GrantDto;
 import com.sync.api.web.dto.grant.GrantResponseDto;
 import jakarta.persistence.EntityNotFoundException;
@@ -22,6 +25,9 @@ public class GrantService {
 
     @Autowired
     private GrantRepository grantRepository;
+
+    @Autowired
+    private ScholarShipHolderRepository scholarShipHolderRepository;
 
     public ScholarGrant createGrant(GrantDto grantDto){
         try{
@@ -80,7 +86,13 @@ public class GrantService {
         try{
             ScholarGrant grant = grantRepository.findById(id)
                     .orElseThrow(() -> new EntityNotFoundException("Bolsa não encontrada com o id: " + id));
-
+            List< ScholarShipHolder> shipHolderList = scholarShipHolderRepository.findAll();
+            for (ScholarShipHolder scholarShipHolder : shipHolderList) {
+                if (scholarShipHolder.getGrant().getId().equals(id)) {
+                    scholarShipHolder.setRemoved(true);
+                    scholarShipHolderRepository.save(scholarShipHolder);
+                }
+            }
             grant.setActive(false);
             grantRepository.save(grant);
         } catch (Exception e) {
