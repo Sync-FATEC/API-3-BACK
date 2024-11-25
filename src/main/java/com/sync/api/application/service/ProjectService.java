@@ -323,7 +323,7 @@ public class ProjectService {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo("");
         message.setSubject("Projeto com data de vencimento hoje");
-        message.setText("O projeto com ID " + project.getProjectId() + " está com a data de vencimento hoje.");
+        message.setText("O projeto com a referência " + project.getProjectReference + " e titulo " + project.getProjectTitle + "está com a data de vencimento hoje.");
         message.setFrom(remetente);
 
         mailSender.send(message);
