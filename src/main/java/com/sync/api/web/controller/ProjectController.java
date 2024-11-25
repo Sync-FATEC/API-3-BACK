@@ -1,5 +1,7 @@
 package com.sync.api.web.controller;
 
+import com.sync.api.application.service.DraftEditProjectService;
+import com.sync.api.domain.model.DraftEditProject;
 import com.sync.api.web.dto.project.HistoryProjectDto;
 import com.sync.api.web.dto.project.ProjectDto;
 import com.sync.api.web.dto.project.RegisterProjectDTO;
@@ -36,6 +38,9 @@ public class ProjectController {
 
     @Autowired
     private ProjectService projectService;
+
+    @Autowired
+    private DraftEditProjectService draftEditProjectService;
 
     @Autowired
     private ProjectRepository projectRepository;
@@ -106,7 +111,7 @@ public class ProjectController {
         }
     }
 
-        @GetMapping("/get/all/near-end")
+    @GetMapping("/get/all/near-end")
     public ResponseEntity<ResponseModelDTO> listProjectsEarlyEnd() {
         try {
             List<ProjectDto> projectDtoList = projectService.listProjectsNearEnd();
@@ -124,8 +129,6 @@ public class ProjectController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseModelDTO(e.getMessage()));
         }
     }
-
-
 
     @GetMapping("/get/coordinators")
     public ResponseEntity<ResponseModelDTO> listCoordinators() {
@@ -174,6 +177,57 @@ public class ProjectController {
                     .body(new ResponseModelDTO(HttpStatus.INTERNAL_SERVER_ERROR,"An unexpected error occurred: " + e.getMessage()));
         }
     }
+
+    @PutMapping("/update/draft/{projectId}")
+    public ResponseEntity<ResponseModelDTO> updateProjectDraft(
+            @PathVariable String projectId,
+            @Valid @RequestBody UpdateProjectDto updateProjectDto) {
+        try {
+            var user = authenticationService.getLoggedUser();
+            DraftEditProject draft = draftEditProjectService.updateDraft(projectId, updateProjectDto, user);
+            ResponseModelDTO response = new ResponseModelDTO(draft);
+            return ResponseEntity.ok(response);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ResponseModelDTO(HttpStatus.NOT_FOUND, e.getMessage()));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest()
+                    .body(new ResponseModelDTO(HttpStatus.BAD_REQUEST ,e.getMessage()));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ResponseModelDTO(HttpStatus.INTERNAL_SERVER_ERROR,"Runtime exception: " + e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ResponseModelDTO(HttpStatus.INTERNAL_SERVER_ERROR,"An unexpected error occurred: " + e.getMessage()));
+        }
+    }
+
+    @GetMapping("/get/draft/{projectId}")
+    public ResponseEntity<ResponseModelDTO> readDraft(@PathVariable String projectId) {
+        try {
+            DraftEditProject draft = draftEditProjectService.getByProjectId(projectId);
+
+            Project project = projectService.findProject(projectId);
+
+            var dto = ProjectDto.fromProjectWithStatusAndDocNull(project);
+
+            EntityModel<ProjectDto> model = EntityModel.of(dto);
+            addLinksToProjectDto(model, projectId);
+
+            if(draft == null) return ResponseEntity.ok(new ResponseModelDTO(model));
+
+            dto = ProjectDto.fromDraftEditProject(draft);
+            EntityModel<ProjectDto> modelDraft = EntityModel.of(dto);
+            addLinksToProjectDto(modelDraft, projectId);
+
+            return ResponseEntity.ok(new ResponseModelDTO(modelDraft));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(new ResponseModelDTO(e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseModelDTO(e.getMessage()));
+        }
+    }
+
 
     @GetMapping("/get/history-projects/{id}")
     public ResponseEntity<ResponseModelDTO> listHistoryProjects(@PathVariable String id) {

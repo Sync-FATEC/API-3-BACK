@@ -19,3 +19,4 @@ public class DocumentListDTO extends RepresentationModel<Documents> {
     public LocalDate uploadedAt;
     public boolean removed;
 }
+
