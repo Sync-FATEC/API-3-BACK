@@ -17,7 +17,10 @@ import com.sync.api.application.operation.exporter.GeneratorPdf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Field;
@@ -54,6 +57,10 @@ public class ProjectService {
 
     @Autowired
     private CompanyRepository companyRepository;
+    @Autowired
+    private JavaMailSender mailSender;
+    @Value("${spring.mail.username}")
+    private String remetente;
 
     private static final Logger logger = LoggerFactory.getLogger(ProjectService.class);
 
@@ -125,7 +132,7 @@ public class ProjectService {
             ProjectStatus status,
             ProjectClassification classification,
             Boolean isDraft
-            ) {
+    ) {
 
         List<Project> projects = projectRepository.findAllByOrderByProjectStartDateDesc();
 
@@ -281,11 +288,26 @@ public class ProjectService {
                 ProjectStatus projectStatus = VerifyProjectStatus(project.projectStartDate, project.projectEndDate);
                 project.setProjectStatus(projectStatus);
                 projectRepository.save(project);
+
+                if (project.getProjectEndDate() != null && project.getProjectEndDate().isEqual(LocalDate.now())) {
+                    sendEmailNotification(project);
+                }
+
             } else {
                 logger.warn("Projeto com ID {} ignorado: data de início não disponível.", project.getProjectId());
             }
         }
         logger.info("Verificação de status dos projetos concluída.");
+    }
+
+    private void sendEmailNotification(Project project) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo("");
+        message.setSubject("Projeto com data de vencimento hoje");
+        message.setText("O projeto com a referência " + project.getProjectReference() + " e titulo " + project.getProjectTitle() + "está com a data de vencimento hoje.");
+        message.setFrom(remetente);
+
+        mailSender.send(message);
     }
 
     private ProjectDto mapProjectToDto(Project project) {

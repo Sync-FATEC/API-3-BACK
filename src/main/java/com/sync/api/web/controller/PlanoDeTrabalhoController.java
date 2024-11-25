@@ -1,14 +1,10 @@
 package com.sync.api.web.controller;
 
 import com.sync.api.application.operation.exporter.PlanoDeTrabalho;
-import com.sync.api.domain.model.Company;
-import com.sync.api.domain.model.Project;
 import com.sync.api.domain.model.Coordinators;
 import com.sync.api.domain.model.WorkPlanCompleteData;
-import com.sync.api.infra.repository.CompanyRepository;
-import com.sync.api.infra.repository.CoordinatorsRepository;
 import com.sync.api.infra.repository.ProjectRepository;
-import com.sync.api.web.dto.documents.MinimalWorkPlanRequest;
+import com.sync.api.web.dto.workplan.MinimalWorkPlanRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -16,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.sync.api.domain.model.Project;
 
 @RestController
 @RequestMapping("/plano-de-trabalho")
@@ -29,45 +26,52 @@ public class PlanoDeTrabalhoController {
 	@Autowired
 	private ProjectRepository projectRepository;
 
-	@Autowired
-	private CoordinatorsRepository coordinatorRepository;
-
-	@Autowired
-	private CompanyRepository companyRepository;
-
 	@PostMapping("/gerar")
 	public ResponseEntity<byte[]> generateWorkPlan(@RequestBody MinimalWorkPlanRequest request) {
 		try {
-			logger.info("Received request: projectId={}, coordinatorName={}, corporateName={}",
-					request.getProjectId(), request.getNameCoordinator(), request.getProjectCompany());
+			logger.info("Recebendo requisição para gerar plano de trabalho...");
+			logger.info("Dados recebidos: {}", request);
 
-
-			// Buscar os dados do projeto pelo ID
 			Project project = projectRepository.findById(request.getProjectId())
 					.orElseThrow(() -> new IllegalArgumentException("Projeto não encontrado com ID: " + request.getProjectId()));
 
-			// Buscar os dados do coordenador, se necessário
-			Coordinators coordinator = coordinatorRepository.findByCoordinatorName(request.getNameCoordinator())
-					.orElseThrow(() -> new IllegalArgumentException("Coordenador não encontrado com o nome: " + request.getNameCoordinator()));
+			Coordinators coordinator = project.getCoordinators();
+			if (coordinator == null) {
+				throw new IllegalArgumentException("Coordenador não encontrado para o projeto com ID: " + request.getProjectId());
+			}
 
-			Company empresa = companyRepository.findByCorporateName(request.getProjectCompany())
-					.orElseThrow(() -> new IllegalArgumentException("Empresa não encontrada com o nome: " + request.getProjectCompany()));
-
-			// Montar o payload completo
+			// Montar os dados completos com base no payload recebido
 			WorkPlanCompleteData completeData = new WorkPlanCompleteData(
-					project.getProjectId(),
+					request.getProjectId(),
 					project.getProjectReference(),
 					project.getProjectTitle(),
-					request.getProjectCompany(),
-					empresa.getPhone(),
-					empresa.getCpnj(),
-					empresa.getPhone(),
+					project.getProjectStartDate(),
 					project.getProjectObjective(),
 					coordinator.getCoordinatorName(),
-					coordinator.getCoordinatorEconomicActivity(),
-					coordinator.getCoordinatorCPF(),
-					coordinator.getCoordinatorTelefone(),
-					project.getProjectStartDate().toString()
+					request.getCoordinatorCPF(),
+					request.getCoordinatorAddress(),
+					request.getCoordinatorCity(),
+					request.getCoordinatorUF(),
+					request.getCoordinatorCEP(),
+					request.getCoordinatorTelefone(),
+					request.getCoordinatorEconomicActivity(),
+					request.getCoordinatorPeriod(),
+					request.getCompanyRazaoSocial(),
+					request.getCompanyCNPJ(),
+					request.getCompanyResponsavelTecnico(),
+					request.getCompanyTelefone(),
+					request.getCompanyEndereco(),
+					request.getCompanyEmpresaPrivada(),
+					request.getProjetoJustificativa(),
+					request.getProjetoResultadosEsperados(),
+					request.getFases(),
+					request.getCronograma(),
+					request.getEquipe(),
+					request.getPlanoAplicacao(),
+					request.getCronogramaFinanceiro(),
+					request.getContratanteNome(),
+					request.getContratanteCargo(),
+					request.getDataAssinatura()
 			);
 
 			// Gerar o documento
@@ -78,14 +82,14 @@ public class PlanoDeTrabalhoController {
 
 			HttpHeaders headers = new HttpHeaders();
 			headers.add("Content-Disposition",
-					"attachment; filename=PlanoDeTrabalho_" + project.getProjectReference() +
+					"attachment; filename=Plano_de_Trabalho_" + project.getProjectReference() +
 					".docx");
 
-			logger.info("Work plan generated successfully for project ID: {}", request.getProjectId());
+			logger.info("Plano de trabalho gerado com sucesso para o projeto ID: {}", request.getProjectId());
 			return ResponseEntity.ok().headers(headers).body(document);
 
 		} catch (Exception e) {
-			logger.error("Error generating work plan for project ID: {}", request.getProjectId(), e);
+			logger.error("Erro ao gerar o plano de trabalho", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(("Erro: " + e.getMessage()).getBytes());
 		}
 	}
