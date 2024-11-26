@@ -1,5 +1,6 @@
 package com.sync.api.application.operation.exporter;
 
+import com.sync.api.domain.model.Project;
 import com.sync.api.domain.model.WorkPlanCompleteData;
 import org.apache.poi.xwpf.usermodel.*;
 
@@ -12,7 +13,10 @@ import java.util.List;
 
 public class GenerateFAPGContract {
 
-    public byte[] generateContract(WorkPlanCompleteData data){
+    public byte[] generateContract(Project project){
+
+        var data = project.getWorkPlan();
+
         try (InputStream inputStream = getClass().getResourceAsStream("/templates/Plano_de_Trabalho_FAPG_template_variables.docx")) {
             assert inputStream != null;
             try (XWPFDocument document = new XWPFDocument(inputStream);

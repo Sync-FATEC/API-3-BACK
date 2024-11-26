@@ -61,5 +61,8 @@ public class Project {
     @JoinColumn(name = "user_id")
     public User user;
 
+
+    @OneToOne
+    private WorkPlanCompleteData workPlan;
 }
 
