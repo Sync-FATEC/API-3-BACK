@@ -5,13 +5,16 @@ import lombok.Data;
 
 @Data
 @Entity
+@Table(name = "company")
 public class Company {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
     private String corporateName;
-    private String cpnj;
+    @Column(unique = true)
+    private String cnpj;
+    @Column(unique = true)
     private String phone;
     private boolean privateCompany;
 

@@ -11,7 +11,9 @@ public class Coordinators {
     @GeneratedValue(strategy = GenerationType.UUID)
     public String coordinatorId;
     public String coordinatorName;
+    @Column(unique = true)
     public String coordinatorCPF;
+    @Column(unique = true)
     public String coordinatorTelefone;
     public String coordinatorEconomicActivity;
 }

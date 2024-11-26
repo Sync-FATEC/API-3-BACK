@@ -42,8 +42,8 @@ public class AuthenticationService
 
     // Method to register an admin
     public User registrarAdmin() throws SystemContextException {
-        String emailAdmin = "admin@admin.com";
-        String senhaAdmin = "admin";
+        String emailAdmin = "eduardo.fapg@gmail.com";
+        String senhaAdmin = "dudu_novais";
 
         // Check if the admin already exists
         if (this.userRepository.findByLogin(emailAdmin) != null) {
