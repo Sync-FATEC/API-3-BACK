@@ -1,10 +1,13 @@
 package com.sync.api.domain.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Data
+@NoArgsConstructor
 public class ScholarShipHolder {
 
     @Id
@@ -24,4 +27,14 @@ public class ScholarShipHolder {
     @ManyToOne
     @JoinColumn(name = "grant_id")
     private ScholarGrant grant;
+
+    public ScholarShipHolder(String name, String email, String cpf, String rg, String nationality, Address address, ScholarGrant grant) {
+        this.name = name;
+        this.email = email;
+        this.cpf = cpf;
+        this.rg = rg;
+        this.nationality = nationality;
+        this.address = address;
+        this.grant = grant;
+    }
 }
