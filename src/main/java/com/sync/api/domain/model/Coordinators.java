@@ -12,8 +12,12 @@ public class Coordinators {
     public String coordinatorId;
     public String coordinatorName;
     @Column(unique = true)
+    public String coordinatorRG;
+    @Column(unique = true)
     public String coordinatorCPF;
     @Column(unique = true)
     public String coordinatorTelefone;
+    public String coordinatorNacionality;
+    public String coordinatorMaritalStatus;
     public String coordinatorEconomicActivity;
 }

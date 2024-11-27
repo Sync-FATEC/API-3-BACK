@@ -1,7 +1,6 @@
 package com.sync.api.infra.repository;
 
 import com.sync.api.domain.model.Company;
-import com.sync.api.domain.model.Coordinators;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

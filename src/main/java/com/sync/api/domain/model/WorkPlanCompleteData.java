@@ -1,6 +1,8 @@
 package com.sync.api.domain.model;
 
 import com.sync.api.web.dto.workplan.*;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -53,6 +55,9 @@ public class WorkPlanCompleteData {
 	private String contratanteNome;
 	private String contratanteCargo;
 	private String dataAssinatura;
+
+	@OneToOne
+	private Project project;
 
 	// Construtor completo
 	public WorkPlanCompleteData(String projectId,

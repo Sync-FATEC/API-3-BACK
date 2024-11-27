@@ -78,6 +78,9 @@ public class CoordinatorsService {
         coordinators.setCoordinatorName(updateCoordinatorsDTO.getCoordinatorName());
         coordinators.setCoordinatorCPF(updateCoordinatorsDTO.getCoordinatorCPF());
         coordinators.setCoordinatorTelefone(updateCoordinatorsDTO.getCoordinatorTelefone());
+        coordinators.setCoordinatorRG(updateCoordinatorsDTO.getCoordinatorRG());
+        coordinators.setCoordinatorNacionality(updateCoordinatorsDTO.getCoordinatorNacionality());
+        coordinators.setCoordinatorMaritalStatus(updateCoordinatorsDTO.getCoordinatorMaritalStatus());
         coordinators.setCoordinatorEconomicActivity(updateCoordinatorsDTO.getCoordinatorEconomicActivity());
         return coordinators;
     }
@@ -87,6 +90,9 @@ public class CoordinatorsService {
         coordinators.setCoordinatorName(registerCoordinatorsDTO.getCoordinatorName());
         coordinators.setCoordinatorCPF(registerCoordinatorsDTO.getCoordinatorCPF());
         coordinators.setCoordinatorTelefone(registerCoordinatorsDTO.getCoordinatorTelefone());
+        coordinators.setCoordinatorRG(registerCoordinatorsDTO.getCoordinatorRG());
+        coordinators.setCoordinatorNacionality(registerCoordinatorsDTO.getCoordinatorNacionality());
+        coordinators.setCoordinatorMaritalStatus(registerCoordinatorsDTO.getCoordinatorMaritalStatus());
         coordinators.setCoordinatorEconomicActivity(registerCoordinatorsDTO.getCoordinatorEconomicActivity());
         return coordinators;
     }
