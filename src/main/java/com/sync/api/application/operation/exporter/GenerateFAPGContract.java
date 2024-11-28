@@ -3,6 +3,7 @@ package com.sync.api.application.operation.exporter;
 import com.sync.api.domain.model.Project;
 import com.sync.api.domain.model.WorkPlanCompleteData;
 import org.apache.poi.xwpf.usermodel.*;
+import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -11,6 +12,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public class GenerateFAPGContract {
 
     public byte[] generateContract(Project project){

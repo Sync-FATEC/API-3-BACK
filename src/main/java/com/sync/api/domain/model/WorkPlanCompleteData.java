@@ -1,18 +1,22 @@
 package com.sync.api.domain.model;
 
 import com.sync.api.web.dto.workplan.*;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.*;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
-@Getter
-@Setter
+@Entity
+@Data
 public class WorkPlanCompleteData {
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
 	// Dados do Projeto
 	private String projectId;
@@ -45,11 +49,19 @@ public class WorkPlanCompleteData {
 	private String projetoResultadosEsperados;
 
 	// Listas
-	private List<FaseDTO> fases;
-	private List<CronogramaDTO> cronograma;
-	private List<EquipeDTO> equipe;
-	private List<PlanoAplicacaoDTO> planoAplicacao;
-	private List<CronogramaFinanceiroDTO> cronogramaFinanceiro;
+	@OneToMany(mappedBy = "workPlan")
+	private List<Phases> phases;
+
+	@OneToMany(mappedBy = "workPlan")
+	private List<Schedule> schedules;
+
+	@OneToMany(mappedBy = "workPlan")
+	private List<Team> teams;
+
+	@OneToMany(mappedBy = "workPlan")
+	private List<Plan> applicationPlans;
+
+	private List<String> cronogramaFinanceiro;
 
 	// Contratante
 	private String contratanteNome;
@@ -112,11 +124,11 @@ public class WorkPlanCompleteData {
 		this.companyEmpresaPrivada = companyEmpresaPrivada;
 		this.projetoJustificativa = projetoJustificativa;
 		this.projetoResultadosEsperados = projetoResultadosEsperados;
-		this.fases = fases;
-		this.cronograma = cronograma;
-		this.equipe = equipe;
-		this.planoAplicacao = planoAplicacao;
-		this.cronogramaFinanceiro = cronogramaFinanceiro;
+		this.phases = fases.stream().map(FaseDTO::toEntity).collect(Collectors.toList());
+		this.schedules = cronograma.stream().map(CronogramaDTO::toEntity).collect(Collectors.toList());
+		this.teams = equipe.stream().map(EquipeDTO::toEntity).collect(Collectors.toList());
+		this.applicationPlans = planoAplicacao.stream().map(PlanoAplicacaoDTO::toEntity).collect(Collectors.toList());
+		this.cronogramaFinanceiro = cronogramaFinanceiro.stream().map(CronogramaFinanceiroDTO::getValor).collect(Collectors.toList());
 		this.contratanteNome = contratanteNome;
 		this.contratanteCargo = contratanteCargo;
 		this.dataAssinatura = dataAssinatura;
