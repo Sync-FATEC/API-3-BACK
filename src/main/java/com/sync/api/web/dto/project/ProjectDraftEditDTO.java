@@ -67,6 +67,7 @@ public class ProjectDraftEditDTO {
                                 d.getFileType(),
                                 d.getFileUrl(),
                                 d.getUploadedAt(),
+                                d.getFileBytes(),
                                 d.isRemoved()))
                         .collect(Collectors.toList()),
                 project.getSensitiveFields()

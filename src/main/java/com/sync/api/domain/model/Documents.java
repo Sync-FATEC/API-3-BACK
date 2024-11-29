@@ -7,6 +7,7 @@ import lombok.Data;
 import org.springframework.hateoas.RepresentationModel;
 
 
+import javax.swing.text.Document;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -27,6 +28,10 @@ public class Documents extends RepresentationModel<Documents> {
     @Column(columnDefinition = "boolean default false")
     public boolean removed;
 
+    @Lob
+    @Column(columnDefinition = "LONGBLOB", nullable = true)
+    private byte[] fileBytes;
+
     @ManyToOne
     @JsonIgnore
     @JoinColumn(name = "project_id")
@@ -41,12 +46,24 @@ public class Documents extends RepresentationModel<Documents> {
     public List<HistoryProject> historyProjectList;
 
 
-    public Documents CreateBaseProject(String fileName, FileType fileType, LocalDate uploadedAt, Project project, User user) {
+    public Documents CreateBaseProject(String fileName, FileType fileType, LocalDate uploadedAt, Project project) {
         this.fileName = fileName;
         this.fileType = fileType;
         this.uploadedAt = uploadedAt;
         this.project = project;
         return this;
+    }
+
+    public static Documents CreateWorkPlan(Project project, byte[] fileBytes) {
+        var doc = new Documents();
+        doc.setFileName("Plano de Trabalho " +  project.getProjectReference() + ".docx");
+        doc.setFileType(FileType.PLANO_DE_TRABALHO);
+        doc.setProject(project);
+        doc.setUploadedAt(LocalDate.now());
+        doc.setFileBytes(fileBytes);
+
+        project.getDocuments().add(doc);
+        return doc;
     }
 
     public String GenereateUrl() {

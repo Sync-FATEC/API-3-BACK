@@ -1,21 +1,21 @@
 package com.sync.api.web.controller;
 
 import com.sync.api.application.operation.exporter.PlanoDeTrabalho;
-import com.sync.api.domain.model.Coordinators;
-import com.sync.api.domain.model.PlanWordFAPG;
-import com.sync.api.domain.model.WorkPlanCompleteData;
-import com.sync.api.infra.repository.PlanWordFAPGRepository;
+import com.sync.api.application.service.AuthenticationService;
+import com.sync.api.domain.enums.FileType;
+import com.sync.api.domain.model.*;
+import com.sync.api.infra.repository.DocumentRepository;
 import com.sync.api.infra.repository.ProjectRepository;
 import com.sync.api.infra.repository.WorkPlanCompleteDataRepository;
 import com.sync.api.web.dto.workplan.MinimalWorkPlanRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.sync.api.domain.model.Project;
 
 @RestController
 @RequestMapping("/plano-de-trabalho")
@@ -33,7 +33,10 @@ public class PlanoDeTrabalhoController {
 	private WorkPlanCompleteDataRepository workPlanCompleteDataRepository;
 
 	@Autowired
-	private PlanWordFAPGRepository planWordFAPGRepository;
+	private DocumentRepository documentRepository;
+
+	@Autowired
+	private AuthenticationService authenticationService;
 
 	@PostMapping("/gerar")
 	public ResponseEntity<byte[]> generateWorkPlan(@RequestBody MinimalWorkPlanRequest request) {
@@ -44,7 +47,7 @@ public class PlanoDeTrabalhoController {
 			Project project = projectRepository.findById(request.getProjectId())
 					.orElseThrow(() -> new IllegalArgumentException("Projeto não encontrado com ID: " + request.getProjectId()));
 
-			if (planWordFAPGRepository.findByProject_ProjectId(request.getProjectId()).isPresent()) {
+			if (!documentRepository.findByProjectProjectIdAndFileType(project.getProjectId(), FileType.PLANO_DE_TRABALHO).isEmpty()) {
 				logger.info("Plano de trabalho já gerado para o projeto ID: {}", request.getProjectId());
 				return getPlanWord(request.getProjectId());
 			}
@@ -136,8 +139,14 @@ public class PlanoDeTrabalhoController {
 			// Salvar os dados completos
 			workPlanCompleteDataRepository.save(completeData);
 
-			// Salvar o documento
-			planWordFAPGRepository.save(new PlanWordFAPG(document, project.getProjectReference(), project));
+			var user = authenticationService.getLoggedUser();
+
+			String fileName = "Plano_Trabalho_" + project.getProjectReference();
+			// Criando anexo
+			var workPlan = Documents.CreateWorkPlan(project, document);
+
+			// Salvar o documento como anexo
+			documentRepository.save(workPlan);
 
 			HttpHeaders headers = new HttpHeaders();
 			headers.add("Content-Disposition",
@@ -160,14 +169,16 @@ public class PlanoDeTrabalhoController {
 				return ResponseEntity.badRequest().body("ID do projeto não informado.".getBytes());
 			}
 
-			PlanWordFAPG planWord = planWordFAPGRepository.findByProject_ProjectId(projectid)
+			Documents workPlan = documentRepository.findByProjectProjectIdAndFileType(projectid, FileType.PLANO_DE_TRABALHO)
 					.orElseThrow(() -> new IllegalArgumentException("Plano de trabalho não encontrado para o projeto com ID: " + projectid));
 
 			HttpHeaders headers = new HttpHeaders();
-			headers.add("Content-Disposition",
-					"attachment; filename=Plano_de_Trabalho_" + planWord.getProjectReference() + ".docx");
+			String fileName = workPlan.getFileName() != null ? workPlan.getFileName() : "default_filename.txt";
+			headers.add("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
+			headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
 
-			byte[] planWordFile = planWord.getPlanWordFile();
+
+			byte[] planWordFile = workPlan.getFileBytes();
 
 			if (planWordFile == null || planWordFile.length == 0) {
 				// Se o arquivo estiver vazio ou nulo

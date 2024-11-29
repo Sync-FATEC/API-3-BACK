@@ -340,6 +340,7 @@ public class ProjectService {
                 document.getFileType(),
                 document.getFileUrl(),
                 document.getUploadedAt(),
+                document.getFileBytes(),
                 document.isRemoved()
         );
     }

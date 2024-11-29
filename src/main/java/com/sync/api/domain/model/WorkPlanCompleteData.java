@@ -73,6 +73,8 @@ public class WorkPlanCompleteData {
 	@OneToOne
 	private Project project;
 
+	private byte[] file;
+
 	// Construtor completo
 	public WorkPlanCompleteData(String projectId,
 	                            String projectReference,
