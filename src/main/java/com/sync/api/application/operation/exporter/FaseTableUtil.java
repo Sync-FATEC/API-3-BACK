@@ -1,6 +1,9 @@
 package com.sync.api.application.operation.exporter;
 
-import com.sync.api.web.dto.workplan.*;
+import com.sync.api.domain.model.Phases;
+import com.sync.api.domain.model.Plan;
+import com.sync.api.domain.model.Schedule;
+import com.sync.api.domain.model.Team;
 import org.apache.poi.xwpf.usermodel.*;
 
 import java.time.LocalDate;
@@ -10,11 +13,11 @@ import java.util.Locale;
 
 public class FaseTableUtil {
 
-	void substituirFases(XWPFTable table, List<FaseDTO> fases) {
+	void substituirFases(XWPFTable table, List<Phases> fases) {
 		// Índice para numerar as fases
 		int index = 1;
 
-		for (FaseDTO fase : fases) {
+		for (Phases fase : fases) {
 			// Criar uma nova linha na tabela para cada fase
 			XWPFTableRow newRow = table.createRow();
 
@@ -22,10 +25,10 @@ public class FaseTableUtil {
 			newRow.getCell(0).setText(String.valueOf(index));
 
 			// Preencher a coluna da fase
-			newRow.getCell(1).setText(fase.getFase());
+			newRow.getCell(1).setText(fase.getPhase());
 
 			// Preencher a coluna da descrição
-			newRow.getCell(2).setText(fase.getDescricao());
+			newRow.getCell(2).setText(fase.getDescription());
 
 			// Incrementar o índice
 			index++;
@@ -33,50 +36,50 @@ public class FaseTableUtil {
 	}
 
 
-	void substituirCronograma(XWPFTable table, List<CronogramaDTO> cronograma) {
+	void substituirCronograma(XWPFTable table, List<Schedule> cronograma) {
 		int index = 1;
-		for (CronogramaDTO atividade : cronograma) {
+		for (Schedule atividade : cronograma) {
 			XWPFTableRow newRow = table.createRow();
 			newRow.getCell(0).setText(String.valueOf(index));
-			newRow.getCell(1).setText(atividade.getAtividade());
-			newRow.getCell(2).setText(atividade.getIndicadorFisico());
-			newRow.getCell(3).setText(atividade.getDataInicio());
+			newRow.getCell(1).setText(atividade.getActivity());
+			newRow.getCell(2).setText(atividade.getPhysicalIndicator());
+			newRow.getCell(3).setText(atividade.getStartDate());
 			if (newRow.getCell(4) == null) {
 				newRow.addNewTableCell();
 			}
-			newRow.getCell(4).setText(atividade.getDataFim());
+			newRow.getCell(4).setText(atividade.getEndDate());
 			index++;
 		}
 	}
 
-	void substituirEquipe(XWPFTable table, List<EquipeDTO> equipe) {
+	void substituirEquipe(XWPFTable table, List<Team> equipe) {
 		int index = 1;
-		for (EquipeDTO membro : equipe) {
+		for (Team membro : equipe) {
 			XWPFTableRow newRow = table.createRow();
 
 			newRow.getCell(0).setText(String.valueOf(index));
-			newRow.getCell(1).setText(membro.getNome());
-			newRow.getCell(2).setText(membro.getInstituicao());
-			newRow.getCell(3).setText(membro.getCompetencia());
+			newRow.getCell(1).setText(membro.getName());
+			newRow.getCell(2).setText(membro.getInstitution());
+			newRow.getCell(3).setText(membro.getCompetence());
 
 			index++;
 		}
 	}
 
-	void substituirPlanoAplicacao(XWPFTable table, List<PlanoAplicacaoDTO> planoAplicacao) {
+	void substituirPlanoAplicacao(XWPFTable table, List<Plan> planoAplicacao) {
 		int index = 1;
-		for (PlanoAplicacaoDTO item : planoAplicacao) {
+		for (Plan item : planoAplicacao) {
 			XWPFTableRow newRow = table.createRow();
 
 			newRow.getCell(0).setText(String.valueOf(index));
-			newRow.getCell(1).setText(item.getDescricao());
+			newRow.getCell(1).setText(item.getDescription());
 			newRow.getCell(2).setText(item.getTotal());
 
 			index++;
 		}
 	}
 
-	void substituirTotalPlanoAplicacao(XWPFTable table, List<PlanoAplicacaoDTO> planoAplicacao) {
+	void substituirTotalPlanoAplicacao(XWPFTable table, List<Plan> planoAplicacao) {
 		double total = calcularTotalPlanoAplicacao(planoAplicacao);
 		String totalStr = String.format("%.2f", total);
 
@@ -95,7 +98,7 @@ public class FaseTableUtil {
 		}
 	}
 
-	public static double calcularTotalPlanoAplicacao(List<PlanoAplicacaoDTO> planoAplicacao) {
+	public static double calcularTotalPlanoAplicacao(List<Plan> planoAplicacao) {
 		return planoAplicacao.stream()
 				.mapToDouble(item -> {
 					try {
@@ -107,7 +110,7 @@ public class FaseTableUtil {
 				.sum();
 	}
 
-	void substituirCronogramaFinanceiro(XWPFTable table, List<CronogramaFinanceiroDTO> cronogramaFinanceiro, String projectStartDate) {
+	void substituirCronogramaFinanceiro(XWPFTable table, List<String> cronogramaFinanceiro, String projectStartDate) {
 		// Converter a data de início do projeto para obter o ano e o mês
 		LocalDate dataInicio = LocalDate.parse(projectStartDate); // Certifique-se de que o formato da data seja ISO (yyyy-MM-dd)
 		int mesInicial = dataInicio.getMonthValue(); // Mês de início
@@ -116,7 +119,7 @@ public class FaseTableUtil {
 		// Índice para numerar as parcelas
 		int numeroParcela = 1;
 
-		for (CronogramaFinanceiroDTO parcela : cronogramaFinanceiro) {
+		for (String parcela : cronogramaFinanceiro) {
 			// Criar uma nova linha na tabela para cada parcela
 			XWPFTableRow newRow = table.createRow();
 
@@ -134,7 +137,7 @@ public class FaseTableUtil {
 			newRow.getCell(1).setText(String.valueOf(numeroParcela));
 
 			// Preencher o valor da parcela
-			newRow.getCell(2).setText(parcela.getValor());
+			newRow.getCell(2).setText(parcela);
 
 			// Incrementar o índice da parcela
 			numeroParcela++;
