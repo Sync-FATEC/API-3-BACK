@@ -44,11 +44,9 @@ public class PlanoDeTrabalhoController {
 			Project project = projectRepository.findById(request.getProjectId())
 					.orElseThrow(() -> new IllegalArgumentException("Projeto não encontrado com ID: " + request.getProjectId()));
 
-			if (planWordFAPGRepository.findByProject_ProjectId(request.getProjectId()) != null) {
+			if (planWordFAPGRepository.findByProject_ProjectId(request.getProjectId()).isPresent()) {
 				logger.info("Plano de trabalho já gerado para o projeto ID: {}", request.getProjectId());
 				return getPlanWord(request.getProjectId());
-			}else {
-				logger.info("Plano de trabalho não encontrado para o projeto ID: {}", request.getProjectId());
 			}
 
 			Coordinators coordinator = project.getCoordinators();
