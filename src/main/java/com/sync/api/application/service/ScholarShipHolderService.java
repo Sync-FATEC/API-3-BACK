@@ -40,6 +40,8 @@ public class ScholarShipHolderService {
             address.setState(dto.getAddress().getState());
             address.setZipCode(dto.getAddress().getZipCode());
 
+            addressRepository.save(address);
+
             ScholarGrant grant = grantRepository.findById(dto.getGrantId())
                     .orElseThrow(()-> new RuntimeException("erro bolsa nao encontrada"));
 
@@ -77,6 +79,10 @@ public class ScholarShipHolderService {
             address.setCity(dto.getAddress().getCity());
             address.setState(dto.getAddress().getState());
             address.setZipCode(dto.getAddress().getZipCode());
+
+            addressRepository.save(address);
+
+
 
             scholarShipHolder.setName(dto.getName());
             scholarShipHolder.setEmail(dto.getEmail());

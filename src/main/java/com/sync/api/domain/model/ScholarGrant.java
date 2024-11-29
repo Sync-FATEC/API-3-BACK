@@ -1,5 +1,6 @@
 package com.sync.api.domain.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -23,6 +24,7 @@ public class ScholarGrant {
     @Column(columnDefinition = "tinyint(1) default 1")
     private boolean active;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "grant", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ScholarShipHolder> scholarShipHolders;
 }

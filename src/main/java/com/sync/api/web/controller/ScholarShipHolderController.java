@@ -28,6 +28,7 @@ public class ScholarShipHolderController {
     @PutMapping("/update")
     public ResponseEntity<?> updateScholarShipHolder(@RequestBody UpdateScholarShipHolderDto dto){
         try {
+            System.out.println(dto);
             ScholarShipHolder scholarShipHolder = scholarShipHolderService.updateScholarShipHolder(dto);
             return ResponseEntity.ok(new ResponseModelDTO(scholarShipHolder));
         } catch (Exception e) {

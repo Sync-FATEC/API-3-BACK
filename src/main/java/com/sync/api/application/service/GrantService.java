@@ -7,6 +7,7 @@ import com.sync.api.infra.repository.GrantRepository;
 import com.sync.api.infra.repository.ScholarShipHolderRepository;
 import com.sync.api.web.dto.grant.GrantDto;
 import com.sync.api.web.dto.grant.GrantResponseDto;
+import com.sync.api.web.dto.grant.UpdateGrantDto;
 import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -99,6 +100,21 @@ public class GrantService {
             throw new RuntimeException(e);
         }
     }
+
+    public ScholarGrant updateGrant(UpdateGrantDto updateGrantDto) {
+        try {
+            ScholarGrant grant = grantRepository.findById(updateGrantDto.getId())
+                    .orElseThrow(() -> new EntityNotFoundException("Bolsa não encontrada com o id: " + updateGrantDto.getId()));
+            grant.setType(updateGrantDto.getType());
+            grant.setActing(updateGrantDto.getActing());
+            grant.setDuration(Period.of(updateGrantDto.getYears(), updateGrantDto.getMonths(), 0));
+            grantRepository.save(grant);
+            return grant;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private String formatDuration(Period duration) {
         if (duration == null) {
             return "N/A";

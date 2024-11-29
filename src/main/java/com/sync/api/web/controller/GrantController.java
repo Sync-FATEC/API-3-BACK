@@ -4,6 +4,8 @@ import com.sync.api.application.service.GrantService;
 import com.sync.api.domain.model.ScholarGrant;
 import com.sync.api.web.dto.grant.GrantDto;
 import com.sync.api.web.dto.grant.GrantResponseDto;
+import com.sync.api.web.dto.grant.UpdateGrantDto;
+import com.sync.api.web.dto.web.ResponseModelDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -25,7 +27,7 @@ public class GrantController {
             System.out.println(grantDto);
             ScholarGrant grant = grantService.createGrant(grantDto);
             return ResponseEntity.status(HttpStatus.CREATED)
-                    .body("Bolsa Criada");
+                    .body(new ResponseModelDTO(grant));
         } catch (DataIntegrityViolationException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("Dados inválidos: " + e.getMessage());
@@ -40,7 +42,7 @@ public class GrantController {
         try {
             GrantResponseDto grant = grantService.getGrant(id);
             return ResponseEntity.status(HttpStatus.OK)
-                    .body(grant);
+                    .body(new ResponseModelDTO(grant));
         } catch (DataIntegrityViolationException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("Dados inválidos: " + e.getMessage());
@@ -75,6 +77,21 @@ public class GrantController {
             return ResponseEntity.status(HttpStatus.OK)
                     .body("Bolsa desativada");
         }catch (DataIntegrityViolationException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Dados inválidos: " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erro inesperado: " + e.getMessage());
+        }
+    }
+
+    @PutMapping("/update")
+    public ResponseEntity<?> updateGrant(@RequestBody UpdateGrantDto grantDto){
+        try {
+            ScholarGrant grant = grantService.updateGrant(grantDto);
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(new ResponseModelDTO(grant));
+        } catch (DataIntegrityViolationException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("Dados inválidos: " + e.getMessage());
         } catch (Exception e) {
