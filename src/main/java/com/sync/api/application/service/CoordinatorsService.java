@@ -1,6 +1,8 @@
 package com.sync.api.application.service;
 
+import com.sync.api.domain.model.Address;
 import com.sync.api.domain.model.Coordinators;
+import com.sync.api.infra.repository.AddressRepository;
 import com.sync.api.infra.repository.CoordinatorsRepository;
 import com.sync.api.web.dto.coordinators.RegisterCoordinatorsDTO;
 import com.sync.api.web.dto.coordinators.UpdateCoordinatorsDTO;
@@ -15,9 +17,13 @@ public class CoordinatorsService {
     @Autowired
     private CoordinatorsRepository coordinatorsRepository;
 
+    @Autowired
+    private AddressRepository addressRepository;
+
     public Coordinators createCoordinators(RegisterCoordinatorsDTO registerCoordinatorsDTO) {
         try {
             Coordinators coordinators = mapToCoordinators(registerCoordinatorsDTO);
+            addressRepository.save(coordinators.getAddress());
             coordinatorsRepository.save(coordinators);
             return coordinators;
         } catch (Exception e) {
@@ -46,13 +52,44 @@ public class CoordinatorsService {
 
     public Coordinators updateCoordinator(UpdateCoordinatorsDTO updateCoordinatorsDTO) {
         try {
+            Coordinators existingCoordinators = coordinatorsRepository.findByCoordinatorId(updateCoordinatorsDTO.getCoordinatorId())
+                    .orElseThrow(() -> new RuntimeException("Coordenador não encontrado"));
+
+            Address address;
+            if (updateCoordinatorsDTO.getAddressId() != null && !updateCoordinatorsDTO.getAddressId().isEmpty()) {
+                address = addressRepository.findById(updateCoordinatorsDTO.getAddressId())
+                        .orElseThrow(() -> new RuntimeException("Endereço não encontrado"));
+
+                address.setStreet(updateCoordinatorsDTO.getAddressStreet());
+                address.setNumber(updateCoordinatorsDTO.getAddressNumber());
+                address.setNeighborhood(updateCoordinatorsDTO.getAddressNeighborhood());
+                address.setCity(updateCoordinatorsDTO.getAddressCity());
+                address.setState(updateCoordinatorsDTO.getAddressState());
+                address.setZipCode(updateCoordinatorsDTO.getAddressZipCode());
+
+                addressRepository.save(address);
+            } else {
+                address = new Address(updateCoordinatorsDTO.getAddressStreet(),
+                        updateCoordinatorsDTO.getAddressNumber(),
+                        updateCoordinatorsDTO.getAddressNeighborhood(),
+                        updateCoordinatorsDTO.getAddressCity(),
+                        updateCoordinatorsDTO.getAddressZipCode(),
+                        updateCoordinatorsDTO.getAddressState());
+
+                addressRepository.save(address);
+            }
+
             Coordinators coordinators = mapToCoordinators(updateCoordinatorsDTO);
+            coordinators.setAddress(address);
+
             coordinatorsRepository.save(coordinators);
+
             return coordinators;
         } catch (Exception e) {
             throw new RuntimeException("Erro ao atualizar coordenador: " + e.getMessage(), e);
         }
     }
+
 
     public void deleteCoordinator(String id) {
         try {
@@ -82,6 +119,7 @@ public class CoordinatorsService {
         coordinators.setCoordinatorNacionality(updateCoordinatorsDTO.getCoordinatorNacionality());
         coordinators.setCoordinatorMaritalStatus(updateCoordinatorsDTO.getCoordinatorMaritalStatus());
         coordinators.setCoordinatorEconomicActivity(updateCoordinatorsDTO.getCoordinatorEconomicActivity());
+
         return coordinators;
     }
 
@@ -94,6 +132,16 @@ public class CoordinatorsService {
         coordinators.setCoordinatorNacionality(registerCoordinatorsDTO.getCoordinatorNacionality());
         coordinators.setCoordinatorMaritalStatus(registerCoordinatorsDTO.getCoordinatorMaritalStatus());
         coordinators.setCoordinatorEconomicActivity(registerCoordinatorsDTO.getCoordinatorEconomicActivity());
+
+        Address address = new Address();
+        address.setState(registerCoordinatorsDTO.getAddressState());
+        address.setCity(registerCoordinatorsDTO.getAddressCity());
+        address.setStreet(registerCoordinatorsDTO.getAddressStreet());
+        address.setNeighborhood(registerCoordinatorsDTO.getAddressNeighborhood());
+        address.setNumber(registerCoordinatorsDTO.getAddressNumber());
+        address.setZipCode(registerCoordinatorsDTO.getAddressZipCode());
+        coordinators.setAddress(address);
+
         return coordinators;
     }
 

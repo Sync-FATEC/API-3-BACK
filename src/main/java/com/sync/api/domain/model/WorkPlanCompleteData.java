@@ -23,6 +23,8 @@ public class WorkPlanCompleteData {
 	private String projectReference;
 	private String projectTitle;
 	private LocalDate projectStartDate;
+	@Lob
+	@Column(columnDefinition = "TEXT")
 	private String projectObjective;
 
 	// Dados do Coordenador

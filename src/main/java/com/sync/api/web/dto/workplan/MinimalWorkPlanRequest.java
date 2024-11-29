@@ -22,7 +22,7 @@ public class MinimalWorkPlanRequest {
 	private String companyResponsavelTecnico;
 	private String companyTelefone;
 	private String companyEndereco;
-	private String companyEmpresaPrivada;
+	private boolean companyEmpresaPrivada;
 	private String projetoJustificativa;
 	private String projetoResultadosEsperados;
 	private List<FaseDTO> fases;

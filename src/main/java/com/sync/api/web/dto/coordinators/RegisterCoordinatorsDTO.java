@@ -15,4 +15,10 @@ public class RegisterCoordinatorsDTO {
     public String coordinatorRG;
     public String coordinatorNacionality;
     public String coordinatorMaritalStatus;
+    public String AddressStreet;
+    public String AddressNumber;
+    public String AddressNeighborhood;
+    public String AddressCity;
+    public String AddressState;
+    public String AddressZipCode;
 }

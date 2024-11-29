@@ -54,28 +54,65 @@ public class PlanoDeTrabalhoController {
 				throw new IllegalArgumentException("Coordenador não encontrado para o projeto com ID: " + request.getProjectId());
 			}
 
-			// Montar os dados completos com base no payload recebido
+// Verificar os dados do coordenador e fornecer uma mensagem padrão caso não existam
+			String coordinatorName = (coordinator.getCoordinatorName() != null) ? coordinator.getCoordinatorName() : "Coordenador não informado";
+			String coordinatorCPF = (coordinator.getCoordinatorCPF() != null) ? coordinator.getCoordinatorCPF() : "CPF não informado";
+			String coordinatorTelefone = (coordinator.getCoordinatorTelefone() != null) ? coordinator.getCoordinatorTelefone() : "Telefone não informado";
+			String coordinatorEconomicActivity = (coordinator.getCoordinatorEconomicActivity() != null) ? coordinator.getCoordinatorEconomicActivity() : "Atividade econômica não informada";
+
+// Verificar o endereço do coordenador, fornecendo uma mensagem padrão caso não existam
+			String street = (coordinator.getAddress() != null && coordinator.getAddress().getStreet() != null) ? coordinator.getAddress().getStreet() : "Rua não informada";
+			String number = (coordinator.getAddress() != null && coordinator.getAddress().getNumber() != null) ? coordinator.getAddress().getNumber() : "Número não informado";
+			String neighborhood = (coordinator.getAddress() != null && coordinator.getAddress().getNeighborhood() != null) ? coordinator.getAddress().getNeighborhood() : "Bairro não informado";
+			String city = (coordinator.getAddress() != null && coordinator.getAddress().getCity() != null) ? coordinator.getAddress().getCity() : "Cidade não informada";
+			String state = (coordinator.getAddress() != null && coordinator.getAddress().getState() != null) ? coordinator.getAddress().getState() : "Estado não informado";
+			String zipCode = (coordinator.getAddress() != null && coordinator.getAddress().getZipCode() != null) ? coordinator.getAddress().getZipCode() : "CEP não informado";
+
+// Montar o endereço completo do coordenador
+			String coordinatorAddress = street + ", " + number + " - " + neighborhood + ", " + city + " - " + state + " - " + zipCode;
+
+// Verificar os dados da empresa e fornecer uma mensagem padrão caso não existam
+			String companyRazaoSocial = (project.getCompany().getCorporateName() != null) ? project.getCompany().getCorporateName() : "Razão Social não informada";
+			String companyCNPJ = (project.getCompany().getCnpj() != null) ? project.getCompany().getCnpj() : "CNPJ não informado";
+			String companyResponsavelTecnico = (request.getCompanyResponsavelTecnico() != null) ? request.getCompanyResponsavelTecnico() : "Responsável técnico não informado";
+			String companyTelefone = (project.getCompany().getPhone() != null) ? project.getCompany().getPhone() : "Telefone não informado";
+
+// Verificar o endereço da empresa e fornecer uma mensagem padrão caso não existam
+			String companyStreet = (project.getCompany().getAddress() != null && project.getCompany().getAddress().getStreet() != null) ? project.getCompany().getAddress().getStreet() : "Rua não informada";
+			String companyNumber = (project.getCompany().getAddress() != null && project.getCompany().getAddress().getNumber() != null) ? project.getCompany().getAddress().getNumber() : "Número não informado";
+			String companyNeighborhood = (project.getCompany().getAddress() != null && project.getCompany().getAddress().getNeighborhood() != null) ? project.getCompany().getAddress().getNeighborhood() : "Bairro não informado";
+			String companyCity = (project.getCompany().getAddress() != null && project.getCompany().getAddress().getCity() != null) ? project.getCompany().getAddress().getCity() : "Cidade não informada";
+			String companyState = (project.getCompany().getAddress() != null && project.getCompany().getAddress().getState() != null) ? project.getCompany().getAddress().getState() : "Estado não informado";
+			String companyZipCode = (project.getCompany().getAddress() != null && project.getCompany().getAddress().getZipCode() != null) ? project.getCompany().getAddress().getZipCode() : "CEP não informado";
+
+// Montar o endereço completo da empresa
+			String companyEndereco = companyStreet + ", " + companyNumber + " - " + companyNeighborhood + ", " + companyCity + " - " + companyState + " - " + companyZipCode;
+
+// Transformar o valor de isPrivateCompany em uma string
+			String companyType = (project.getCompany().isPrivateCompany()) ? "Empresa Privada" : "Empresa Pública";
+
+// Agora, crie o objeto WorkPlanCompleteData com esses valores
 			WorkPlanCompleteData completeData = new WorkPlanCompleteData(
 					request.getProjectId(),
 					project.getProjectReference(),
 					project.getProjectTitle(),
 					project.getProjectStartDate(),
 					project.getProjectObjective(),
-					coordinator.getCoordinatorName(),
-					coordinator.getCoordinatorCPF(),
-					request.getCoordinatorAddress(),
-					request.getCoordinatorCity(),
-					request.getCoordinatorUF(),
-					request.getCoordinatorCEP(),
-					coordinator.getCoordinatorTelefone(),
-					coordinator.getCoordinatorEconomicActivity(),
+					coordinatorName,
+					coordinatorCPF,
+					coordinatorAddress,
+					city, // Coordenador cidade
+					state, // Coordenador estado
+					zipCode, // Coordenador CEP
+					coordinatorTelefone,
+					coordinatorEconomicActivity,
 					request.getCoordinatorPeriod(),
-					request.getCompanyRazaoSocial(),
-					request.getCompanyCNPJ(),
-					request.getCompanyResponsavelTecnico(),
-					request.getCompanyTelefone(),
-					request.getCompanyEndereco(),
-					request.getCompanyEmpresaPrivada(),
+					companyRazaoSocial,
+					companyCNPJ,
+					companyResponsavelTecnico,
+					companyTelefone,
+					companyEndereco, // Endereço da empresa
+					companyType,
 					request.getProjetoJustificativa(),
 					request.getProjetoResultadosEsperados(),
 					request.getFases(),
@@ -87,6 +124,8 @@ public class PlanoDeTrabalhoController {
 					request.getContratanteCargo(),
 					request.getDataAssinatura()
 			);
+
+
 
 			// Gerar o documento
 			byte[] document = planoDeTrabalho.gerarPlanoDeTrabalho(completeData);

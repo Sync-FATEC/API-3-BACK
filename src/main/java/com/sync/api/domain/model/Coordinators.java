@@ -20,4 +20,8 @@ public class Coordinators {
     public String coordinatorNacionality;
     public String coordinatorMaritalStatus;
     public String coordinatorEconomicActivity;
+
+    @OneToOne
+    @JoinColumn(name = "address_id")
+    private Address address;
 }
