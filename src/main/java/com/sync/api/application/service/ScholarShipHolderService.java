@@ -122,15 +122,21 @@ public class ScholarShipHolderService {
         }
     }
 
-    public void removeScholarShip(String id){
-        try{
+    public void deactivateScholarShipHolder(String id) {
+        try {
             ScholarShipHolder scholarShipHolder = scholarShipHolderRepository.findById(id)
-                    .orElseThrow(()->{
-                        throw new RuntimeException();
-                    });
-            scholarShipHolder.setRemoved(true);
+                    .orElseThrow(() -> new RuntimeException("Scholarship holder not found with id: " + id));
+
+            scholarShipHolder.setRemoved(true); // Altera o campo
+            scholarShipHolderRepository.save(scholarShipHolder); // Persiste a alteração no banco de dados
+
+            System.out.println("Scholarship holder with id " + id + " successfully deactivated.");
+        } catch (RuntimeException e) {
+            System.err.println("Error deactivating scholarship holder: " + e.getMessage());
+            throw e;
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            System.err.println("Unexpected error occurred: " + e.getMessage());
+            throw new RuntimeException("Failed to deactivate scholarship holder", e);
         }
     }
 

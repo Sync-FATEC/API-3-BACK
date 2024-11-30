@@ -56,9 +56,11 @@ public class ScholarShipHolderController {
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> deleteScholarShipHolder(@PathVariable String id){
         try {
-            scholarShipHolderService.removeScholarShip(id);
+            System.out.println(id);
+            scholarShipHolderService.deactivateScholarShipHolder(id);
             return ResponseEntity.ok(new ResponseModelDTO("Bolsista deletado com sucesso"));
         } catch (Exception e) {
+            System.out.println(e.getMessage());
             return ResponseEntity.badRequest().body( new ResponseModelDTO(HttpStatus.BAD_REQUEST, e.getMessage()));
         }
     }
