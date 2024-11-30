@@ -121,4 +121,20 @@ public class DocumentController {
         }
     }
 
+    @GetMapping("/download/{documentId}")
+    public ResponseEntity<?> downloadDocument(@PathVariable String documentId) {
+        try {
+            Documents doc = documentService.getFile(documentId);
+
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                    .header("Content-Disposition", "attachment; filename=\"" + doc.getFileName() + "\"")
+                    .body(doc.getFileBytes());
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }

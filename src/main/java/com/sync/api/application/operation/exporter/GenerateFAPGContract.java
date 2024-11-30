@@ -1,8 +1,8 @@
 package com.sync.api.application.operation.exporter;
 
 import com.sync.api.application.operation.StringExtensions;
+import com.sync.api.domain.model.Address;
 import com.sync.api.domain.model.Project;
-import com.sync.api.domain.model.WorkPlanCompleteData;
 import org.apache.poi.xwpf.usermodel.*;
 import org.springframework.stereotype.Component;
 
@@ -21,10 +21,14 @@ public class GenerateFAPGContract {
         var data = project.getWorkPlan();
         var contractorAddress = project.getCompany().getAddress();
 
+        if(contractorAddress == null){
+            contractorAddress = new Address();
+        }
+
         var coordinator = project.getCoordinators();
 
 
-        try (InputStream inputStream = getClass().getResourceAsStream("/templates/Contrato_FAPG_template_template.doc")) {
+        try (InputStream inputStream = getClass().getResourceAsStream("/templates/Contrato_FAPG_template_template.docx")) {
             assert inputStream != null;
             try (XWPFDocument document = new XWPFDocument(inputStream);
                  ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
@@ -94,7 +98,7 @@ public class GenerateFAPGContract {
                         String text = run.getText(0);
                         if (text != null && text.contains("{{data_assinatura}}")) {
                             text = text.replace("{{data_assinatura}}",
-                                    FaseTableUtil.formatarDataPorExtenso(data.getDataAssinatura()));
+                                    FaseTableUtil.formatarDataPorExtenso(getValueOrDefault(data.getDataAssinatura())));
                             run.setText(text, 0);
                         }
                     }
@@ -109,8 +113,8 @@ public class GenerateFAPGContract {
                                 for (XWPFRun run : paragraph.getRuns()) {
                                     String text = run.getText(0);
                                     if (text != null) {
-                                        text = text.replace("{{contratante_nome}}", data.getContratanteNome() != null ? data.getContratanteNome() : "")
-                                                .replace("{{contratante_cargo}}", data.getContratanteCargo() != null ? data.getContratanteCargo() : "");
+                                        text = text.replace("{{contratante_nome}}", getValueOrDefault(data.getContratanteNome()))
+                                                .replace("{{contratante_cargo}}", getValueOrDefault(data.getContratanteCargo()));
                                         run.setText(text, 0);
                                     }
                                 }

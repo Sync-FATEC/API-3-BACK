@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 
 @Service
 public class DocumentService {
@@ -96,4 +97,13 @@ public class DocumentService {
         return true;
     }
 
+    public Documents getFile(String documentId) {
+        var docOp = documentRepository.findById(documentId);
+
+        if(docOp.isEmpty()){
+            throw new EntityNotFoundException("Documento não encontrado.");
+        }
+
+        return docOp.get();
+    }
 }

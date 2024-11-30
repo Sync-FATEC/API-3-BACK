@@ -137,11 +137,11 @@ public class PlanoDeTrabalhoController {
 			}
 
 			// Salvar os dados completos
+
+			project.setWorkPlan(completeData);
 			workPlanCompleteDataRepository.save(completeData);
+			projectRepository.save(project);
 
-			var user = authenticationService.getLoggedUser();
-
-			String fileName = "Plano_Trabalho_" + project.getProjectReference();
 			// Criando anexo
 			var workPlan = Documents.CreateWorkPlan(project, document);
 

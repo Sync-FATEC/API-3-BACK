@@ -13,6 +13,8 @@ public class ContractService
     private ProjectRepository projectRepository;
     @Autowired
     private DocumentRepository documentRepository;
+    @Autowired
+    private ProjectService projectService;
 
     @Autowired
     private GenerateFAPGContract contractGenerator;

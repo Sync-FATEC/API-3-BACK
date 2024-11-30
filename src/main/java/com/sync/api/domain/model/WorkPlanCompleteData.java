@@ -75,6 +75,9 @@ public class WorkPlanCompleteData {
 
 	private byte[] file;
 
+	private WorkPlanCompleteData() {
+	}
+
 	// Construtor completo
 	public WorkPlanCompleteData(String projectId,
 	                            String projectReference,

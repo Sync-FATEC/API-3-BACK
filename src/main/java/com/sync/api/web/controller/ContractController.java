@@ -15,9 +15,10 @@ public class ContractController {
     private ContractService contractService;
 
 
-    @PostMapping("generate")
-    public ResponseEntity<?> generateContract(@RequestBody String projectId) {
+    @GetMapping("generate/{projectId}")
+    public ResponseEntity<?> generateContract(@PathVariable String projectId) {
         try {
+            System.out.println("Generating contract for project: " + projectId);
             contractService.generateFPAGContract(projectId);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
