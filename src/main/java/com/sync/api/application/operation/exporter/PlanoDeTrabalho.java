@@ -65,6 +65,7 @@ public class PlanoDeTrabalho {
 									            .replace("{{company_empresa_privada}}", data.getCompanyEmpresaPrivada() != null ? data.getCompanyEmpresaPrivada() : "")
 									            .replace("{{project_title}}", data.getProjectTitle() != null ? data.getProjectTitle() : "")
 									            .replace("{{project_start_date}}", data.getProjectStartDate() != null ? data.getProjectStartDate().format(DateTimeFormatter.ISO_DATE) : "")
+									            .replace("{{project_end_date}}", data.getProjectEndDate() != null ? data.getProjectEndDate().format(DateTimeFormatter.ISO_DATE) : "")
 									            .replace("{{project_objective}}", data.getProjectObjective() != null ? data.getProjectObjective() : "")
 									            .replace("{{project_justificativa}}",
 											            data.getProjetoJustificativa() != null ? data.getProjetoJustificativa() : "")

@@ -23,6 +23,7 @@ public class WorkPlanCompleteData {
 	private String projectReference;
 	private String projectTitle;
 	private LocalDate projectStartDate;
+	private LocalDate projectEndDate;
 	@Lob
 	@Column(columnDefinition = "TEXT")
 	private String projectObjective;
@@ -83,6 +84,7 @@ public class WorkPlanCompleteData {
 	                            String projectReference,
 	                            String projectTitle,
 	                            LocalDate projectStartDate,
+								LocalDate projectEndDate,
 	                            String projectObjective,
 								String coordinatorName,
 	                            String coordinatorCPF,
@@ -113,6 +115,7 @@ public class WorkPlanCompleteData {
 		this.projectReference = projectReference;
 		this.projectTitle = projectTitle;
 		this.projectStartDate = projectStartDate;
+		this.projectEndDate = projectEndDate;
 		this.projectObjective = projectObjective;
 		this.coordinatorName = coordinatorName;
 		this.coordinatorCPF = coordinatorCPF;

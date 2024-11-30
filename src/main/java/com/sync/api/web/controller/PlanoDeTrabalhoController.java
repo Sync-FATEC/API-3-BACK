@@ -100,6 +100,7 @@ public class PlanoDeTrabalhoController {
 					project.getProjectReference(),
 					project.getProjectTitle(),
 					project.getProjectStartDate(),
+					project.getProjectEndDate(),
 					project.getProjectObjective(),
 					coordinatorName,
 					coordinatorCPF,
