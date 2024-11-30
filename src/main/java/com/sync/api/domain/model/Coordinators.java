@@ -5,7 +5,6 @@ import lombok.Data;
 
 @Entity
 @Data
-@Table(name = "coordinators")
 public class Coordinators {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -22,6 +21,6 @@ public class Coordinators {
     public String coordinatorEconomicActivity;
 
     @OneToOne
-    @JoinColumn(name = "address_id")
+    @JoinColumn(name = "coordinator_address_id")
     private Address address;
 }

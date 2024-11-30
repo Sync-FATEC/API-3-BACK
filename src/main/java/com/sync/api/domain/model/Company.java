@@ -5,7 +5,6 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "company")
 public class Company {
 
     @Id
@@ -19,6 +18,6 @@ public class Company {
     private boolean privateCompany;
 
     @OneToOne
-    @JoinColumn(name = "address_id")
+    @JoinColumn(name = "company_address_id")
     private Address address;
 }

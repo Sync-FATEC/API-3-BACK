@@ -66,6 +66,18 @@ public class Documents extends RepresentationModel<Documents> {
         return doc;
     }
 
+    public static Documents CreateContract(Project project, byte[] fileBytes) {
+        var doc = new Documents();
+        doc.setFileName("Contrato " +  project.getProjectReference() + ".docx");
+        doc.setFileType(FileType.CONTRATO);
+        doc.setProject(project);
+        doc.setUploadedAt(LocalDate.now());
+        doc.setFileBytes(fileBytes);
+
+        project.getDocuments().add(doc);
+        return doc;
+    }
+
     public String GenereateUrl() {
         this.fileUrl = this.documents_id  + "-" + this.fileName;
         return this.fileUrl;
