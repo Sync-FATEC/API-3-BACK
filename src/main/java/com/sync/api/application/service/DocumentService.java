@@ -1,5 +1,6 @@
 package com.sync.api.application.service;
 
+import com.sync.api.domain.enums.FileType;
 import com.sync.api.web.dto.project.HistoryProjectDto;
 import com.sync.api.web.dto.documents.DocumentUploadDto;
 import com.sync.api.web.exception.SystemContextException;
@@ -105,5 +106,27 @@ public class DocumentService {
         }
 
         return docOp.get();
+    }
+
+    public Documents saveDocument(String fileName, FileType fileType, byte[] fileBytes, Project project) {
+        try {
+            Documents document = new Documents();
+            document.setFileName(fileName);
+            document.setFileType(fileType);
+            document.setFileBytes(fileBytes);
+            document.setUploadedAt(LocalDate.now());
+            document.setProject(project);
+            documentRepository.save(document);
+
+            document.setFileUrl("/documents/get/" + document.getDocuments_id());
+
+            project.getDocuments().add(document);
+
+            projectRepository.save(project);
+
+            return documentRepository.save(document);
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao salvar o documento: " + e.getMessage(), e);
+        }
     }
 }

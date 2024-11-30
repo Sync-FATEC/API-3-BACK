@@ -1,6 +1,8 @@
 package com.sync.api.web.controller;
 
 import com.sync.api.application.operation.exporter.GenerateFAPGContract;
+import com.sync.api.application.service.DocumentService;
+import com.sync.api.domain.enums.FileType;
 import com.sync.api.domain.model.Project;
 import com.sync.api.infra.repository.ProjectRepository;
 import org.slf4j.Logger;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.sync.api.domain.model.Documents;
 
 @RestController
 @RequestMapping("/contracts")
@@ -22,11 +25,13 @@ public class ContractController {
 
     private final GenerateFAPGContract generateFAPGContract;
     private final ProjectRepository projectRepository;
+    private final DocumentService documentService;
 
     @Autowired
-    public ContractController(GenerateFAPGContract generateFAPGContract, ProjectRepository projectRepository) {
+    public ContractController(GenerateFAPGContract generateFAPGContract, ProjectRepository projectRepository, DocumentService documentService) {
         this.generateFAPGContract = generateFAPGContract;
         this.projectRepository = projectRepository;
+	    this.documentService = documentService;
     }
 
     @GetMapping("/generate/{projectId}")
@@ -35,6 +40,13 @@ public class ContractController {
         try {
             Project project = findProjectById(String.valueOf(projectId));
             byte[] contractBytes = generateFAPGContract.generateContract(project);
+
+            Documents contractDocument = documentService.saveDocument(
+                    "Contrato " + project.getProjectReference() + ".docx",
+                    FileType.CONTRATO,
+                    contractBytes,
+                    project
+            );
 
             HttpHeaders headers = new HttpHeaders();
             headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=contract.docx");
