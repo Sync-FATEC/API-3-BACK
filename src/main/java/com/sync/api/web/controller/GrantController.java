@@ -85,6 +85,21 @@ public class GrantController {
         }
     }
 
+    @PatchMapping("/activate/{id}")
+    public ResponseEntity<?> activateGrant(@PathVariable String id) {
+        try {
+            grantService.activateGrant(id); // Método de ativação
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body("Bolsa ativada");
+        } catch (DataIntegrityViolationException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Dados inválidos: " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erro inesperado: " + e.getMessage());
+        }
+    }
+
     @PutMapping("/update")
     public ResponseEntity<?> updateGrant(@RequestBody UpdateGrantDto grantDto){
         try {

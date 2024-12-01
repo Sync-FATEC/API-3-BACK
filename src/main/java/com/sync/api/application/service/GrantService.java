@@ -83,22 +83,18 @@ public class GrantService {
         }
     }
 
-    public void deactiveteGrant(String id){
-        try{
-            ScholarGrant grant = grantRepository.findById(id)
-                    .orElseThrow(() -> new EntityNotFoundException("Bolsa não encontrada com o id: " + id));
-            List< ScholarShipHolder> shipHolderList = scholarShipHolderRepository.findAll();
-            for (ScholarShipHolder scholarShipHolder : shipHolderList) {
-                if (scholarShipHolder.getGrant().getId().equals(id)) {
-                    scholarShipHolder.setRemoved(true);
-                    scholarShipHolderRepository.save(scholarShipHolder);
-                }
-            }
-            grant.setActive(false);
-            grantRepository.save(grant);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    public void deactiveteGrant(String id) {
+        ScholarGrant grant = grantRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Bolsa não encontrada"));
+        grant.setActive(false);
+        grantRepository.save(grant);
+    }
+
+    public void activateGrant(String id) {
+        ScholarGrant grant = grantRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Bolsa não encontrada"));
+        grant.setActive(true);
+        grantRepository.save(grant);
     }
 
     public ScholarGrant updateGrant(UpdateGrantDto updateGrantDto) {
@@ -144,3 +140,4 @@ public class GrantService {
     }
 
 }
+
