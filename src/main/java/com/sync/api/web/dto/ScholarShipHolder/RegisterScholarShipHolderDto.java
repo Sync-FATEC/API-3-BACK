@@ -13,4 +13,5 @@ public class RegisterScholarShipHolderDto {
 
     public CreateAddressDTO address;
     public String grantId;
+    public String projectId;
 }

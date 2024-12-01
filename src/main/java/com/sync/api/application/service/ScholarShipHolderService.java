@@ -2,11 +2,13 @@ package com.sync.api.application.service;
 
 import com.sync.api.application.AddressFactory;
 import com.sync.api.domain.model.Address;
+import com.sync.api.domain.model.Project;
 import com.sync.api.domain.model.ScholarGrant;
 import com.sync.api.domain.model.ScholarShipHolder;
 import com.sync.api.infra.repository.AddressRepository;
 import com.sync.api.infra.repository.GrantRepository;
 import com.sync.api.infra.repository.ScholarShipHolderRepository;
+import com.sync.api.infra.repository.ProjectRepository;
 import com.sync.api.web.dto.ScholarShipHolder.RegisterScholarShipHolderDto;
 import com.sync.api.web.dto.ScholarShipHolder.UpdateScholarShipHolderDto;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +29,8 @@ public class ScholarShipHolderService {
     private GrantRepository grantRepository;
     @Autowired
     private AddressRepository addressRepository;
+    @Autowired
+    private ProjectRepository projectRepository;
 
 
     public ScholarShipHolder createScholarShip(RegisterScholarShipHolderDto dto){
@@ -45,6 +49,9 @@ public class ScholarShipHolderService {
             ScholarGrant grant = grantRepository.findById(dto.getGrantId())
                     .orElseThrow(()-> new RuntimeException("erro bolsa nao encontrada"));
 
+            Project project = projectRepository.findById(dto.getProjectId())
+                    .orElseThrow(()-> new RuntimeException("erro projeto nao encontrado"));
+
             ScholarShipHolder scholarShipHolder = new ScholarShipHolder();
             scholarShipHolder.setName(dto.getName());
             scholarShipHolder.setEmail(dto.getEmail());
@@ -54,6 +61,7 @@ public class ScholarShipHolderService {
             scholarShipHolder.setAddress(address);
             scholarShipHolder.setRemoved(false);
             scholarShipHolder.setGrant(grant);
+            scholarShipHolder.setProject(project);
 
             return scholarShipHolderRepository.save(scholarShipHolder);
         } catch (Exception e) {
@@ -69,6 +77,9 @@ public class ScholarShipHolderService {
 
             ScholarGrant grant = grantRepository.findById(dto.getGrantId())
                     .orElseThrow(()-> new RuntimeException("erro bolsa nao encontrada"));
+
+            Project project = projectRepository.findById(dto.getProjectId())
+                    .orElseThrow(()-> new RuntimeException("erro projeto nao encontrado"));
 
             Address address = addressRepository.findById(dto.getAddress().getId())
                     .orElseThrow(()-> new RuntimeException("erro endereco nao encontrado"));
@@ -92,6 +103,7 @@ public class ScholarShipHolderService {
             scholarShipHolder.setAddress(address);
             scholarShipHolder.setRemoved(false);
             scholarShipHolder.setGrant(grant);
+            scholarShipHolder.setProject(project);
 
             scholarShipHolderRepository.save(scholarShipHolder);
             return scholarShipHolder;

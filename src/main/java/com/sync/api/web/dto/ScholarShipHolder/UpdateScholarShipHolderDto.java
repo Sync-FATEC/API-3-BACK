@@ -15,4 +15,5 @@ public class UpdateScholarShipHolderDto {
 
     public UpdateAddressDTO address;
     public String grantId;
+    public String projectId;
 }

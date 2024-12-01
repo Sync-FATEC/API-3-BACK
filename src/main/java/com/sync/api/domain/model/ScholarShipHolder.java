@@ -24,11 +24,15 @@ public class ScholarShipHolder {
     @JoinColumn(name = "address_id")
     private Address address;
 
+    @OneToOne
+    @JoinColumn(name = "project_id")
+    private Project project;
+
     @ManyToOne
     @JoinColumn(name = "grant_id")
     private ScholarGrant grant;
 
-    public ScholarShipHolder(String name, String email, String cpf, String rg, String nationality, Address address, ScholarGrant grant) {
+    public ScholarShipHolder(String name, String email, String cpf, String rg, String nationality, Address address, ScholarGrant grant, Project project) {
         this.name = name;
         this.email = email;
         this.cpf = cpf;
@@ -36,5 +40,6 @@ public class ScholarShipHolder {
         this.nationality = nationality;
         this.address = address;
         this.grant = grant;
+        this.project = project;
     }
 }
