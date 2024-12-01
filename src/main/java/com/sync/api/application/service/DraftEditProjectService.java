@@ -11,6 +11,7 @@ import com.sync.api.web.exception.SystemContextException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -27,6 +28,14 @@ public class DraftEditProjectService {
 
     public DraftEditProject getByProjectId(String id) {
         return draftEditProjectRepository.findByProjectId(id).orElse(null);
+    }
+
+    public DraftEditProject getById(String id) {
+        return draftEditProjectRepository.findById(id).orElse(null);
+    }
+
+    public List<DraftEditProject> getAll() {
+        return draftEditProjectRepository.findAll();
     }
 
     public DraftEditProject save(DraftEditProject draftEditProject) {
@@ -49,6 +58,15 @@ public class DraftEditProjectService {
         }
 
         return updateDraftEditProject.update(updateProjectDto, projectDraft);
+    }
+
+    public void delete(String id) {
+        try {
+            draftEditProjectRepository.findById(id)
+                    .ifPresent(draftEditProjectRepository::delete);
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao deletar projeto", e);
+        }
     }
 
 }
